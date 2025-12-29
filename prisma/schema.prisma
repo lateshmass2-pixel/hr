@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  HR_ADMIN
+  EMPLOYEE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  READY_FOR_REVIEW
+  COMPLETED
+}
+
+enum LogStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationStatus {
+  NEW
+  SCREENING
+  SHORTLISTED
+  INTERVIEW
+  OFFER_PENDING
+  HIRED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  clerkId   String   @unique
+  email     String   @unique
+  fullName  String?
+  role      Role     @default(EMPLOYEE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasksAssigned Task[]     @relation("AssignedTo")
+  dailyLogs     DailyLog[]
+  projectsManaged Project[] @relation("ManagedBy")
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  managerId   String
+  manager     User          @relation("ManagedBy", fields: [managerId], references: [id])
+  tasks       Task[]
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(TODO)
+  deadline    DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  assigneeId  String?
+  assignee    User?        @relation("AssignedTo", fields: [assigneeId], references: [id])
+}
+
+model DailyLog {
+  id        String    @id @default(uuid())
+  date      DateTime  @default(now())
+  content   String
+  status    LogStatus @default(PENDING)
+  feedback  String?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model JobApplication {
+  id            String            @id @default(uuid())
+  candidateName String
+  email         String
+  resumeUrl     String?
+  resumeText    String?
+  score         Int?
+  status        ApplicationStatus @default(NEW)
+  appliedAt     DateTime          @default(now())
+
+  workflowSteps WorkflowStep[]
+}
+
+model WorkflowStep {
+  id            String   @id @default(uuid())
+  stepName      String
+  status        String
+  notes         String?
+  applicationId String
+  application   JobApplication @relation(fields: [applicationId], references: [id])
+  createdAt     DateTime @default(now())
+}
