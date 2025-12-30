@@ -97,24 +97,41 @@ export async function getEmployees() {
 
 export async function createProject(prevState: ActionState, formData: FormData): Promise<ActionState> {
     const supabase = await createClient()
+
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+        console.error('Auth Error:', authError)
+        return { message: 'Unauthorized: Please log in to create a project' }
+    }
+
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const status = formData.get('status') as string
     const dateStr = formData.get('due_date') as string
 
-    const due_date = dateStr ? new Date(dateStr).toISOString() : null
-
-    const { error } = await supabase.from('projects').insert({
-        title,
-        description,
-        status,
-        due_date
-    })
-
-    if (error) {
-        return { message: error.message }
+    // Validation
+    if (!title || title.trim() === '') {
+        return { message: 'Title is required' }
     }
 
+    const due_date = dateStr ? new Date(dateStr).toISOString() : null
+
+    const { data, error } = await supabase.from('projects').insert({
+        title,
+        description: description || null,
+        status: status || 'ACTIVE',
+        due_date,
+        created_by: user.id
+    }).select()
+
+    if (error) {
+        console.error('Supabase Write Error:', error)
+        return { message: `Failed to create project: ${error.message}` }
+    }
+
+    console.log('Project created successfully:', data)
     revalidatePath('/dashboard/projects')
     return { message: 'Success' }
 }

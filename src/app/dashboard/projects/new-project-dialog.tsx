@@ -22,9 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useFormState } from "react-dom"
+import { useEffect, useState, useActionState } from "react"
 import { useFormStatus } from "react-dom"
-import { useEffect, useState } from "react"
 
 const initialState: ActionState = {
     message: '',
@@ -40,7 +39,7 @@ function SubmitButton() {
 }
 
 export function NewProjectDialog() {
-    const [state, formAction] = useFormState(createProject, initialState)
+    const [state, formAction] = useActionState(createProject, initialState)
     const [open, setOpen] = useState(false)
 
     useEffect(() => {

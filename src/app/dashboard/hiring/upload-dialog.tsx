@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -12,9 +12,21 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
-import { processApplication } from "./actions"
+import { processApplication, getJobs } from "./actions"
 import { Progress } from "@/components/ui/progress"
+
+type Job = {
+    id: string
+    title: string
+}
 
 export function UploadDialog() {
     const [isOpen, setIsOpen] = useState(false)
@@ -22,6 +34,19 @@ export function UploadDialog() {
     const [uploading, setUploading] = useState(false)
     const [results, setResults] = useState<any[]>([])
     const [currentFileIndex, setCurrentFileIndex] = useState(0)
+    const [jobs, setJobs] = useState<Job[]>([])
+    const [selectedJobId, setSelectedJobId] = useState<string>("general")
+    const [loadingJobs, setLoadingJobs] = useState(false)
+
+    useEffect(() => {
+        if (isOpen) {
+            setLoadingJobs(true)
+            getJobs().then((data) => {
+                setJobs(data)
+                setLoadingJobs(false)
+            })
+        }
+    }, [isOpen])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -41,7 +66,10 @@ export function UploadDialog() {
             const file = files[i]
             const formData = new FormData()
             formData.append('resume', file)
-            formData.append('jobId', 'default-job-id') // TODO: Select actual job
+            // Only send jobId if a specific job is selected (not "general")
+            if (selectedJobId && selectedJobId !== "general") {
+                formData.append('jobId', selectedJobId)
+            }
             // We don't send name/email here, relying on AI extraction
 
             try {
@@ -70,6 +98,30 @@ export function UploadDialog() {
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="job">Job Posting (Optional)</Label>
+                        {loadingJobs ? (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Loading jobs...
+                            </div>
+                        ) : (
+                            <Select value={selectedJobId} onValueChange={setSelectedJobId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a job (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="general">General Application</SelectItem>
+                                    {jobs.map((job) => (
+                                        <SelectItem key={job.id} value={job.id}>
+                                            {job.title}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </div>
+
                     <div className="grid gap-2">
                         <Label htmlFor="resume">Select Files (PDF)</Label>
                         <Input

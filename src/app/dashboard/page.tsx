@@ -1,6 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { AddEmployeeDialog } from "./add-employee-dialog";
+import { EmployeeList } from "./employee-list";
+import { Users, Briefcase, CheckSquare, FileText } from "lucide-react";
 
 export default async function DashboardPage() {
     const supabase = await createClient();
@@ -8,21 +10,63 @@ export default async function DashboardPage() {
 
     if (!user) return null;
 
+    // Fetch all stats in parallel
+    const [
+        { count: activeProjects },
+        { count: pendingTasks },
+        { count: applications },
+        { count: teamMembers },
+        { data: employees }
+    ] = await Promise.all([
+        supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
+        supabase.from('tasks').select('*', { count: 'exact', head: true }).neq('status', 'COMPLETED'),
+        supabase.from('applications').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'EMPLOYEE'),
+        supabase.from('profiles').select('*').eq('role', 'EMPLOYEE').order('created_at', { ascending: false })
+    ]);
+
     const stats = [
-        { label: "Active Projects", value: "3" },
-        { label: "Pending Tasks", value: "12" },
-        { label: "Applications", value: "24" },
-        { label: "Team Members", value: "8" },
+        {
+            label: "Active Projects",
+            value: activeProjects || 0,
+            icon: Briefcase,
+            color: "text-blue-500"
+        },
+        {
+            label: "Pending Tasks",
+            value: pendingTasks || 0,
+            icon: CheckSquare,
+            color: "text-orange-500"
+        },
+        {
+            label: "Applications",
+            value: applications || 0,
+            icon: FileText,
+            color: "text-purple-500"
+        },
+        {
+            label: "Team Members",
+            value: teamMembers || 0,
+            icon: Users,
+            color: "text-green-500"
+        },
     ];
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
             <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-                <div className="text-sm text-muted-foreground">
-                    Welcome back, {user.user_metadata?.full_name || user.email}
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+                    <p className="text-muted-foreground mt-1">
+                        Welcome back, {user.user_metadata?.full_name?.split(' ')[0] || 'Admin'}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <AddEmployeeDialog />
                 </div>
             </div>
+
+            {/* Stats Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {stats.map((stat, i) => (
                     <Card key={i}>
@@ -30,6 +74,7 @@ export default async function DashboardPage() {
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 {stat.label}
                             </CardTitle>
+                            <stat.icon className={`h-4 w-4 ${stat.color}`} />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{stat.value}</div>
@@ -37,38 +82,15 @@ export default async function DashboardPage() {
                     </Card>
                 ))}
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
+
+            <div className="grid gap-4 md:grid-cols-7">
+                {/* Team Management Section */}
+                <Card className="md:col-span-7">
                     <CardHeader>
-                        <CardTitle>Review Pipeline</CardTitle>
+                        <CardTitle>Team Management</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[200px] flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-md">
-                            Statistics Graph
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="col-span-3">
-                    <CardHeader>
-                        <CardTitle>Recent Activity</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-6">
-                            <div className="flex items-center">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none">New Application</p>
-                                    <p className="text-sm text-muted-foreground">Alex Smith applied for Frontend Dev</p>
-                                </div>
-                                <div className="ml-auto text-xs text-muted-foreground">2m ago</div>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none">Task Completed</p>
-                                    <p className="text-sm text-muted-foreground">Landing Page Design</p>
-                                </div>
-                                <div className="ml-auto text-xs text-muted-foreground">1h ago</div>
-                            </div>
-                        </div>
+                        <EmployeeList employees={employees || []} />
                     </CardContent>
                 </Card>
             </div>

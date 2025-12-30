@@ -14,8 +14,17 @@ export default async function DashboardLayout({
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect("/sign-in");
+        redirect("/login");
     }
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    // Default to EMPLOYEE if no profile/role found to be safe
+    const role = profile?.role || 'EMPLOYEE';
 
     return (
         <div className="flex min-h-screen bg-gray-50 dark:bg-black">
@@ -25,18 +34,36 @@ export default async function DashboardLayout({
                     <span className="font-bold text-lg">HEMS Portal</span>
                 </div>
                 <nav className="p-4 space-y-2">
-                    <NavLink href="/dashboard" icon={<LayoutDashboard size={20} />} label="Overview" />
-                    <NavLink href="/dashboard/projects" icon={<CheckSquare size={20} />} label="Projects & Tasks" />
-                    <NavLink href="/dashboard/hiring" icon={<Users size={20} />} label="Hiring Pipeline" />
-                    <NavLink href="/dashboard/performance" icon={<FileText size={20} />} label="Performance" />
-                    <NavLink href="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />
+                    {role === 'HR_ADMIN' ? (
+                        <>
+                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                HR Workspace
+                            </div>
+                            <NavLink href="/dashboard" icon={<LayoutDashboard size={20} />} label="Overview" />
+                            <NavLink href="/dashboard/projects" icon={<CheckSquare size={20} />} label="Projects & Tasks" />
+                            <NavLink href="/dashboard/hiring" icon={<Users size={20} />} label="Hiring Pipeline" />
+                            <NavLink href="/dashboard/performance" icon={<FileText size={20} />} label="Performance" />
+                            <NavLink href="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />
+                        </>
+                    ) : (
+                        <>
+                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                Employee
+                            </div>
+                            <NavLink href="/dashboard/employee" icon={<LayoutDashboard size={20} />} label="My Dashboard" />
+                            <div className="my-2 border-t border-gray-100 dark:border-white/10" />
+                            <NavLink href="/dashboard/employee/settings" icon={<Settings size={20} />} label="Settings" />
+                        </>
+                    )}
                 </nav>
             </aside>
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col">
                 <header className="h-16 border-b border-gray-200 dark:border-white/10 flex items-center justify-between px-6 bg-white dark:bg-black">
-                    <h1 className="font-medium text-sm text-gray-500">Workspace / HR</h1>
+                    <h1 className="font-medium text-sm text-gray-500">
+                        Workspace / {role === 'HR_ADMIN' ? 'HR' : 'Employee'}
+                    </h1>
                     <UserNav />
                 </header>
                 <main className="flex-1 p-6 overflow-auto">

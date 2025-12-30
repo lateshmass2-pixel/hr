@@ -47,9 +47,9 @@ export default function LoginPage() {
                     if (profile?.role === 'HR_ADMIN') {
                         router.push('/dashboard')
                     } else if (profile?.role === 'EMPLOYEE') {
-                        router.push('/dashboard')
+                        router.push('/dashboard/employee')
                     } else {
-                        router.push('/dashboard')
+                        router.push('/onboarding')
                     }
                 } else {
                     // No session, show login form
@@ -94,8 +94,8 @@ export default function LoginPage() {
                 router.refresh()
 
                 if (profile?.role === 'HR_ADMIN') router.push('/dashboard')
-                else if (profile?.role === 'EMPLOYEE') router.push('/dashboard')
-                else router.push('/dashboard')
+                else if (profile?.role === 'EMPLOYEE') router.push('/dashboard/employee')
+                else router.push('/onboarding')
             }
         } catch (err: any) {
             setError(err.message)
@@ -245,7 +245,7 @@ export default function LoginPage() {
                             <Card className="border-white/10 bg-zinc-900/50 backdrop-blur-md shadow-2xl">
                                 <CardHeader>
                                     <CardTitle className="text-xl text-white">Welcome Back</CardTitle>
-                                    <CardDescription className="text-zinc-500">Sign in to your dashboard.</CardDescription>
+                                    <CardDescription className="text-zinc-500">Sign in to your account.</CardDescription>
                                 </CardHeader>
                                 <form onSubmit={onLogin}>
                                     <CardContent className="space-y-4">
