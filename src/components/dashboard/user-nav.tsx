@@ -45,29 +45,29 @@ export function UserNav() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-gray-100">
                     <Avatar className="h-10 w-10">
                         <AvatarImage src="" alt={userName || userEmail || "User"} />
-                        <AvatarFallback className="bg-zinc-800 text-white">
+                        <AvatarFallback className="bg-gradient-to-br from-orange-500 to-red-500 text-white font-semibold">
                             {initials}
                         </AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-zinc-900 border-zinc-800" align="end" forceMount>
+            <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-lg" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none text-white">
+                        <p className="text-sm font-semibold leading-none text-gray-900">
                             {userName || 'Account'}
                         </p>
-                        <p className="text-xs leading-none text-zinc-400">
+                        <p className="text-xs leading-none text-gray-500">
                             {userEmail || 'user@example.com'}
                         </p>
                     </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-zinc-800" />
+                <DropdownMenuSeparator className="bg-gray-100" />
                 <DropdownMenuItem
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer focus:bg-red-50 focus:text-red-700"
                     onClick={handleSignOut}
                 >
                     <LogOut className="mr-2 h-4 w-4" />

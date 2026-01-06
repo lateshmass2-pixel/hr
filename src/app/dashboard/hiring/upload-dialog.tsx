@@ -40,6 +40,12 @@ export function UploadDialog() {
 
     useEffect(() => {
         if (isOpen) {
+            // Reset state when dialog opens
+            setFiles([])
+            setResults([])
+            setCurrentFileIndex(0)
+            setSelectedJobId("general")
+
             setLoadingJobs(true)
             getJobs().then((data) => {
                 setJobs(data)
@@ -85,7 +91,7 @@ export function UploadDialog() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-[#0066FF] hover:bg-blue-600 text-white">
+                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
                     <Upload className="mr-2 h-4 w-4" /> Upload Resumes
                 </Button>
             </DialogTrigger>

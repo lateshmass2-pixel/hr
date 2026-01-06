@@ -6,9 +6,10 @@ import { notFound } from "next/navigation"
 import { TaskBoard } from "./task-board"
 import { NewTaskDialog } from "./new-task-dialog"
 
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
-    const project = await getProject(params.id)
-    const tasks = await getTasks(params.id)
+export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    const project = await getProject(id)
+    const tasks = await getTasks(id)
     const employees = await getEmployees()
 
     if (!project) return notFound()

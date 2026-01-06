@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { LogOut, ClipboardList, CheckCircle2, Clock, CheckSquare } from "lucide-react"
 import { updateTaskStatus } from "./actions"
@@ -41,104 +40,154 @@ export default async function EmployeeDashboard() {
     const completedTasks = tasks?.filter(t => ['READY_FOR_REVIEW', 'COMPLETED'].includes(t.status)) || []
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Employee Workspace</h2>
-                    <p className="text-muted-foreground">
-                        Welcome, <span className="font-medium">{userName}</span>
-                    </p>
+        <div className="min-h-screen bg-hems-bg">
+            <div className="space-y-8">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">My Workspace</h2>
+                        <p className="text-gray-500 mt-1">
+                            Welcome, <span className="font-medium text-gray-900">{userName}</span>
+                        </p>
+                    </div>
+                    <form action={signOut}>
+                        <Button variant="outline" type="submit" className="border-gray-200 text-gray-600 hover:border-hems-primary hover:text-hems-primary">
+                            <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                        </Button>
+                    </form>
                 </div>
-                <form action={signOut}>
-                    <Button variant="outline" type="submit">
-                        <LogOut className="mr-2 h-4 w-4" /> Sign Out
-                    </Button>
-                </form>
-            </div>
 
-            {/* Active Tasks */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <ClipboardList className="h-5 w-5 text-blue-500" /> Current Tasks
-                </h3>
-                {activeTasks.length === 0 ? (
-                    <Card className="bg-muted/50 border-dashed">
-                        <CardContent className="h-32 flex items-center justify-center text-muted-foreground">
-                            No active tasks assigned to you.
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {activeTasks.map(task => (
-                            <Card key={task.id} className="border-l-4 border-l-blue-500">
-                                <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                        <Badge variant="outline" className="mb-2 uppercase text-xs">
+                {/* Active Tasks */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <div className="bg-purple-100 text-purple-600 rounded-full p-2">
+                            <ClipboardList className="h-5 w-5" />
+                        </div>
+                        My Active Tasks
+                    </h3>
+                    {activeTasks.length === 0 ? (
+                        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-12 text-center">
+                            <p className="text-gray-500">No active tasks assigned to you.</p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            {activeTasks.map(task => (
+                                <div
+                                    key={task.id}
+                                    className="bg-white rounded-lg border border-gray-200 p-5 hover:border-hems-primary/30 transition-colors"
+                                >
+                                    {/* Header */}
+                                    <div className="flex justify-between items-start gap-2 mb-3">
+                                        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-600 text-xs">
                                             {task.project?.title || 'No Project'}
                                         </Badge>
-                                        <Badge variant={task.priority === 'HIGH' ? 'destructive' : 'secondary'}>
+                                        <Badge className={
+                                            task.priority === 'HIGH'
+                                                ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                                : 'bg-gray-100 text-gray-600 border-gray-200'
+                                        }>
                                             {task.priority}
                                         </Badge>
                                     </div>
-                                    <CardTitle className="text-base">{task.title}</CardTitle>
+
+                                    {/* Title */}
+                                    <h4 className="font-semibold text-base text-gray-900 mb-2">{task.title}</h4>
+
+                                    {/* Deadline */}
                                     {task.deadline && (
-                                        <CardDescription className="flex items-center gap-1 text-xs">
+                                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
                                             <Clock className="h-3 w-3" />
                                             Due {format(new Date(task.deadline), 'MMM d')}
-                                        </CardDescription>
+                                        </div>
                                     )}
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+
+                                    {/* Description */}
+                                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed mb-4">
                                         {task.description}
                                     </p>
+
+                                    {/* Action Button */}
                                     <form action={async () => {
                                         'use server'
                                         await updateTaskStatus(task.id, 'READY_FOR_REVIEW')
                                     }}>
-                                        <Button size="sm" className="w-full">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full border-gray-200 text-gray-600 hover:border-hems-primary hover:text-hems-primary hover:bg-white"
+                                        >
                                             <CheckCircle2 className="mr-2 h-4 w-4" /> Mark as Done
                                         </Button>
                                     </form>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                )}
-            </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-            {/* Task History */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <CheckSquare className="h-5 w-5 text-green-500" /> Task History
-                </h3>
-                <Card>
-                    <CardContent className="p-0">
+                {/* Task History */}
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <div className="bg-purple-100 text-purple-600 rounded-full p-2">
+                            <CheckSquare className="h-5 w-5" />
+                        </div>
+                        Task History
+                    </h3>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         {completedTasks.length === 0 ? (
-                            <div className="p-8 text-center text-muted-foreground">
+                            <div className="p-8 text-center text-gray-500">
                                 No completed tasks yet.
                             </div>
                         ) : (
-                            <div className="divide-y">
-                                {completedTasks.map(task => (
-                                    <div key={task.id} className="flex items-center justify-between p-4 hover:bg-muted/50">
-                                        <div className="space-y-1">
-                                            <p className="font-medium text-sm line-through text-muted-foreground">
-                                                {task.title}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {task.project?.title} • {format(new Date(task.updated_at), 'MMM d, yyyy')}
-                                            </p>
-                                        </div>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                            {task.status.replace(/_/g, ' ')}
-                                        </Badge>
-                                    </div>
-                                ))}
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Task
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Project
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Completed
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-50">
+                                        {completedTasks.map(task => (
+                                            <tr key={task.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <p className="text-sm font-medium text-gray-900 line-through">
+                                                        {task.title}
+                                                    </p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <p className="text-sm text-gray-500">
+                                                        {task.project?.title || '-'}
+                                                    </p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <p className="text-sm text-gray-500">
+                                                        {format(new Date(task.updated_at), 'MMM d, yyyy')}
+                                                    </p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <Badge className="bg-green-50 text-green-700 border-green-200">
+                                                        {task.status.replace(/_/g, ' ')}
+                                                    </Badge>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     )

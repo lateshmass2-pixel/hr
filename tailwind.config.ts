@@ -52,6 +52,16 @@ const config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                // HEMS Clean Enterprise Theme (White/Orange/Gray)
+                hems: {
+                    bg: '#F3F4F6',        // Cool Gray 100 - App Background
+                    surface: '#FFFFFF',   // Pure White - Sidebar/Cards
+                    primary: '#F97316',   // Orange-500 - Primary Accent
+                    success: '#10B981',   // Emerald-500 - Success States
+                    text: '#111827',      // Gray-900 - Main Text
+                    muted: '#6B7280',     // Gray-500 - Muted Text
+                    border: '#E5E7EB',    // Gray-200 - Borders
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",

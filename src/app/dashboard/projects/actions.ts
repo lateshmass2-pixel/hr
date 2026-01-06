@@ -27,10 +27,10 @@ export type Task = {
 
 export type Employee = {
     id: string
-    name: string
+    full_name: string
     email: string
-    role: string | null
-    avatar_url: string | null
+    position: string | null
+    role: string
 }
 
 export type ActionState = {
@@ -71,7 +71,7 @@ export async function getTasks(projectId: string) {
         .from('tasks')
         .select(`
       *,
-      assignee:employees(*)
+      assignee:profiles!tasks_assigned_to_fkey(id, full_name, email, position)
     `)
         .eq('project_id', projectId)
         .order('created_at', { ascending: false })
@@ -87,11 +87,15 @@ export async function getTasks(projectId: string) {
 export async function getEmployees() {
     const supabase = await createClient()
     const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .order('name')
+        .from('profiles')
+        .select('id, full_name, email, position, role')
+        .eq('role', 'EMPLOYEE')
+        .order('full_name')
 
-    if (error) return []
+    if (error) {
+        console.error('Error fetching employees:', error)
+        return []
+    }
     return data as Employee[]
 }
 
@@ -169,7 +173,7 @@ export async function updateTaskStatus(taskId: string, status: string, projectId
 
     const { error } = await supabase
         .from('tasks')
-        .update({ status })
+        .update({ status, updated_at: new Date().toISOString() })
         .eq('id', taskId)
 
     if (error) {
@@ -180,3 +184,47 @@ export async function updateTaskStatus(taskId: string, status: string, projectId
     revalidatePath(`/dashboard/projects/${projectId}`)
     return { success: true }
 }
+
+export async function deleteTask(taskId: string, projectId: string) {
+    const supabase = await createClient()
+
+    const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId)
+
+    if (error) {
+        console.error('Delete Task Error:', error)
+        return { success: false, message: error.message }
+    }
+
+    revalidatePath(`/dashboard/projects/${projectId}`)
+    return { success: true, message: 'Task deleted successfully' }
+}
+
+export async function deleteProject(projectId: string) {
+    'use server'
+
+    const supabase = await createClient()
+
+    // First, delete all tasks associated with this project
+    // (in case CASCADE is not set up)
+    await supabase
+        .from('tasks')
+        .delete()
+        .eq('project_id', projectId)
+
+    // Then delete the project
+    const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId)
+
+    if (error) {
+        throw new Error(error.message)
+    }
+
+    revalidatePath('/dashboard/projects')
+    return { success: true }
+}
+

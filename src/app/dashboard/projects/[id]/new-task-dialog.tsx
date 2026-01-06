@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useFormState } from "react-dom"
+import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { useEffect, useState } from "react"
 
@@ -40,7 +40,7 @@ function SubmitButton() {
 }
 
 export function NewTaskDialog({ projectId, employees }: { projectId: string, employees: Employee[] }) {
-    const [state, formAction] = useFormState(createTask, initialState)
+    const [state, formAction] = useActionState(createTask, initialState)
     const [open, setOpen] = useState(false)
 
     useEffect(() => {
@@ -90,7 +90,7 @@ export function NewTaskDialog({ projectId, employees }: { projectId: string, emp
                                     </SelectTrigger>
                                     <SelectContent>
                                         {employees.map(emp => (
-                                            <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                                            <SelectItem key={emp.id} value={emp.id}>{emp.full_name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>

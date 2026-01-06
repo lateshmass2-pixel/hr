@@ -59,11 +59,13 @@ export function TaskBoard({ tasks, projectId }: { tasks: Task[], projectId: stri
 
                                             <div className="flex items-center justify-between pt-1">
                                                 {task.assignee ? (
-                                                    <div className="flex items-center gap-2" title={task.assignee.name}>
+                                                    <div className="flex items-center gap-2" title={task.assignee.full_name}>
                                                         <Avatar className="h-6 w-6">
-                                                            <AvatarImage src={task.assignee.avatar_url || ""} />
-                                                            <AvatarFallback className="text-[10px]">{task.assignee.name.charAt(0)}</AvatarFallback>
+                                                            <AvatarFallback className="text-[10px] bg-blue-100 text-blue-700">
+                                                                {task.assignee.full_name.charAt(0).toUpperCase()}
+                                                            </AvatarFallback>
                                                         </Avatar>
+                                                        <span className="text-xs text-gray-700">{task.assignee.full_name.split(' ')[0]}</span>
                                                     </div>
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground italic">Unassigned</span>

@@ -1,59 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 220 14% 96%;
+    --foreground: 224 71% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 25 95% 53%;
+    --radius: 0.75rem;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#F3F4F6] text-[#111827] antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+@layer components {
+
+  /* Clean Enterprise Card Style */
+  .clean-card {
+    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100;
+  }
+
+  /* Typography */
+  .clean-header {
+    @apply text-gray-900 font-bold tracking-tight;
+  }
+
+  .clean-label {
+    @apply text-gray-500 text-sm font-medium;
+  }
+
+  /* Buttons */
+  .clean-button-primary {
+    @apply bg-orange-500 text-white px-6 py-3 rounded-full font-bold hover:bg-orange-600 transition-all active:scale-95 shadow-lg shadow-orange-200;
+  }
+
+  .clean-button-secondary {
+    @apply bg-gray-100 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-200 transition-all;
+  }
+
+  /* Promo/CTA Gradient Card */
+  .clean-promo {
+    @apply bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-6;
+  }
+
+  /* Status Badges */
+  .badge-success {
+    @apply bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-warning {
+    @apply bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-late {
+    @apply bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 text-gray-500 font-medium rounded-xl transition-all duration-200 hover:bg-gray-50 hover:text-gray-900;
+  }
+
+  .nav-item-active {
+    @apply flex items-center gap-3 px-4 py-3 text-orange-600 font-bold rounded-xl bg-orange-50 border-l-4 border-orange-500;
+  }
+}
+
+@layer utilities {
+
+  /* Tight tracking for headings */
+  .heading-tight {
+    @apply tracking-tight font-semibold;
+  }
+
+  /* Premium shadow system */
+  .shadow-premium {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-premium-md {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+
+  .shadow-premium-lg {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Orange glow for accents */
+  .glow-orange {
+    box-shadow: 0 0 20px -5px rgba(249, 115, 22, 0.3);
   }
 }
