@@ -1,6 +1,6 @@
 import { getApplication } from "../actions"
 import { notFound } from "next/navigation"
-import { AssessmentForm } from "../assessment-form"
+import { ProctoredAssessmentForm } from "../proctored-assessment-form"
 import { CheckCircle2, Clock, AlertTriangle } from "lucide-react"
 
 type Props = {
@@ -106,7 +106,11 @@ export default async function AssessmentPage(props: Props) {
                         </p>
                     </div>
 
-                    <AssessmentForm questions={questions} applicationId={application.id} />
+                    <ProctoredAssessmentForm
+                        questions={questions}
+                        applicationId={application.id}
+                        candidateName={application.candidate_name}
+                    />
                 </div>
             </div>
         )

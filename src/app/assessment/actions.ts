@@ -172,3 +172,40 @@ export async function getApplication(id: string) {
     }
     return data
 }
+
+export async function rejectApplication(applicationId: string, reason: string) {
+    const supabase = await createClient()
+
+    console.log('🚫 Rejecting application due to proctoring violation:', applicationId)
+
+    // Fetch the application for email
+    const { data: app } = await supabase
+        .from('applications')
+        .select('candidate_name, candidate_email, ai_reasoning')
+        .eq('id', applicationId)
+        .single()
+
+    // Update status to REJECTED
+    const { error: updateError } = await supabase
+        .from('applications')
+        .update({
+            status: 'REJECTED',
+            ai_reasoning: `${app?.ai_reasoning || ''}\n\n**Proctoring Result:** ${reason}`
+        })
+        .eq('id', applicationId)
+
+    if (updateError) {
+        console.error('❌ Failed to reject application:', updateError)
+        return { success: false, message: updateError.message }
+    }
+
+    // Send rejection email
+    if (app?.candidate_email && app?.candidate_name) {
+        await sendRejectionEmail(app.candidate_email, app.candidate_name)
+    }
+
+    revalidatePath('/dashboard/hiring')
+
+    console.log('✅ Application rejected successfully')
+    return { success: true }
+}
