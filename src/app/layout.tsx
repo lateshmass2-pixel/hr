@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { HemsProvider } from "@/context/HemsContext";
 
 const font = Inter({ subsets: ["latin"] });
 
@@ -21,9 +22,12 @@ export default function RootLayout({
         "min-h-screen bg-background font-sans antialiased text-sm selection:bg-purple-100 selection:text-purple-900",
         font.className
       )}>
-        {children}
+        <HemsProvider>
+          {children}
+        </HemsProvider>
       </body>
     </html>
   );
 }
+
 

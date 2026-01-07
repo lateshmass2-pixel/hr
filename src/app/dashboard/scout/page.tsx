@@ -34,64 +34,8 @@ interface Candidate {
     education: string
 }
 
-// Mock candidate data with expanded fields
-const MOCK_CANDIDATES: Candidate[] = [
-    {
-        id: 1,
-        name: 'Sarah Chen',
-        role: 'Senior Frontend Engineer',
-        company: 'TechCorp',
-        experience: '8 Years',
-        location: 'San Francisco, CA',
-        skills: ['React', 'TypeScript', 'Node.js', 'GraphQL'],
-        matchScore: 95,
-        platform: 'linkedin',
-        profileUrl: 'https://linkedin.com/in/example',
-        about: 'Passionate frontend engineer with 8+ years of experience building scalable web applications. Led multiple product launches at Fortune 500 companies. Strong advocate for clean code and user-centric design.',
-        experienceHistory: [
-            { role: 'Senior Frontend Engineer', company: 'TechCorp', years: '2021 - Present', startYear: '2021', endYear: 'Present', description: 'Leading frontend architecture for enterprise SaaS products. Mentoring team of 5 developers.', isCurrent: true },
-            { role: 'Frontend Developer', company: 'StartupABC', years: '2018 - 2021', startYear: '2018', endYear: '2021', description: 'Built React-based dashboard that increased user engagement by 40%.', isCurrent: false },
-            { role: 'Junior Developer', company: 'WebAgency', years: '2016 - 2018', startYear: '2016', endYear: '2018', description: 'Developed client websites using modern JavaScript frameworks.', isCurrent: false },
-        ],
-        education: 'Stanford University - B.S. Computer Science',
-    },
-    {
-        id: 2,
-        name: 'Marcus Johnson',
-        role: 'Full Stack Developer',
-        company: 'StartupXYZ',
-        experience: '5 Years',
-        location: 'New York, NY',
-        skills: ['Python', 'React', 'AWS', 'Django'],
-        matchScore: 88,
-        platform: 'github',
-        profileUrl: 'https://github.com/example',
-        about: 'Full stack developer specializing in Python and React. Open source contributor with 500+ GitHub contributions. Built products serving millions of users.',
-        experienceHistory: [
-            { role: 'Full Stack Developer', company: 'StartupXYZ', years: '2020 - Present', startYear: '2020', endYear: 'Present', description: 'Building scalable microservices architecture serving 2M+ users.', isCurrent: true },
-            { role: 'Backend Developer', company: 'DataCo', years: '2019 - 2020', startYear: '2019', endYear: '2020', description: 'Developed data pipelines and RESTful APIs.', isCurrent: false },
-        ],
-        education: 'MIT - M.S. Software Engineering',
-    },
-    {
-        id: 3,
-        name: 'Emily Rodriguez',
-        role: 'Lead UI/UX Developer',
-        company: 'DesignHub',
-        experience: '7 Years',
-        location: 'Austin, TX',
-        skills: ['Figma', 'React', 'CSS', 'Framer'],
-        matchScore: 72,
-        platform: 'linkedin',
-        profileUrl: 'https://linkedin.com/in/example',
-        about: 'Design-focused developer bridging the gap between design and engineering. Expert in creating pixel-perfect implementations of complex UI systems.',
-        experienceHistory: [
-            { role: 'Lead UI/UX Developer', company: 'DesignHub', years: '2019 - Present', startYear: '2019', endYear: 'Present', description: 'Leading design system development and front-end implementation.', isCurrent: true },
-            { role: 'UI Developer', company: 'CreativeStudio', years: '2017 - 2019', startYear: '2017', endYear: '2019', description: 'Created responsive web interfaces for e-commerce clients.', isCurrent: false },
-        ],
-        education: 'Carnegie Mellon - B.Des Human-Computer Interaction',
-    },
-]
+// Candidates (fetched from Supabase)
+const MOCK_CANDIDATES: Candidate[] = []
 
 export default function ScoutPage() {
     const [role, setRole] = useState('')

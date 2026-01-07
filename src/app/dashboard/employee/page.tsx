@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { LogOut, ClipboardList, CheckCircle2, Clock, CheckSquare } from "lucide-react"
+import { LogOut, ClipboardList, CheckCircle2, Clock, CheckSquare, Megaphone, AlertCircle } from "lucide-react"
 import { updateTaskStatus } from "./actions"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { getAnnouncements } from "../announcements/actions"
 
 export const dynamic = 'force-dynamic'
 
@@ -39,6 +40,9 @@ export default async function EmployeeDashboard() {
     const activeTasks = tasks?.filter(t => ['TODO', 'IN_PROGRESS'].includes(t.status)) || []
     const completedTasks = tasks?.filter(t => ['READY_FOR_REVIEW', 'COMPLETED'].includes(t.status)) || []
 
+    // Fetch announcements
+    const announcements = await getAnnouncements()
+
     return (
         <div className="min-h-screen bg-hems-bg">
             <div className="space-y-8">
@@ -56,6 +60,53 @@ export default async function EmployeeDashboard() {
                         </Button>
                     </form>
                 </div>
+
+                {/* Announcements Section */}
+                {announcements.length > 0 && (
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <div className="bg-orange-100 text-orange-600 rounded-full p-2">
+                                <Megaphone className="h-5 w-5" />
+                            </div>
+                            Company Announcements
+                        </h3>
+                        <div className="grid gap-4">
+                            {announcements.slice(0, 3).map((announcement: { id: string; title: string; content: string; priority: string; created_at: string; creator?: { full_name: string } }) => (
+                                <div
+                                    key={announcement.id}
+                                    className={`bg-white rounded-xl border p-5 ${announcement.priority === 'HIGH'
+                                            ? 'border-red-200 bg-red-50/30'
+                                            : 'border-gray-200'
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-3">
+                                        {announcement.priority === 'HIGH' && (
+                                            <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                                        )}
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                                                <Badge className={
+                                                    announcement.priority === 'HIGH'
+                                                        ? 'bg-red-100 text-red-700 border-red-200'
+                                                        : announcement.priority === 'LOW'
+                                                            ? 'bg-gray-100 text-gray-600 border-gray-200'
+                                                            : 'bg-orange-100 text-orange-700 border-orange-200'
+                                                }>
+                                                    {announcement.priority}
+                                                </Badge>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mb-2">{announcement.content}</p>
+                                            <p className="text-xs text-gray-400">
+                                                {format(new Date(announcement.created_at), "MMM d, yyyy")} • {announcement.creator?.full_name || 'HR Team'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Active Tasks */}
                 <div className="space-y-4">

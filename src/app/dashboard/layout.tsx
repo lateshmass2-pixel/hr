@@ -1,6 +1,6 @@
 
 import Link from "next/link";
-import { LayoutDashboard, Users, FileText, CheckSquare, Settings, Calendar, CheckCircle2, HelpCircle, Search } from "lucide-react";
+import { LayoutDashboard, Users, FileText, CheckSquare, Settings, Calendar, CheckCircle2, HelpCircle, Search, Megaphone } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserNav } from "@/components/dashboard/user-nav";
@@ -71,6 +71,7 @@ export default async function DashboardLayout({
                                 People
                             </div>
                             <NavLinkClient href="/dashboard/team" icon={<Users size={20} />} label="Team" />
+                            <NavLinkClient href="/dashboard/announcements" icon={<Megaphone size={20} />} label="Announcements" />
                             <NavLinkClient href="/dashboard/leave" icon={<Calendar size={20} />} label="Leave" />
                             <NavLinkClient href="/dashboard/performance" icon={<FileText size={20} />} label="Reviews" />
                             <NavLinkClient href="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />

@@ -7,40 +7,74 @@ import { createClient } from "@/lib/supabase/client"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Loader2, Mail, Lock, AlertCircle, CheckCircle } from "lucide-react"
+import { Loader2, Mail, Lock, AlertCircle, User, Building } from "lucide-react"
 
-export default function LoginPage() {
+export default function SignupPage() {
     const router = useRouter()
     const supabase = createClient()
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState(false)
 
-    async function onLogin(e: React.FormEvent<HTMLFormElement>) {
+    async function onSignup(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setLoading(true)
         setError(null)
+        setSuccess(false)
 
         const formData = new FormData(e.currentTarget)
         const email = formData.get("email") as string
         const password = formData.get("password") as string
+        const fullName = formData.get("fullName") as string
+        const companyName = formData.get("companyName") as string
 
         try {
-            const { error: signInError } = await supabase.auth.signInWithPassword({
+            const { error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        company_name: companyName
+                    }
+                }
             })
 
-            if (signInError) throw signInError
+            if (signUpError) throw signUpError
 
-            // Redirect to dashboard
-            router.refresh()
-            router.push('/dashboard')
-
+            setSuccess(true)
+            setLoading(false)
         } catch (err: any) {
             setError(err.message)
             setLoading(false)
         }
+    }
+
+    if (success) {
+        return (
+            <div className="min-h-screen grid lg:grid-cols-2">
+                <div className="flex flex-col justify-center p-12 bg-white">
+                    <div className="max-w-md mx-auto text-center space-y-4">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                            <Mail className="w-8 h-8 text-green-600" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
+                        <p className="text-gray-500">
+                            We've sent a verification link to your email address. Please sign in after verifying your account.
+                        </p>
+                        <Button
+                            variant="outline"
+                            className="w-full mt-4"
+                            onClick={() => router.push('/login')}
+                        >
+                            Return to Login
+                        </Button>
+                    </div>
+                </div>
+                <div className="hidden lg:flex bg-gradient-to-br from-orange-400 to-red-500" />
+            </div>
+        )
     }
 
     return (
@@ -56,39 +90,68 @@ export default function LoginPage() {
                             </div>
                             <span className="text-xl font-bold text-gray-900">HEMS</span>
                         </div>
-                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome back</h1>
-                        <p className="text-gray-500 mt-2">Please enter your details.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create an account</h1>
+                        <p className="text-gray-500 mt-2">Start your 14-day free trial.</p>
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={onLogin} className="space-y-6">
+                    <form onSubmit={onSignup} className="space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="name@company.com"
-                                required
-                                className="h-11 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
-                            />
+                            <Label htmlFor="fullName" className="text-gray-700 font-medium">Full Name</Label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Input
+                                    id="fullName"
+                                    name="fullName"
+                                    placeholder="John Doe"
+                                    required
+                                    className="h-11 pl-10 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
-                                <Link href="#" className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                                    Forgot password?
-                                </Link>
+                            <Label htmlFor="companyName" className="text-gray-700 font-medium">Company Name</Label>
+                            <div className="relative">
+                                <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Input
+                                    id="companyName"
+                                    name="companyName"
+                                    placeholder="Acme Inc."
+                                    required
+                                    className="h-11 pl-10 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
+                                />
                             </div>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                required
-                                className="h-11 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
-                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="name@company.com"
+                                    required
+                                    className="h-11 pl-10 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    required
+                                    className="h-11 pl-10 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
+                                />
+                            </div>
                         </div>
 
                         {error && (
@@ -102,7 +165,7 @@ export default function LoginPage() {
                             className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-sm transition-all"
                             disabled={loading}
                         >
-                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Create Account"}
                         </Button>
                     </form>
 
@@ -137,9 +200,9 @@ export default function LoginPage() {
 
                     {/* Footer */}
                     <div className="text-center text-sm text-gray-500">
-                        Don't have an account?{' '}
-                        <Link href="/signup" className="font-semibold text-orange-600 hover:text-orange-700">
-                            Sign up
+                        Already have an account?{' '}
+                        <Link href="/login" className="font-semibold text-orange-600 hover:text-orange-700">
+                            Log in
                         </Link>
                     </div>
                 </div>
@@ -155,16 +218,16 @@ export default function LoginPage() {
                 {/* Glassmorphism Card */}
                 <div className="relative max-w-md bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 shadow-2xl text-white">
                     <p className="text-xl font-medium leading-relaxed mb-6">
-                        "HEMS has transformed how we hire. It's the OS for modern HR."
+                        "The most intuitive HR platform we've ever used. Onboarding used to take days, now it takes minutes."
                     </p>
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden border-2 border-white/50">
                             {/* Avatar Placeholder */}
-                            <div className="w-full h-full bg-orange-200 flex items-center justify-center text-orange-700 font-bold">S</div>
+                            <div className="w-full h-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold">M</div>
                         </div>
                         <div>
-                            <h4 className="font-bold">Sarah J.</h4>
-                            <p className="text-sm text-white/80">VP of People</p>
+                            <h4 className="font-bold">Michael Chen</h4>
+                            <p className="text-sm text-white/80">CTO at TechStart</p>
                         </div>
                     </div>
                 </div>

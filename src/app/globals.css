@@ -38,6 +38,8 @@
     @apply bg-[#F3F4F6] text-[#111827] antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings: "cv11", "ss01";
+    letter-spacing: -0.02em;
+    line-height: 1.625;
   }
 }
 
@@ -45,7 +47,7 @@
 
   /* Clean Enterprise Card Style */
   .clean-card {
-    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100;
+    @apply bg-white rounded-2xl p-8 shadow-sm border border-neutral-200;
   }
 
   /* Typography */
@@ -117,5 +119,88 @@
   /* Orange glow for accents */
   .glow-orange {
     box-shadow: 0 0 20px -5px rgba(249, 115, 22, 0.3);
+  }
+
+  /* Landing Page Utilities */
+
+  /* Gradient text utility */
+  .gradient-text-orange {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-red-500;
+  }
+
+  /* Enhanced orange glow for cards */
+  .glow-orange-lg {
+    box-shadow: 0 0 40px -10px rgba(249, 115, 22, 0.5);
+  }
+
+  /* Perspective container for 3D effects */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Scroll-triggered animations */
+  .scroll-up-animation {
+    animation: scrollUp 15s linear infinite;
+  }
+}
+
+/* Landing page keyframe animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotateX(20deg) rotateZ(-10deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotateX(20deg) rotateZ(-10deg);
+  }
+}
+
+@keyframes floatSimple {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px -5px rgba(249, 115, 22, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px -5px rgba(249, 115, 22, 0.5);
+  }
+}
+
+@keyframes scrollUp {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    top: 0;
+  }
+
+  100% {
+    top: 100%;
   }
 }

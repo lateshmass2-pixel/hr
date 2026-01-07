@@ -56,9 +56,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tasksAssigned Task[]     @relation("AssignedTo")
+  tasksAssigned Task[]       @relation("AssignedTo")
   dailyLogs     DailyLog[]
-  projectsManaged Project[] @relation("ManagedBy")
+  projectsManaged Project[]  @relation("ManagedBy")
+  enrollments   Enrollment[]
 }
 
 model Project {
@@ -120,4 +121,51 @@ model WorkflowStep {
   applicationId String
   application   JobApplication @relation(fields: [applicationId], references: [id])
   createdAt     DateTime @default(now())
+}
+
+// ==================== LMS Module ====================
+
+enum EnrollmentStatus {
+  STARTED
+  COMPLETED
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  thumbnail   String?
+  provider    String       @default("YouTube")
+  externalId  String?      @unique
+  duration    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  courseId    String
+  course      Course           @relation(fields: [courseId], references: [id])
+  status      EnrollmentStatus @default(STARTED)
+  progress    Int              @default(0)
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+
+  quizResults QuizResult[]
+
+  @@unique([userId, courseId])
+}
+
+model QuizResult {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  score        Int
+  totalQuestions Int
+  answers      String?    // JSON string of user's answers
+  createdAt    DateTime   @default(now())
 }
