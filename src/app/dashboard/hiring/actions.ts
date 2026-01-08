@@ -381,3 +381,216 @@ export async function sendOffer(applicationId: string, finalContent: string) {
         return { success: false, message: error.message }
     }
 }
+
+// =====================================================
+// INTERVIEW SCHEDULING ACTION
+// =====================================================
+
+export async function scheduleInterview(
+    applicationId: string,
+    interviewType: 'video' | 'in-person' | 'phone',
+    date: string,
+    time: string,
+    interviewer: string,
+    meetingLink?: string
+) {
+    console.log('📅 Scheduling interview for application:', applicationId)
+    const supabase = await createClient()
+
+    // Fetch the candidate
+    const { data: app, error: fetchError } = await supabase
+        .from('applications')
+        .select('candidate_name, candidate_email, offer_role')
+        .eq('id', applicationId)
+        .single()
+
+    if (fetchError || !app) {
+        console.error('Fetch error:', fetchError)
+        return { success: false, message: 'Application not found' }
+    }
+
+    try {
+        // Format date and time for email
+        const formattedDate = new Date(date).toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+
+        const [hours, minutes] = time.split(':').map(Number)
+        const suffix = hours >= 12 ? 'PM' : 'AM'
+        const hours12 = hours % 12 || 12
+        const formattedTime = `${hours12}:${minutes.toString().padStart(2, '0')} ${suffix}`
+
+        // Send the interview schedule email
+        const { sendInterviewScheduleEmail } = await import('@/lib/email')
+        const emailResult = await sendInterviewScheduleEmail(
+            app.candidate_email,
+            app.candidate_name,
+            app.offer_role || 'Software Engineer',
+            interviewType,
+            formattedDate,
+            formattedTime,
+            meetingLink
+        )
+
+        if (!emailResult.success) {
+            console.error('Email send failed:', emailResult.error)
+            // Continue anyway - we still want to update the status
+        }
+
+        // Update application status and store interview details
+        const { error: updateError } = await supabase
+            .from('applications')
+            .update({
+                status: 'INTERVIEW',
+                interview_type: interviewType,
+                interview_date: date,
+                interview_time: time,
+                interviewer: interviewer,
+                interview_link: meetingLink || null
+            })
+            .eq('id', applicationId)
+
+        if (updateError) {
+            console.error('Update error:', updateError)
+            return { success: false, message: 'Failed to update status: ' + updateError.message }
+        }
+
+        console.log('✅ Interview scheduled successfully')
+        revalidatePath('/dashboard/hiring')
+        return { success: true, message: 'Interview scheduled!' }
+
+    } catch (error: any) {
+        console.error('Schedule interview error:', error)
+        return { success: false, message: error.message }
+    }
+}
+
+// =====================================================
+// FINAL DECISION ACTIONS
+// =====================================================
+
+export async function confirmHire(
+    applicationId: string,
+    joiningDate: string,
+    finalRole: string
+) {
+    console.log('🎉 Confirming hire for application:', applicationId)
+    const supabase = await createClient()
+
+    // Fetch the candidate
+    const { data: app, error: fetchError } = await supabase
+        .from('applications')
+        .select('candidate_name, candidate_email')
+        .eq('id', applicationId)
+        .single()
+
+    if (fetchError || !app) {
+        console.error('Fetch error:', fetchError)
+        return { success: false, message: 'Application not found' }
+    }
+
+    try {
+        // Format date for email
+        const formattedDate = new Date(joiningDate).toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+
+        // Send welcome email
+        const { sendWelcomeEmail } = await import('@/lib/email')
+        const emailResult = await sendWelcomeEmail(
+            app.candidate_email,
+            app.candidate_name,
+            finalRole,
+            formattedDate
+        )
+
+        if (!emailResult.success) {
+            console.error('Welcome email failed:', emailResult.error)
+            // Continue anyway
+        }
+
+        // Update application status to HIRED
+        const { error: updateError } = await supabase
+            .from('applications')
+            .update({
+                status: 'HIRED',
+                offer_role: finalRole,
+                offer_start_date: joiningDate
+            })
+            .eq('id', applicationId)
+
+        if (updateError) {
+            console.error('Update error:', updateError)
+            return { success: false, message: 'Failed to update status: ' + updateError.message }
+        }
+
+        console.log('✅ Candidate hired successfully')
+        revalidatePath('/dashboard/hiring')
+        revalidatePath('/dashboard/team')
+        return { success: true, message: 'Candidate hired!' }
+
+    } catch (error: any) {
+        console.error('Confirm hire error:', error)
+        return { success: false, message: error.message }
+    }
+}
+
+export async function rejectCandidate(
+    applicationId: string,
+    reason: string,
+    sendEmail: boolean
+) {
+    console.log('❌ Rejecting application:', applicationId, 'Reason:', reason)
+    const supabase = await createClient()
+
+    // Fetch the candidate
+    const { data: app, error: fetchError } = await supabase
+        .from('applications')
+        .select('candidate_name, candidate_email')
+        .eq('id', applicationId)
+        .single()
+
+    if (fetchError || !app) {
+        console.error('Fetch error:', fetchError)
+        return { success: false, message: 'Application not found' }
+    }
+
+    try {
+        // Send rejection email if requested
+        if (sendEmail) {
+            const emailResult = await sendRejectionEmail(app.candidate_email, app.candidate_name)
+            if (!emailResult.success) {
+                console.error('Rejection email failed:', emailResult.error)
+                // Continue anyway
+            }
+        }
+
+        // Update application status to REJECTED
+        const { error: updateError } = await supabase
+            .from('applications')
+            .update({
+                status: 'REJECTED',
+                rejection_reason: reason
+            })
+            .eq('id', applicationId)
+
+        if (updateError) {
+            console.error('Update error:', updateError)
+            return { success: false, message: 'Failed to update status: ' + updateError.message }
+        }
+
+        console.log('✅ Candidate rejected')
+        revalidatePath('/dashboard/hiring')
+        return { success: true, message: 'Candidate rejected' }
+
+    } catch (error: any) {
+        console.error('Reject candidate error:', error)
+        return { success: false, message: error.message }
+    }
+}

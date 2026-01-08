@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { UploadDialog } from "./upload-dialog"
 import { DeleteApplicationButton } from "./delete-button"
-import { HireDialog } from "./hire-dialog"
+import { ScheduleInterviewDialog } from "./schedule-interview-dialog"
+import { DecisionFooter } from "./decision-footer"
 import { CreateJobDialog } from "./create-job-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Search, ExternalLink, Mail, CheckCircle2, Eye } from "lucide-react"
@@ -64,14 +65,14 @@ export default async function HiringDashboard() {
                 {/* Screening Column */}
                 <StatusColumn title="Screening" count={columns['TEST_PENDING'].length}>
                     {columns['TEST_PENDING'].map(app => (
-                        <CandidateCard key={app.id} app={app} />
+                        <CandidateCard key={app.id} app={app} showScheduleButton />
                     ))}
                 </StatusColumn>
 
                 {/* Interview Column */}
                 <StatusColumn title="Interview" count={columns['INTERVIEW'].length}>
                     {columns['INTERVIEW'].map(app => (
-                        <CandidateCard key={app.id} app={app} showHireButton />
+                        <CandidateCard key={app.id} app={app} showDecisionButtons />
                     ))}
                 </StatusColumn>
 
@@ -122,7 +123,7 @@ function StatusColumn({ title, count, children }: { title: string, count: number
     )
 }
 
-function CandidateCard({ app, showHireButton, isHired }: { app: any, showHireButton?: boolean, isHired?: boolean }) {
+function CandidateCard({ app, showScheduleButton, showDecisionButtons, isHired }: { app: any, showScheduleButton?: boolean, showDecisionButtons?: boolean, isHired?: boolean }) {
     const score = app.test_score ?? app.score
     const hasScore = score !== null && score !== undefined
     const isHighScore = score >= 70
@@ -216,13 +217,12 @@ function CandidateCard({ app, showHireButton, isHired }: { app: any, showHireBut
                             </button>
                         </Link>
                     )}
-                    {showHireButton && (
-                        <HireDialog application={{
+                    {showScheduleButton && app.test_score !== null && app.test_score >= 70 && (
+                        <ScheduleInterviewDialog application={{
                             id: app.id,
                             candidate_name: app.candidate_name,
                             candidate_email: app.candidate_email,
-                            score: app.score,
-                            test_score: app.test_score
+                            offer_role: app.offer_role
                         }} />
                     )}
                     {app.resume_url && (
@@ -240,6 +240,16 @@ function CandidateCard({ app, showHireButton, isHired }: { app: any, showHireBut
                     )}
                 </div>
             </div>
+
+            {/* Decision Footer for Interview candidates */}
+            {showDecisionButtons && (
+                <DecisionFooter application={{
+                    id: app.id,
+                    candidate_name: app.candidate_name,
+                    candidate_email: app.candidate_email,
+                    offer_role: app.offer_role
+                }} />
+            )}
         </div>
     )
 }

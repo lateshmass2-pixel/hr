@@ -264,3 +264,184 @@ ${offerContent}
         return { success: false, error: err.message };
     }
 }
+
+export async function sendInterviewScheduleEmail(
+    email: string,
+    candidateName: string,
+    role: string,
+    interviewType: string,
+    date: string,
+    time: string,
+    meetingLink?: string
+) {
+    const typeLabel = interviewType === 'video' ? 'video call' :
+        interviewType === 'in-person' ? 'in-person' : 'phone';
+
+    const linkSection = meetingLink
+        ? `<div style="background: #eff6ff; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+                <p style="color: #1e40af; margin: 0 0 10px 0; font-size: 14px;"><strong>📹 Video Meeting Link:</strong></p>
+                <a href="https://${meetingLink}" style="color: #2563eb; font-size: 14px; word-break: break-all;">https://${meetingLink}</a>
+           </div>`
+        : '';
+
+    try {
+        const { data, error } = await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
+            to: email,
+            subject: `📅 Interview Invitation - ${role} at HEMS`,
+            html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <div style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 16px 16px 0 0; padding: 40px 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">📅 Interview Scheduled!</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">You're one step closer to joining our team</p>
+        </div>
+        
+        <div style="background: white; padding: 40px 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                Hi <strong>${candidateName}</strong>,
+            </p>
+            
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                We were impressed by your profile and would like to invite you to a <strong>${typeLabel}</strong> interview for the <strong>${role}</strong> position.
+            </p>
+            
+            <div style="background: #fff7ed; border-radius: 12px; padding: 20px; margin: 25px 0;">
+                <p style="color: #9a3412; margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">📋 Interview Details:</p>
+                <table style="width: 100%; font-size: 14px;">
+                    <tr>
+                        <td style="color: #78716c; padding: 5px 0;">Date:</td>
+                        <td style="color: #1c1917; font-weight: 600;">${date}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #78716c; padding: 5px 0;">Time:</td>
+                        <td style="color: #1c1917; font-weight: 600;">${time}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #78716c; padding: 5px 0;">Type:</td>
+                        <td style="color: #1c1917; font-weight: 600; text-transform: capitalize;">${typeLabel}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            ${linkSection}
+            
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                Please confirm your availability by replying to this email. If you need to reschedule, let us know as soon as possible.
+            </p>
+            
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 20px 0 0 0;">
+                Best regards,<br>
+                <strong>The HEMS HR Team</strong>
+            </p>
+        </div>
+        
+        <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;">
+            This is an automated message from our HR system.
+        </p>
+    </div>
+</body>
+</html>
+            `,
+        });
+
+        if (error) {
+            console.error('Interview schedule email error:', error);
+            return { success: false, error: error.message };
+        }
+
+        console.log('Interview schedule email sent:', data);
+        return { success: true, data };
+    } catch (err: any) {
+        console.error('Email service error:', err);
+        return { success: false, error: err.message };
+    }
+}
+
+export async function sendWelcomeEmail(
+    email: string,
+    candidateName: string,
+    role: string,
+    joiningDate: string
+) {
+    try {
+        const { data, error } = await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
+            to: email,
+            subject: `🎉 Welcome to the Team! Your start date is ${joiningDate}`,
+            html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 16px 16px 0 0; padding: 40px 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">🎉 Welcome Aboard!</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">You're officially part of the team!</p>
+        </div>
+        
+        <div style="background: white; padding: 40px 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                Dear <strong>${candidateName}</strong>,
+            </p>
+            
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                We are thrilled to offer you the position of <strong>${role}</strong> at our company!
+            </p>
+            
+            <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; margin: 25px 0;">
+                <p style="color: #166534; margin: 0 0 15px 0; font-size: 14px; font-weight: 600;">📅 Your Start Date:</p>
+                <p style="color: #15803d; font-size: 20px; font-weight: 700; margin: 0;">${joiningDate}</p>
+                <p style="color: #166534; font-size: 13px; margin: 10px 0 0 0;">Please arrive at 9:00 AM</p>
+            </div>
+            
+            <div style="background: #fefce8; border-left: 4px solid #eab308; padding: 15px 20px; margin: 20px 0;">
+                <p style="color: #854d0e; margin: 0; font-size: 14px;">
+                    <strong>What to bring on your first day:</strong><br>
+                    • Government-issued ID for verification<br>
+                    • Banking details for payroll setup<br>
+                    • Any pending documentation
+                </p>
+            </div>
+            
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                Our HR team will be there to welcome you and guide you through the onboarding process.
+                We're excited to have you on board and look forward to your contributions!
+            </p>
+            
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 20px 0 0 0;">
+                Best regards,<br>
+                <strong>The HEMS HR Team</strong>
+            </p>
+        </div>
+        
+        <p style="color: #9ca3af; font-size: 12px; text-align: center; margin-top: 20px;">
+            This is an official onboarding message from our company.
+        </p>
+    </div>
+</body>
+</html>
+            `,
+        });
+
+        if (error) {
+            console.error('Welcome email error:', error);
+            return { success: false, error: error.message };
+        }
+
+        console.log('Welcome email sent:', data);
+        return { success: true, data };
+    } catch (err: any) {
+        console.error('Email service error:', err);
+        return { success: false, error: err.message };
+    }
+}

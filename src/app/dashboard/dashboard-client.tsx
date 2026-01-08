@@ -336,14 +336,14 @@ export default function DashboardClient({
                             key={announcement.id}
                             whileHover={{ y: -2 }}
                             className={`p-4 rounded-xl border cursor-pointer transition-all ${announcement.priority === 'High'
-                                    ? 'bg-orange-50 border-orange-200 hover:border-orange-300'
-                                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                                ? 'bg-orange-50 border-orange-200 hover:border-orange-300'
+                                : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                                 }`}
                         >
                             <div className="flex items-start justify-between mb-2">
                                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${announcement.priority === 'High'
-                                        ? 'bg-orange-100 text-orange-700'
-                                        : 'bg-gray-200 text-gray-600'
+                                    ? 'bg-orange-100 text-orange-700'
+                                    : 'bg-gray-200 text-gray-600'
                                     }`}>
                                     {announcement.priority}
                                 </span>
@@ -359,29 +359,6 @@ export default function DashboardClient({
                 </div>
             </div>
 
-            {/* Company Calendar */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Calendar size={18} className="text-gray-500" />
-                    Upcoming Events
-                </h3>
-                <div className="relative">
-                    {/* Simple Timeline Line */}
-                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-100 -translate-y-1/2 hidden md:block" />
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-                        {upcomingEvents.map((event, i) => (
-                            <div key={i} className="flex flex-col items-center text-center bg-white p-2 relative z-10">
-                                <div className={`w-3 h-3 rounded-full mb-3 ${event.type === 'event' ? 'bg-orange-500' :
-                                    event.type === 'finance' ? 'bg-emerald-500' : 'bg-blue-500'
-                                    }`} />
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{event.date}</span>
-                                <span className="font-medium text-gray-900">{event.title}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
         </div>
     )
 }
