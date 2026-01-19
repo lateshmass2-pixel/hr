@@ -8,7 +8,7 @@ import {
     Briefcase, Users, TrendingUp, Calendar, ArrowRight,
     CheckCircle, XCircle, Clock, Plus, GraduationCap, Video,
     UserCheck, AlertCircle, FileText, ChevronDown, MoreHorizontal,
-    Megaphone, Bell, ClipboardList
+    Megaphone, Bell, ClipboardList, Sparkles
 } from 'lucide-react'
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
@@ -51,10 +51,10 @@ export default function DashboardClient({
     }
 
     const funnelData = [
-        { name: 'Applied', value: funnelCounts.applied, fill: '#8b5cf6' },
-        { name: 'Screening', value: funnelCounts.screening, fill: '#a78bfa' },
-        { name: 'Interview', value: funnelCounts.interview, fill: '#c4b5fd' },
-        { name: 'Offer', value: funnelCounts.offer, fill: '#ddd6fe' },
+        { name: 'Applied', value: funnelCounts.applied, fill: '#e07850' },
+        { name: 'Screening', value: funnelCounts.screening, fill: '#e8936f' },
+        { name: 'Interview', value: funnelCounts.interview, fill: '#f0b090' },
+        { name: 'Offer', value: funnelCounts.offer, fill: '#f5c8b0' },
     ]
 
     // 2. Employee Growth (This Month)
@@ -92,62 +92,76 @@ export default function DashboardClient({
         <div className="space-y-6">
             {/* Smart Greeting & Quick Actions */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">Good Morning, {userName} 👋</h1>
-                    <p className="text-zinc-400 text-sm mt-1">
-                        You have <span className="font-semibold text-violet-400">{pendingTasks} urgent tasks</span> today.
-                    </p>
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-lg">
+                        <Calendar className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-[#1a1a1a]">Good Morning, {userName} 👋</h1>
+                        <p className="text-[#6b6b6b] text-sm mt-1">
+                            You have <span className="font-semibold text-[#e07850]">{pendingTasks} urgent tasks</span> today.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="relative">
-                    <button
-                        onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
-                        className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-500 transition-colors shadow-lg glow-purple"
-                    >
-                        <Plus size={18} />
-                        Quick Actions
-                        <ChevronDown size={16} className={`transition-transform ${isQuickActionsOpen ? 'rotate-180' : ''}`} />
-                    </button>
+                <div className="flex items-center gap-3">
+                    {/* Help Bubble */}
+                    <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-5 py-3 shadow-md border border-[#e8e4e0]">
+                        <Sparkles className="w-5 h-5 text-[#e07850]" />
+                        <span className="text-[#1a1a1a] font-medium">Hey, Need help?</span>
+                        <span className="text-2xl">👋</span>
+                    </div>
 
-                    <AnimatePresence>
-                        {isQuickActionsOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] rounded-xl shadow-lg border border-[#2a2a2a] py-1 z-50 origin-top-right overflow-hidden"
-                            >
-                                <button
-                                    onClick={() => {
-                                        router.push('/dashboard/hiring')
-                                        setIsQuickActionsOpen(false)
-                                    }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-violet-600/20 hover:text-violet-400 transition-colors flex items-center gap-2"
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
+                            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-semibold hover:from-[#d45a3a] hover:to-[#c04a2a] transition-all shadow-lg"
+                        >
+                            <Plus size={18} />
+                            Quick Actions
+                            <ChevronDown size={16} className={`transition-transform ${isQuickActionsOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        <AnimatePresence>
+                            {isQuickActionsOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#e8e4e0] py-1 z-50 origin-top-right overflow-hidden"
                                 >
-                                    <Briefcase size={16} /> Post Job
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        router.push('/dashboard/team')
-                                        setIsQuickActionsOpen(false)
-                                    }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-violet-600/20 hover:text-violet-400 transition-colors flex items-center gap-2"
-                                >
-                                    <Users size={16} /> Add Employee
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        // Placeholder for documents/policy
-                                        router.push('/dashboard/settings')
-                                        setIsQuickActionsOpen(false)
-                                    }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-violet-600/20 hover:text-violet-400 transition-colors flex items-center gap-2"
-                                >
-                                    <ClipboardList size={16} /> Draft Policy
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                    <button
+                                        onClick={() => {
+                                            router.push('/dashboard/hiring')
+                                            setIsQuickActionsOpen(false)
+                                        }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
+                                    >
+                                        <Briefcase size={16} /> Post Job
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            router.push('/dashboard/team')
+                                            setIsQuickActionsOpen(false)
+                                        }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
+                                    >
+                                        <Users size={16} /> Add Employee
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            // Placeholder for documents/policy
+                                            router.push('/dashboard/settings')
+                                            setIsQuickActionsOpen(false)
+                                        }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
+                                    >
+                                        <ClipboardList size={16} /> Draft Policy
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
 
@@ -155,46 +169,46 @@ export default function DashboardClient({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Employees */}
                 <Link href="/dashboard/team">
-                    <div className="bg-[#1a1a1a] p-5 rounded-xl border border-[#2a2a2a] shadow-lg hover:border-violet-500/50 transition-all cursor-pointer group h-full">
+                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
                         <div className="flex justify-between items-start mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400 group-hover:bg-violet-500 group-hover:text-white transition-colors">
-                                <Users size={20} />
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
+                                <Users size={22} />
                             </div>
-                            <span className="text-xs font-medium text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/30">
+                            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full flex items-center gap-1 border border-emerald-200">
                                 <TrendingUp size={10} /> {growthTrend}
                             </span>
                         </div>
-                        <div className="text-2xl font-bold text-white">{teamMembers}</div>
-                        <div className="text-sm text-zinc-400">Total Employees</div>
+                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{teamMembers}</div>
+                        <div className="text-sm text-[#6b6b6b]">Total Employees</div>
                     </div>
                 </Link>
 
                 {/* Hiring */}
                 <Link href="/dashboard/hiring">
-                    <div className="bg-[#1a1a1a] p-5 rounded-xl border border-[#2a2a2a] shadow-lg hover:border-blue-500/50 transition-all cursor-pointer group h-full">
+                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
                         <div className="flex justify-between items-start mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                <UserCheck size={20} />
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
+                                <UserCheck size={22} />
                             </div>
-                            <span className="text-xs font-medium text-blue-400 bg-blue-500/20 px-2 py-0.5 rounded-full border border-blue-500/30">
+                            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-full border border-blue-200">
                                 {applicationsData.length} Total
                             </span>
                         </div>
-                        <div className="text-2xl font-bold text-white">{funnelCounts.interview}</div>
-                        <div className="text-sm text-zinc-400">Hiring Pipeline</div>
+                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{funnelCounts.interview}</div>
+                        <div className="text-sm text-[#6b6b6b]">Hiring Pipeline</div>
                     </div>
                 </Link>
 
                 {/* Onboarding */}
                 <Link href="/dashboard/onboarding">
-                    <div className="bg-[#1a1a1a] p-5 rounded-xl border border-[#2a2a2a] shadow-lg hover:border-emerald-500/50 transition-all cursor-pointer group h-full">
+                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
                         <div className="flex justify-between items-start mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                                <GraduationCap size={20} />
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
+                                <GraduationCap size={22} />
                             </div>
                         </div>
-                        <div className="text-2xl font-bold text-white">{onboardingCount}</div>
-                        <div className="text-sm text-zinc-400">
+                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{onboardingCount}</div>
+                        <div className="text-sm text-[#6b6b6b]">
                             {latestHire ? `Latest: ${latestHire.full_name?.split(' ')[0]}` : 'New Hires (30 days)'}
                         </div>
                     </div>
@@ -202,19 +216,19 @@ export default function DashboardClient({
 
                 {/* Pending Approvals */}
                 <Link href="/dashboard/leave">
-                    <div className="bg-[#1a1a1a] p-5 rounded-xl border border-[#2a2a2a] shadow-lg hover:border-purple-500/50 transition-all cursor-pointer group h-full">
+                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
                         <div className="flex justify-between items-start mb-2">
-                            <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                                <Bell size={20} />
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
+                                <Bell size={22} />
                             </div>
                             {pendingLeaveRequests.length > 0 && (
-                                <span className="text-xs font-medium text-purple-400 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-500/30">
+                                <span className="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-full border border-purple-200">
                                     Needs review
                                 </span>
                             )}
                         </div>
-                        <div className="text-2xl font-bold text-white">{pendingLeaveRequests.length}</div>
-                        <div className="text-sm text-zinc-400">Pending Approvals</div>
+                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{pendingLeaveRequests.length}</div>
+                        <div className="text-sm text-[#6b6b6b]">Pending Approvals</div>
                     </div>
                 </Link>
             </div>
@@ -223,8 +237,8 @@ export default function DashboardClient({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column - Requires Action */}
                 <div className="lg:col-span-2 space-y-4">
-                    <h3 className="font-semibold text-white flex items-center gap-2">
-                        <AlertCircle size={18} className="text-violet-400" />
+                    <h3 className="font-semibold text-[#1a1a1a] flex items-center gap-2">
+                        <AlertCircle size={18} className="text-[#e07850]" />
                         Requires Action
                     </h3>
 
@@ -232,18 +246,18 @@ export default function DashboardClient({
                     {pendingOffer && (
                         <motion.div
                             whileHover={{ scale: 1.01 }}
-                            className="bg-[#1a1a1a] p-4 rounded-xl border border-[#2a2a2a] shadow-lg flex items-center gap-4 cursor-pointer hover:border-[#333]"
+                            className="bg-white p-4 rounded-2xl border border-[#e8e4e0] shadow-md flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all"
                         >
-                            <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
                                 <FileText size={20} />
                             </div>
                             <div className="flex-1">
-                                <h4 className="font-semibold text-white">Offer Pending: {pendingOffer.candidate_name || 'Candidate'}</h4>
-                                <p className="text-sm text-zinc-400">{pendingOffer.position} • Waiting for response</p>
+                                <h4 className="font-semibold text-[#1a1a1a]">Offer Pending: {pendingOffer.candidate_name || 'Candidate'}</h4>
+                                <p className="text-sm text-[#6b6b6b]">{pendingOffer.position} • Waiting for response</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full border border-blue-500/30">Offer Sent</span>
-                                <MoreHorizontal size={16} className="text-zinc-500" />
+                                <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">Offer Sent</span>
+                                <MoreHorizontal size={16} className="text-[#a0a0a0]" />
                             </div>
                         </motion.div>
                     )}
@@ -254,14 +268,14 @@ export default function DashboardClient({
                             <motion.div
                                 key={request.id}
                                 whileHover={{ scale: 1.01 }}
-                                className="bg-[#1a1a1a] p-4 rounded-xl border border-[#2a2a2a] shadow-lg flex flex-col sm:flex-row sm:items-center gap-4 hover:border-[#333]"
+                                className="bg-white p-4 rounded-2xl border border-[#e8e4e0] shadow-md flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-lg transition-all"
                             >
-                                <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400 shrink-0 font-bold">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white shrink-0 font-bold shadow-md">
                                     {(request.profile?.full_name || 'U').charAt(0)}
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-semibold text-white">{request.profile?.full_name} • {request.type}</h4>
-                                    <p className="text-sm text-zinc-400">
+                                    <h4 className="font-semibold text-[#1a1a1a]">{request.profile?.full_name} • {request.type}</h4>
+                                    <p className="text-sm text-[#6b6b6b]">
                                         {format(new Date(request.start_date), 'MMM d')} - {format(new Date(request.end_date), 'MMM d')} • {request.reason}
                                     </p>
                                 </div>
@@ -269,8 +283,8 @@ export default function DashboardClient({
                             </motion.div>
                         ))
                     ) : (
-                        <div className="p-8 text-center bg-[#1a1a1a] rounded-xl border border-dashed border-[#2a2a2a]">
-                            <p className="text-zinc-500 text-sm">No pending leave requests</p>
+                        <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-[#e8e4e0]">
+                            <p className="text-[#a0a0a0] text-sm">No pending leave requests</p>
                         </div>
                     )}
 
@@ -278,16 +292,16 @@ export default function DashboardClient({
                     {nextInterview && (
                         <motion.div
                             whileHover={{ scale: 1.01 }}
-                            className="bg-[#1a1a1a] p-4 rounded-xl border border-[#2a2a2a] shadow-lg flex items-center gap-4 cursor-pointer hover:border-[#333]"
+                            className="bg-white p-4 rounded-2xl border border-[#e8e4e0] shadow-md flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all"
                         >
-                            <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
                                 <Video size={20} />
                             </div>
                             <div className="flex-1">
-                                <h4 className="font-semibold text-white">Interview: {nextInterview.candidate_name || 'Candidate'}</h4>
-                                <p className="text-sm text-zinc-400">{nextInterview.position} • Contact to schedule</p>
+                                <h4 className="font-semibold text-[#1a1a1a]">Interview: {nextInterview.candidate_name || 'Candidate'}</h4>
+                                <p className="text-sm text-[#6b6b6b]">{nextInterview.position} • Contact to schedule</p>
                             </div>
-                            <Link href="/dashboard/hiring" className="px-3 py-1.5 border border-purple-500/30 text-purple-400 text-xs font-medium rounded hover:bg-purple-500/20 transition-colors">
+                            <Link href="/dashboard/hiring" className="px-3 py-1.5 border border-purple-200 text-purple-700 text-xs font-medium rounded-full hover:bg-purple-50 transition-colors">
                                 View
                             </Link>
                         </motion.div>
@@ -295,8 +309,8 @@ export default function DashboardClient({
                 </div>
 
                 {/* Right Column - Hiring Funnel */}
-                <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] shadow-lg p-6">
-                    <h3 className="font-semibold text-white mb-6">Hiring Funnel</h3>
+                <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
+                    <h3 className="font-semibold text-[#1a1a1a] mb-6">Hiring Funnel</h3>
                     <div className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={funnelData} layout="vertical" barSize={32}>
@@ -306,19 +320,20 @@ export default function DashboardClient({
                                     type="category"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fontSize: 12, fill: '#a1a1aa' }}
+                                    tick={{ fontSize: 12, fill: '#6b6b6b' }}
                                     width={70}
                                 />
                                 <Tooltip
                                     cursor={{ fill: 'transparent' }}
                                     contentStyle={{
-                                        borderRadius: '8px',
-                                        border: '1px solid #2a2a2a',
-                                        backgroundColor: '#1a1a1a',
-                                        color: '#fff'
+                                        borderRadius: '12px',
+                                        border: '1px solid #e8e4e0',
+                                        backgroundColor: '#ffffff',
+                                        color: '#1a1a1a',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                                     }}
                                 />
-                                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                                <Bar dataKey="value" radius={[0, 8, 8, 0]}>
                                     {funnelData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.fill} />
                                     ))}
@@ -330,9 +345,9 @@ export default function DashboardClient({
             </div>
 
             {/* Company Announcements */}
-            <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] shadow-lg p-6">
-                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                    <Megaphone size={18} className="text-violet-400" />
+            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
+                <h3 className="font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
+                    <Megaphone size={18} className="text-[#e07850]" />
                     Company Announcements
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -340,25 +355,25 @@ export default function DashboardClient({
                         <motion.div
                             key={announcement.id}
                             whileHover={{ y: -2 }}
-                            className={`p-4 rounded-xl border cursor-pointer transition-all ${announcement.priority === 'High'
-                                ? 'bg-violet-500/10 border-violet-500/30 hover:border-violet-500/50'
-                                : 'bg-[#222] border-[#2a2a2a] hover:border-[#333]'
+                            className={`p-4 rounded-2xl border cursor-pointer transition-all ${announcement.priority === 'High'
+                                ? 'bg-[#e07850]/5 border-[#e07850]/30 hover:border-[#e07850]/50'
+                                : 'bg-[#faf8f5] border-[#e8e4e0] hover:border-[#d9d5d0]'
                                 }`}
                         >
                             <div className="flex items-start justify-between mb-2">
                                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${announcement.priority === 'High'
-                                    ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
-                                    : 'bg-zinc-700 text-zinc-300'
+                                    ? 'bg-[#e07850]/10 text-[#e07850] border border-[#e07850]/20'
+                                    : 'bg-[#f5f3f0] text-[#6b6b6b]'
                                     }`}>
                                     {announcement.priority}
                                 </span>
-                                <span className="text-xs text-zinc-500">
+                                <span className="text-xs text-[#a0a0a0]">
                                     {format(new Date(announcement.date), 'MMM d')}
                                 </span>
                             </div>
-                            <h4 className="font-semibold text-white mb-1">{announcement.title}</h4>
-                            <p className="text-sm text-zinc-400 line-clamp-2">{announcement.content}</p>
-                            <p className="text-xs text-zinc-500 mt-2">— {announcement.author}</p>
+                            <h4 className="font-semibold text-[#1a1a1a] mb-1">{announcement.title}</h4>
+                            <p className="text-sm text-[#6b6b6b] line-clamp-2">{announcement.content}</p>
+                            <p className="text-xs text-[#a0a0a0] mt-2">— {announcement.author}</p>
                         </motion.div>
                     ))}
                 </div>

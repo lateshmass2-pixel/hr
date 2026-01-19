@@ -31,26 +31,26 @@ export default async function DashboardLayout({
     const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <div className="flex min-h-screen bg-[#0d0d0d]">
-            {/* Sidebar (Dark Workly Style) */}
-            <aside className="w-64 bg-[#141414] hidden md:flex flex-col fixed h-full z-50 border-r border-[#2a2a2a]">
+        <div className="flex min-h-screen bg-[#faf8f5]">
+            {/* Sidebar (Light Cream Theme) */}
+            <aside className="w-64 bg-white hidden md:flex flex-col fixed h-full z-50 border-r border-[#e8e4e0] shadow-sm">
                 {/* Profile Header at Top */}
-                <div className="p-4 border-b border-[#2a2a2a]">
+                <div className="p-4 border-b border-[#e8e4e0]">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#e07850] to-[#d45a3a] rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                             {userInitials}
                         </div>
                         <div>
-                            <p className="font-semibold text-white text-sm">{userName}</p>
-                            <p className="text-xs text-zinc-500">Human Resource</p>
+                            <p className="font-semibold text-[#1a1a1a] text-sm">{userName}</p>
+                            <p className="text-xs text-[#6b6b6b]">Human Resource</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Logo */}
                 <div className="px-5 py-3">
-                    <span className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-violet-400 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                    <span className="text-xl font-bold text-[#1a1a1a] tracking-tight flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#e07850] to-[#d45a3a] rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md">
                             H
                         </div>
                         HEMS
@@ -63,7 +63,7 @@ export default async function DashboardLayout({
                         <>
                             {/* WORKSPACE Section */}
                             <div className="pb-2">
-                                <span className="px-3 text-[11px] font-semibold text-zinc-600 uppercase tracking-wider">
+                                <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
                                     Workspace
                                 </span>
                             </div>
@@ -75,7 +75,7 @@ export default async function DashboardLayout({
 
                             {/* PEOPLE Section */}
                             <div className="pt-6 pb-2">
-                                <span className="px-3 text-[11px] font-semibold text-zinc-600 uppercase tracking-wider">
+                                <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
                                     People
                                 </span>
                             </div>
@@ -95,8 +95,8 @@ export default async function DashboardLayout({
                 </nav>
 
                 {/* Help Center Footer */}
-                <div className="p-4 border-t border-[#2a2a2a]">
-                    <button className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-500 hover:text-white hover:bg-[#1a1a1a] transition-colors w-full rounded-lg">
+                <div className="p-4 border-t border-[#e8e4e0]">
+                    <button className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#f5f3f0] transition-colors w-full rounded-lg">
                         <HelpCircle size={18} />
                         Help Center
                     </button>
@@ -105,13 +105,13 @@ export default async function DashboardLayout({
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
-                <header className="h-16 flex items-center justify-between px-8 sticky top-0 z-40 bg-[#0d0d0d]/95 backdrop-blur-sm border-b border-[#2a2a2a]">
-                    <h1 className="font-medium text-sm text-zinc-500">
-                        Workspace / <span className="text-white font-semibold">{role === 'HR_ADMIN' ? 'HR Dashboard' : 'My Dashboard'}</span>
+                <header className="h-16 flex items-center justify-between px-8 sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#e8e4e0]">
+                    <h1 className="font-medium text-sm text-[#6b6b6b]">
+                        Workspace / <span className="text-[#1a1a1a] font-semibold">{role === 'HR_ADMIN' ? 'HR Dashboard' : 'My Dashboard'}</span>
                     </h1>
                     <UserNav />
                 </header>
-                <main className="flex-1 p-6 overflow-auto bg-[#0d0d0d]">
+                <main className="flex-1 p-6 overflow-auto bg-[#faf8f5]">
                     {children}
                 </main>
             </div>

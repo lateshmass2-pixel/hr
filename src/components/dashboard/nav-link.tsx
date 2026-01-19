@@ -30,11 +30,11 @@ export function NavLinkClient({ href, icon, label }: NavLinkClientProps) {
             <Link
                 href={href}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
-                    ? "text-white font-semibold bg-gradient-to-r from-violet-600/30 via-violet-600/15 to-transparent border-r-[3px] border-violet-500"
-                    : "text-zinc-400 hover:text-white hover:bg-[#1a1a1a]"
+                    ? "text-[#e07850] font-semibold bg-[#e07850]/10 border-r-[3px] border-[#e07850]"
+                    : "text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#f5f3f0]"
                     }`}
             >
-                <span className={isActive ? "text-violet-400" : "text-zinc-500"}>{icon}</span>
+                <span className={isActive ? "text-[#e07850]" : "text-[#a0a0a0]"}>{icon}</span>
                 {label}
             </Link>
         </motion.div>
