@@ -34,46 +34,46 @@ export function LeaveRequestForm() {
         <form id="leave-form" action={handleSubmit} className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                    <Label htmlFor="start_date" className="text-gray-700">Start Date</Label>
+                    <Label htmlFor="start_date" className="text-zinc-300">Start Date</Label>
                     <Input
                         id="start_date"
                         name="start_date"
                         type="date"
                         required
-                        className="bg-white border-gray-300 text-gray-900"
+                        className="bg-[#0d0d0d] border-[#2a2a2a] text-white focus:ring-violet-500/50 focus:border-violet-500/50"
                         min={new Date().toISOString().split('T')[0]}
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="end_date" className="text-gray-700">End Date</Label>
+                    <Label htmlFor="end_date" className="text-zinc-300">End Date</Label>
                     <Input
                         id="end_date"
                         name="end_date"
                         type="date"
                         required
-                        className="bg-white border-gray-300 text-gray-900"
+                        className="bg-[#0d0d0d] border-[#2a2a2a] text-white focus:ring-violet-500/50 focus:border-violet-500/50"
                         min={new Date().toISOString().split('T')[0]}
                     />
                 </div>
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="reason" className="text-gray-700">Reason</Label>
+                <Label htmlFor="reason" className="text-zinc-300">Reason</Label>
                 <Textarea
                     id="reason"
                     name="reason"
                     placeholder="e.g., Sick leave, Vacation, Personal reasons..."
                     required
                     rows={4}
-                    className="bg-white border-gray-300 text-gray-900 resize-none"
+                    className="bg-[#0d0d0d] border-[#2a2a2a] text-white placeholder-zinc-500 resize-none focus:ring-violet-500/50 focus:border-violet-500/50"
                 />
             </div>
 
             {message && (
                 <div className={`p-4 rounded-lg ${message.type === 'success'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-red-50 text-red-700 border border-red-200'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
                     }`}>
                     {message.text}
                 </div>
@@ -82,7 +82,7 @@ export function LeaveRequestForm() {
             <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-violet-600 hover:bg-violet-500 text-white"
             >
                 <Send className="mr-2 h-4 w-4" />
                 {loading ? 'Submitting...' : 'Submit Request'}

@@ -70,54 +70,54 @@ export default function ScoutPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h2 className="text-2xl font-bold text-gray-900">Talent Scout</h2>
-                <p className="text-gray-500 text-sm mt-1">Discover and source top candidates from multiple platforms</p>
+                <h2 className="text-2xl font-bold text-white">Talent Scout</h2>
+                <p className="text-zinc-400 text-sm mt-1">Discover and source top candidates from multiple platforms</p>
             </div>
 
             {/* Search Command Center */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
+                className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-6 shadow-lg"
             >
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {/* Role Input */}
                     <div className="md:col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <label className="block text-sm font-medium text-zinc-300 mb-1">Role</label>
                         <div className="relative">
-                            <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                             <input
                                 type="text"
                                 value={role}
                                 onChange={e => setRole(e.target.value)}
                                 placeholder="e.g. Senior React Developer"
-                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full pl-10 pr-4 py-2.5 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50"
                             />
                         </div>
                     </div>
 
                     {/* Location Input */}
                     <div className="md:col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <label className="block text-sm font-medium text-zinc-300 mb-1">Location</label>
                         <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                             <input
                                 type="text"
                                 value={location}
                                 onChange={e => setLocation(e.target.value)}
                                 placeholder="e.g. New York, Remote"
-                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full pl-10 pr-4 py-2.5 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white placeholder-zinc-500 focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50"
                             />
                         </div>
                     </div>
 
                     {/* Platform Dropdown */}
                     <div className="md:col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                        <label className="block text-sm font-medium text-zinc-300 mb-1">Platform</label>
                         <select
                             value={platform}
                             onChange={e => setPlatform(e.target.value as Platform)}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                            className="w-full px-4 py-2.5 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50"
                         >
                             <option value="linkedin">LinkedIn</option>
                             <option value="github">GitHub</option>
@@ -129,7 +129,7 @@ export default function ScoutPage() {
                     <div className="md:col-span-1 flex items-end">
                         <button
                             onClick={handleSearch}
-                            className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-sm"
+                            className="w-full flex items-center justify-center gap-2 px-6 py-2.5 bg-violet-600 text-white rounded-lg font-medium hover:bg-violet-500 transition-colors shadow-lg glow-purple"
                         >
                             <Search size={18} />
                             Find Talent
@@ -146,16 +146,16 @@ export default function ScoutPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05 }}
-                        className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow"
+                        className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-5 hover:border-violet-500/50 transition-all"
                     >
                         {/* Header with Avatar & Platform Icon */}
                         <div className="flex items-start justify-between mb-4">
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white text-lg font-bold">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center text-white text-lg font-bold">
                                 {getInitials(candidate.name)}
                             </div>
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${candidate.platform === 'linkedin'
-                                ? 'bg-blue-100 text-blue-600'
-                                : 'bg-gray-100 text-gray-800'
+                                ? 'bg-blue-500/20 text-blue-400'
+                                : 'bg-zinc-700 text-zinc-300'
                                 }`}>
                                 {candidate.platform === 'linkedin' ? <Linkedin size={16} /> : <Github size={16} />}
                             </div>
@@ -163,9 +163,9 @@ export default function ScoutPage() {
 
                         {/* Info */}
                         <div className="mb-3">
-                            <h4 className="font-bold text-gray-900">{candidate.name}</h4>
-                            <p className="text-sm text-gray-600">{candidate.role} @ {candidate.company}</p>
-                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                            <h4 className="font-bold text-white">{candidate.name}</h4>
+                            <p className="text-sm text-zinc-400">{candidate.role} @ {candidate.company}</p>
+                            <p className="text-xs text-zinc-500 mt-1 flex items-center gap-3">
                                 <span className="flex items-center gap-1">
                                     <Briefcase size={12} />
                                     {candidate.experience}
@@ -180,7 +180,7 @@ export default function ScoutPage() {
                         {/* Skills */}
                         <div className="flex flex-wrap gap-1.5 mb-4">
                             {candidate.skills.slice(0, 4).map((skill, j) => (
-                                <span key={j} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded font-medium">
+                                <span key={j} className="px-2 py-0.5 bg-[#2a2a2a] text-zinc-300 text-xs rounded font-medium">
                                     {skill}
                                 </span>
                             ))}
@@ -189,8 +189,8 @@ export default function ScoutPage() {
                         {/* Match Score */}
                         <div className="mb-4">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${candidate.matchScore >= 90
-                                ? 'bg-green-50 text-green-700 border-green-200'
-                                : 'bg-orange-50 text-orange-700 border-orange-200'
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                : 'bg-violet-500/20 text-violet-400 border-violet-500/30'
                                 }`}>
                                 <Star size={12} />
                                 {candidate.matchScore}% Match
@@ -198,10 +198,10 @@ export default function ScoutPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="pt-3 border-t border-gray-100">
+                        <div className="pt-3 border-t border-[#2a2a2a]">
                             <button
                                 onClick={() => setSelectedCandidate(candidate)}
-                                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
+                                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-500 transition-colors"
                             >
                                 View Profile
                             </button>
@@ -265,7 +265,7 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
                     />
 
                     {/* Drawer */}
@@ -274,46 +274,46 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col"
+                        className="fixed right-0 top-0 h-full w-full max-w-md bg-[#1a1a1a] shadow-2xl z-50 flex flex-col border-l border-[#2a2a2a]"
                     >
                         {/* Close Button */}
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-gray-100 transition-colors"
+                            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-[#2a2a2a] hover:bg-[#333] transition-colors"
                         >
-                            <X size={20} className="text-gray-600" />
+                            <X size={20} className="text-zinc-400" />
                         </button>
 
                         {/* Header Banner */}
-                        <div className="h-32 bg-gradient-to-r from-orange-100 to-white" />
+                        <div className="h-32 bg-gradient-to-r from-violet-600/30 to-purple-600/10" />
 
                         {/* Profile Header */}
                         <div className="px-6 -mt-12 relative">
                             {/* Avatar */}
-                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white text-3xl font-bold border-4 border-white shadow-lg">
+                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center text-white text-3xl font-bold border-4 border-[#1a1a1a] shadow-lg">
                                 {getInitials(candidate.name)}
                             </div>
 
                             {/* Platform Badge */}
                             <div className={`absolute top-0 right-6 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${candidate.platform === 'linkedin'
                                 ? 'bg-blue-600 text-white'
-                                : 'bg-gray-900 text-white'
+                                : 'bg-zinc-800 text-white'
                                 }`}>
                                 {candidate.platform === 'linkedin' ? <Linkedin size={20} /> : <Github size={20} />}
                             </div>
 
                             {/* Identity */}
                             <div className="mt-4">
-                                <h2 className="text-xl font-bold text-gray-900">{candidate.name}</h2>
-                                <p className="text-gray-600">{candidate.role} @ {candidate.company}</p>
+                                <h2 className="text-xl font-bold text-white">{candidate.name}</h2>
+                                <p className="text-zinc-400">{candidate.role} @ {candidate.company}</p>
                                 <div className="flex items-center gap-3 mt-2">
-                                    <span className="flex items-center gap-1 text-sm text-gray-500">
+                                    <span className="flex items-center gap-1 text-sm text-zinc-500">
                                         <MapPin size={14} />
                                         {candidate.location}
                                     </span>
                                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${candidate.matchScore >= 90
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-orange-100 text-orange-700'
+                                        ? 'bg-emerald-500/20 text-emerald-400'
+                                        : 'bg-violet-500/20 text-violet-400'
                                         }`}>
                                         <Star size={10} />
                                         {candidate.matchScore}% Match
@@ -324,14 +324,14 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
 
                         {/* AI Summary Section */}
                         <div className="px-6 mt-4">
-                            <div className="bg-orange-50/50 border border-orange-100 rounded-xl p-4">
+                            <div className="bg-violet-500/10 border border-violet-500/30 rounded-xl p-4">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-500/20 text-violet-400 rounded-full text-xs font-semibold">
                                         <Sparkles size={10} />
                                         AI Insight
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-700">
+                                <p className="text-sm text-zinc-300">
                                     {candidate.matchScore >= 80
                                         ? `High potential candidate. Strong match for ${candidate.role} due to extensive ${candidate.skills[0]} experience and proven track record at ${candidate.company}.`
                                         : candidate.matchScore >= 50
@@ -343,21 +343,21 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex border-b border-gray-200 mt-6 px-6">
+                        <div className="flex border-b border-[#2a2a2a] mt-6 px-6">
                             {(['about', 'experience', 'education'] as const).map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={`px-4 py-3 text-sm font-medium capitalize transition-colors relative ${activeTab === tab
-                                        ? 'text-orange-600'
-                                        : 'text-gray-500 hover:text-gray-900'
+                                        ? 'text-violet-400'
+                                        : 'text-zinc-500 hover:text-white'
                                         }`}
                                 >
                                     {tab}
                                     {activeTab === tab && (
                                         <motion.div
                                             layoutId="tab-indicator"
-                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500"
+                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-violet-500"
                                         />
                                     )}
                                 </button>
@@ -368,12 +368,12 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                         <div className="flex-1 overflow-y-auto p-6">
                             {activeTab === 'about' && (
                                 <div className="space-y-4">
-                                    <p className="text-gray-700 leading-relaxed">{candidate.about}</p>
+                                    <p className="text-zinc-300 leading-relaxed">{candidate.about}</p>
                                     <div>
-                                        <h4 className="text-sm font-semibold text-gray-900 mb-2">Skills</h4>
+                                        <h4 className="text-sm font-semibold text-white mb-2">Skills</h4>
                                         <div className="flex flex-wrap gap-2">
                                             {candidate.skills.map((skill, i) => (
-                                                <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+                                                <span key={i} className="px-3 py-1 bg-[#2a2a2a] text-zinc-300 text-sm rounded-full">
                                                     {skill}
                                                 </span>
                                             ))}
@@ -385,23 +385,23 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                             {activeTab === 'experience' && (
                                 <div className="relative pl-8 space-y-6">
                                     {/* Vertical Line */}
-                                    <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gray-200" />
+                                    <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-[#2a2a2a]" />
 
                                     {/* Timeline Items */}
                                     {candidate.experienceHistory.map((exp, i) => (
                                         <div key={i} className="relative">
                                             {/* Timeline Dot */}
-                                            <div className={`absolute -left-8 top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ${exp.isCurrent ? 'bg-orange-500' : 'bg-gray-300'
+                                            <div className={`absolute -left-8 top-1 w-4 h-4 rounded-full border-2 border-[#1a1a1a] shadow-sm ${exp.isCurrent ? 'bg-violet-500' : 'bg-zinc-600'
                                                 }`} />
 
                                             {/* Content Card */}
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+                                            <div className="bg-[#0d0d0d] rounded-xl p-4 border border-[#2a2a2a]">
+                                                <div className="text-xs text-zinc-500 uppercase tracking-wider font-medium mb-1">
                                                     {exp.startYear} — {exp.endYear}
                                                 </div>
-                                                <h4 className="font-bold text-gray-900">{exp.role}</h4>
-                                                <p className="text-sm text-gray-600">at {exp.company}</p>
-                                                <p className="text-sm text-gray-500 mt-2">{exp.description}</p>
+                                                <h4 className="font-bold text-white">{exp.role}</h4>
+                                                <p className="text-sm text-zinc-400">at {exp.company}</p>
+                                                <p className="text-sm text-zinc-500 mt-2">{exp.description}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -409,27 +409,27 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                             )}
 
                             {activeTab === 'education' && (
-                                <div className="p-4 bg-gray-50 rounded-xl flex gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                                <div className="p-4 bg-[#0d0d0d] rounded-xl flex gap-4 border border-[#2a2a2a]">
+                                    <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-400">
                                         <GraduationCap size={18} />
                                     </div>
                                     <div>
-                                        <h4 className="font-semibold text-gray-900">{candidate.education}</h4>
+                                        <h4 className="font-semibold text-white">{candidate.education}</h4>
                                     </div>
                                 </div>
                             )}
 
                             {/* AI Risk Analysis Section */}
-                            <div className="mt-6 pt-6 border-t border-gray-200">
+                            <div className="mt-6 pt-6 border-t border-[#2a2a2a]">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                                        <Shield size={16} className="text-purple-600" />
+                                    <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <Shield size={16} className="text-violet-400" />
                                         AI Risk Analysis
                                     </h4>
                                     {!analysisResult && !isAnalyzing && (
                                         <button
                                             onClick={handleAnalyzeRisks}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 border border-purple-300 text-purple-600 rounded-lg text-xs font-medium hover:bg-purple-50 transition-colors"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 border border-violet-500/50 text-violet-400 rounded-lg text-xs font-medium hover:bg-violet-500/20 transition-colors"
                                         >
                                             <Sparkles size={14} />
                                             Analyze Risks (AI)
@@ -439,20 +439,20 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
 
                                 {/* Scanning Skeleton */}
                                 {isAnalyzing && (
-                                    <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                                    <div className="p-4 bg-violet-500/10 rounded-xl border border-violet-500/30">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <div className="w-8 h-8 rounded-lg bg-purple-200 animate-pulse" />
+                                            <div className="w-8 h-8 rounded-lg bg-violet-500/30 animate-pulse" />
                                             <div className="flex-1">
-                                                <div className="h-4 bg-purple-200 rounded animate-pulse w-32 mb-2" />
-                                                <div className="h-3 bg-purple-100 rounded animate-pulse w-48" />
+                                                <div className="h-4 bg-violet-500/30 rounded animate-pulse w-32 mb-2" />
+                                                <div className="h-3 bg-violet-500/20 rounded animate-pulse w-48" />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <div className="h-3 bg-purple-100 rounded animate-pulse w-full" />
-                                            <div className="h-3 bg-purple-100 rounded animate-pulse w-3/4" />
-                                            <div className="h-3 bg-purple-100 rounded animate-pulse w-5/6" />
+                                            <div className="h-3 bg-violet-500/20 rounded animate-pulse w-full" />
+                                            <div className="h-3 bg-violet-500/20 rounded animate-pulse w-3/4" />
+                                            <div className="h-3 bg-violet-500/20 rounded animate-pulse w-5/6" />
                                         </div>
-                                        <p className="text-xs text-purple-600 mt-3 flex items-center gap-2">
+                                        <p className="text-xs text-violet-400 mt-3 flex items-center gap-2">
                                             <Sparkles size={12} className="animate-spin" />
                                             Scanning resume for hiring risks...
                                         </p>
@@ -464,15 +464,15 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="p-4 bg-gray-50 rounded-xl border border-gray-200"
+                                        className="p-4 bg-[#0d0d0d] rounded-xl border border-[#2a2a2a]"
                                     >
                                         {/* Risk Score */}
                                         <div className="flex items-center justify-between mb-4">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${analysisResult.riskLevel === 'low'
-                                                ? 'bg-green-100 text-green-700 border border-green-200'
+                                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                                                 : analysisResult.riskLevel === 'medium'
-                                                    ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                                                    : 'bg-red-100 text-red-700 border border-red-200'
+                                                    ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                                                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
                                                 }`}>
                                                 <Shield size={14} />
                                                 {analysisResult.riskLevel === 'low' ? 'Low Risk' :
@@ -480,7 +480,7 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                                             </span>
                                             <button
                                                 onClick={() => { setAnalysisResult(null); setIsAnalyzing(false); }}
-                                                className="text-xs text-gray-500 hover:text-gray-700"
+                                                className="text-xs text-zinc-500 hover:text-white"
                                             >
                                                 Clear
                                             </button>
@@ -491,48 +491,48 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                                             {analysisResult.insights.map((insight, i) => (
                                                 <div key={i} className="flex items-start gap-2 text-sm">
                                                     {insight.type === 'positive' ? (
-                                                        <CheckCircle size={16} className="text-green-600 shrink-0 mt-0.5" />
+                                                        <CheckCircle size={16} className="text-emerald-400 shrink-0 mt-0.5" />
                                                     ) : (
-                                                        <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                                                        <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
                                                     )}
-                                                    <span className="text-gray-700">{insight.text}</span>
+                                                    <span className="text-zinc-300">{insight.text}</span>
                                                 </div>
                                             ))}
                                         </div>
 
                                         {/* Recommendation */}
-                                        <div className="pt-3 border-t border-gray-200">
+                                        <div className="pt-3 border-t border-[#2a2a2a]">
                                             <p className="text-sm">
-                                                <span className="font-semibold text-gray-900">Recommendation:</span>{' '}
-                                                <span className="text-green-700 font-medium">{analysisResult.recommendation}</span>
+                                                <span className="font-semibold text-white">Recommendation:</span>{' '}
+                                                <span className="text-emerald-400 font-medium">{analysisResult.recommendation}</span>
                                             </p>
                                         </div>
                                     </motion.div>
                                 )}
 
                                 {!isAnalyzing && !analysisResult && (
-                                    <p className="text-xs text-gray-500">Click "Analyze Risks" to scan this candidate's profile for potential hiring risks.</p>
+                                    <p className="text-xs text-zinc-500">Click "Analyze Risks" to scan this candidate's profile for potential hiring risks.</p>
                                 )}
                             </div>
                         </div>
 
                         {/* Quick Actions Bar */}
-                        <div className="p-4 border-t border-gray-200 bg-gray-50">
+                        <div className="p-4 border-t border-[#2a2a2a] bg-[#0d0d0d]">
                             <div className="grid grid-cols-3 gap-2">
-                                <button className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-100 transition-colors">
+                                <button className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 border border-[#2a2a2a] text-zinc-300 rounded-xl font-medium hover:bg-[#1a1a1a] transition-colors">
                                     <Mail size={18} />
                                     <span className="text-xs">Email</span>
                                 </button>
                                 <button
                                     onClick={() => setIsScheduleOpen(true)}
-                                    className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 border border-orange-300 text-orange-600 rounded-xl font-medium hover:bg-orange-50 transition-colors"
+                                    className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 border border-violet-500/50 text-violet-400 rounded-xl font-medium hover:bg-violet-500/20 transition-colors"
                                 >
                                     <Calendar size={18} />
                                     <span className="text-xs">Schedule</span>
                                 </button>
                                 <button
                                     onClick={() => setIsOfferOpen(true)}
-                                    className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors"
+                                    className="flex flex-col items-center justify-center gap-1.5 px-3 py-3 bg-violet-600 text-white rounded-xl font-medium hover:bg-violet-500 transition-colors"
                                 >
                                     <CheckCircle2 size={18} />
                                     <span className="text-xs">Offer</span>

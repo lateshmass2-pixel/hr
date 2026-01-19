@@ -110,20 +110,20 @@ export default function TeamPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Team Members</h2>
-                    <p className="text-gray-500 text-sm mt-1">Manage your organization's team and roles</p>
+                    <h2 className="text-2xl font-bold text-white">Team Members</h2>
+                    <p className="text-zinc-400 text-sm mt-1">Manage your organization's team and roles</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setIsUploadOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] text-zinc-300 rounded-lg font-medium text-sm hover:bg-[#222] hover:border-[#333] transition-colors"
                     >
                         <Upload size={16} />
                         Upload CSV
                     </button>
                     <button
                         onClick={() => setIsAddOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white rounded-lg font-medium text-sm hover:bg-violet-500 transition-colors shadow-lg glow-purple"
                     >
                         <Plus size={16} />
                         Add Member
@@ -135,21 +135,21 @@ export default function TeamPage() {
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
-                            <div className="w-20 h-20 rounded-full bg-gray-200 mx-auto mb-4" />
-                            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2" />
-                            <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto" />
+                        <div key={i} className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-6 animate-pulse">
+                            <div className="w-20 h-20 rounded-full bg-[#2a2a2a] mx-auto mb-4" />
+                            <div className="h-4 bg-[#2a2a2a] rounded w-3/4 mx-auto mb-2" />
+                            <div className="h-3 bg-[#2a2a2a] rounded w-1/2 mx-auto" />
                         </div>
                     ))}
                 </div>
             ) : members.length === 0 ? (
-                <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No team members yet</h3>
-                    <p className="text-gray-500 mb-4">Get started by adding your first team member</p>
+                <div className="bg-[#1a1a1a] rounded-xl border-2 border-dashed border-[#333] p-12 text-center">
+                    <Users className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-white mb-2">No team members yet</h3>
+                    <p className="text-zinc-400 mb-4">Get started by adding your first team member</p>
                     <button
                         onClick={() => setIsAddOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-violet-600 text-white rounded-lg font-medium text-sm hover:bg-violet-500 transition-colors"
                     >
                         <Plus size={16} />
                         Add Member
@@ -163,40 +163,40 @@ export default function TeamPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.05 }}
-                            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                            className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-6 hover:border-violet-500/50 transition-all"
                         >
                             {/* Avatar */}
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-red-400 mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-400 mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
                                 {getInitials(member.full_name || 'U')}
                             </div>
 
                             {/* Info */}
                             <div className="text-center mb-4">
-                                <h3 className="font-bold text-gray-900 text-lg">{member.full_name || 'Unknown'}</h3>
-                                <p className="text-orange-600 font-medium text-sm mt-0.5">
+                                <h3 className="font-bold text-white text-lg">{member.full_name || 'Unknown'}</h3>
+                                <p className="text-violet-400 font-medium text-sm mt-0.5">
                                     {member.position || 'Team Member'}
                                 </p>
-                                <p className="text-gray-500 text-sm mt-1 flex items-center justify-center gap-1">
+                                <p className="text-zinc-400 text-sm mt-1 flex items-center justify-center gap-1">
                                     <Mail size={12} />
                                     {member.email}
                                 </p>
                             </div>
 
                             {/* Stats Footer */}
-                            <div className="border-t border-gray-100 pt-4 flex justify-center gap-6 text-center">
+                            <div className="border-t border-[#2a2a2a] pt-4 flex justify-center gap-6 text-center">
                                 <div>
-                                    <div className="text-lg font-bold text-gray-900">12</div>
-                                    <div className="text-xs text-gray-500">Projects</div>
+                                    <div className="text-lg font-bold text-white">12</div>
+                                    <div className="text-xs text-zinc-500">Projects</div>
                                 </div>
-                                <div className="w-px bg-gray-200" />
+                                <div className="w-px bg-[#2a2a2a]" />
                                 <div>
-                                    <div className="text-lg font-bold text-gray-900">98%</div>
-                                    <div className="text-xs text-gray-500">Attendance</div>
+                                    <div className="text-lg font-bold text-white">98%</div>
+                                    <div className="text-xs text-zinc-500">Attendance</div>
                                 </div>
-                                <div className="w-px bg-gray-200" />
+                                <div className="w-px bg-[#2a2a2a]" />
                                 <div>
-                                    <div className="text-lg font-bold text-gray-900">4.8</div>
-                                    <div className="text-xs text-gray-500">Rating</div>
+                                    <div className="text-lg font-bold text-white">4.8</div>
+                                    <div className="text-xs text-zinc-500">Rating</div>
                                 </div>
                             </div>
                         </motion.div>
@@ -207,21 +207,21 @@ export default function TeamPage() {
             {/* Upload CSV Modal */}
             {isUploadOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsUploadOpen(false)} />
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsUploadOpen(false)} />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl"
+                        className="relative bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-[#2a2a2a]"
                     >
                         <button
                             onClick={() => setIsUploadOpen(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
                         >
                             <X size={20} />
                         </button>
 
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">Upload Team CSV</h3>
-                        <p className="text-sm text-gray-500 mb-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Upload Team CSV</h3>
+                        <p className="text-sm text-zinc-400 mb-6">
                             Upload a CSV file with columns: name, email, position, department
                         </p>
 
@@ -232,25 +232,25 @@ export default function TeamPage() {
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
                             className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${dragActive
-                                    ? 'border-orange-500 bg-orange-50'
-                                    : uploadFile
-                                        ? 'border-emerald-500 bg-emerald-50'
-                                        : 'border-gray-300 bg-gray-50'
+                                ? 'border-violet-500 bg-violet-500/10'
+                                : uploadFile
+                                    ? 'border-emerald-500 bg-emerald-500/10'
+                                    : 'border-[#333] bg-[#0d0d0d]'
                                 }`}
                         >
                             {uploadFile ? (
                                 <div className="flex flex-col items-center">
-                                    <CheckCircle className="h-10 w-10 text-emerald-500 mb-2" />
-                                    <p className="text-sm font-medium text-gray-900">{uploadFile.name}</p>
-                                    <p className="text-xs text-gray-500 mt-1">Ready to upload</p>
+                                    <CheckCircle className="h-10 w-10 text-emerald-400 mb-2" />
+                                    <p className="text-sm font-medium text-white">{uploadFile.name}</p>
+                                    <p className="text-xs text-zinc-500 mt-1">Ready to upload</p>
                                 </div>
                             ) : (
                                 <>
-                                    <FileText className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-                                    <p className="text-sm text-gray-600 mb-2">Drag & drop CSV here</p>
-                                    <p className="text-xs text-gray-400 mb-3">or</p>
+                                    <FileText className="h-10 w-10 text-zinc-500 mx-auto mb-2" />
+                                    <p className="text-sm text-zinc-300 mb-2">Drag & drop CSV here</p>
+                                    <p className="text-xs text-zinc-500 mb-3">or</p>
                                     <label className="inline-block">
-                                        <span className="text-orange-600 font-medium text-sm cursor-pointer hover:underline">
+                                        <span className="text-violet-400 font-medium text-sm cursor-pointer hover:underline">
                                             Browse files
                                         </span>
                                         <input
@@ -268,14 +268,14 @@ export default function TeamPage() {
                         <div className="flex justify-end gap-3 mt-6">
                             <button
                                 onClick={() => { setIsUploadOpen(false); setUploadFile(null); }}
-                                className="px-4 py-2 text-gray-700 font-medium text-sm hover:text-gray-900"
+                                className="px-4 py-2 text-zinc-400 font-medium text-sm hover:text-white transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleUploadCSV}
                                 disabled={!uploadFile}
-                                className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-4 py-2 bg-violet-600 text-white rounded-lg font-medium text-sm hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Upload
                             </button>
@@ -287,64 +287,64 @@ export default function TeamPage() {
             {/* Add Member Modal */}
             {isAddOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsAddOpen(false)} />
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsAddOpen(false)} />
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl"
+                        className="relative bg-[#1a1a1a] rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-[#2a2a2a]"
                     >
                         <button
                             onClick={() => setIsAddOpen(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
                         >
                             <X size={20} />
                         </button>
 
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">Add Team Member</h3>
-                        <p className="text-sm text-gray-500 mb-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Add Team Member</h3>
+                        <p className="text-sm text-zinc-400 mb-6">
                             Enter the details of the new team member
                         </p>
 
                         <form onSubmit={handleAddMember} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                                <label className="block text-sm font-medium text-zinc-300 mb-1">Full Name *</label>
                                 <input
                                     type="text"
                                     required
                                     value={newMember.full_name}
                                     onChange={e => setNewMember({ ...newMember, full_name: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="w-full px-3 py-2 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 placeholder-zinc-500"
                                     placeholder="John Doe"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                <label className="block text-sm font-medium text-zinc-300 mb-1">Email *</label>
                                 <input
                                     type="email"
                                     required
                                     value={newMember.email}
                                     onChange={e => setNewMember({ ...newMember, email: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="w-full px-3 py-2 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 placeholder-zinc-500"
                                     placeholder="john@company.com"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                                <label className="block text-sm font-medium text-zinc-300 mb-1">Position</label>
                                 <input
                                     type="text"
                                     value={newMember.position}
                                     onChange={e => setNewMember({ ...newMember, position: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="w-full px-3 py-2 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 placeholder-zinc-500"
                                     placeholder="Senior Developer"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                <label className="block text-sm font-medium text-zinc-300 mb-1">Department</label>
                                 <input
                                     type="text"
                                     value={newMember.department}
                                     onChange={e => setNewMember({ ...newMember, department: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="w-full px-3 py-2 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 placeholder-zinc-500"
                                     placeholder="Engineering"
                                 />
                             </div>
@@ -353,13 +353,13 @@ export default function TeamPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsAddOpen(false)}
-                                    className="px-4 py-2 text-gray-700 font-medium text-sm hover:text-gray-900"
+                                    className="px-4 py-2 text-zinc-400 font-medium text-sm hover:text-white transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600"
+                                    className="px-4 py-2 bg-violet-600 text-white rounded-lg font-medium text-sm hover:bg-violet-500"
                                 >
                                     Add Member
                                 </button>
