@@ -179,7 +179,7 @@ export default function ScoutPage() {
                                 {getInitials(candidate.name)}
                             </div>
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${candidate.platform === 'linkedin'
-                                ? 'bg-blue-100 text-blue-600'
+                                ? 'bg-orange-100 text-orange-600'
                                 : 'bg-[#f5f3f0] text-[#6b6b6b]'
                                 }`}>
                                 {candidate.platform === 'linkedin' ? <Linkedin size={16} /> : <Github size={16} />}
@@ -321,7 +321,7 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
 
                             {/* Platform Badge */}
                             <div className={`absolute top-0 right-6 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${candidate.platform === 'linkedin'
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-orange-600 text-white'
                                 : 'bg-[#f5f3f0] text-[#1a1a1a]'
                                 }`}>
                                 {candidate.platform === 'linkedin' ? <Linkedin size={20} /> : <Github size={20} />}

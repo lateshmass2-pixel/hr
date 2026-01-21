@@ -134,8 +134,8 @@ export function BentoGrid() {
                                                 <div className="text-xs text-gray-500">{payment.amount}</div>
                                             </div>
                                             <span className={`text-xs font-semibold px-2 py-1 rounded-full ${payment.status === "Paid" ? "bg-emerald-100 text-emerald-700" :
-                                                    payment.status === "Pending" ? "bg-amber-100 text-amber-700" :
-                                                        "bg-blue-100 text-blue-700"
+                                                payment.status === "Pending" ? "bg-amber-100 text-amber-700" :
+                                                    "bg-purple-100 text-purple-700"
                                                 }`}>
                                                 {payment.status}
                                             </span>
@@ -193,7 +193,7 @@ export function BentoGrid() {
                         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-red-500/0 group-hover:from-orange-500/5 group-hover:to-red-500/5 transition-all duration-300 rounded-3xl" />
 
                         <div className="relative z-10 space-y-4">
-                            <div className="bg-blue-100 text-blue-600 rounded-2xl p-3 w-fit">
+                            <div className="bg-orange-100 text-orange-600 rounded-2xl p-3 w-fit">
                                 <GraduationCap className="h-6 w-6" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900">Employee Learning</h3>
@@ -218,7 +218,7 @@ export function BentoGrid() {
                                                 whileInView={{ width: `${course.progress}%` }}
                                                 viewport={{ once: true }}
                                                 transition={{ duration: 0.8, delay: 0.5 + i * 0.1 }}
-                                                className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
+                                                className="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full"
                                             />
                                         </div>
                                     </div>

@@ -153,20 +153,11 @@ export default function LoginPage() {
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
                 {/* Glassmorphism Card */}
-                <div className="relative max-w-md bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 shadow-2xl text-white">
-                    <p className="text-xl font-medium leading-relaxed mb-6">
-                        "HEMS has transformed how we hire. It's the OS for modern HR."
+                <div className="relative max-w-md text-white text-center">
+                    <h2 className="text-4xl font-bold mb-6">Manage your team with confidence.</h2>
+                    <p className="text-lg text-white/90 leading-relaxed">
+                        The all-in-one platform for hiring, onboarding, and payroll. Built for modern companies.
                     </p>
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden border-2 border-white/50">
-                            {/* Avatar Placeholder */}
-                            <div className="w-full h-full bg-orange-200 flex items-center justify-center text-orange-700 font-bold">S</div>
-                        </div>
-                        <div>
-                            <h4 className="font-bold">Sarah J.</h4>
-                            <p className="text-sm text-white/80">VP of People</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

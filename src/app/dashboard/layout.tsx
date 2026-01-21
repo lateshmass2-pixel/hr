@@ -1,4 +1,3 @@
-
 import {
     LayoutDashboard, Users, FileText, CheckSquare, Settings,
     Calendar, CheckCircle2, HelpCircle, Search, Bell,
@@ -8,10 +7,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserNav } from "@/components/dashboard/user-nav";
 import { NavLinkClient } from "../../components/dashboard/nav-link";
-import { cn } from "@/lib/utils";
-import { Inter } from "next/font/google";
-
-const font = Inter({ subsets: ["latin"] });
 
 export default async function DashboardLayout({
     children,
@@ -31,7 +26,6 @@ export default async function DashboardLayout({
         .eq('id', user.id)
         .single();
 
-    // Default to EMPLOYEE if no profile/role found to be safe
     const role = profile?.role || 'EMPLOYEE';
     const isHR = role === 'HR_ADMIN';
     const userName = profile?.full_name || user.user_metadata?.full_name || 'User';
@@ -39,48 +33,40 @@ export default async function DashboardLayout({
     const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <div className={cn("flex min-h-screen bg-[#FAFAFA]", font.className)}>
-            {/* Sidebar - Dark Mode (Linear Style) */}
-            <aside className="w-64 bg-[#1C1C1C] hidden md:flex flex-col fixed h-full z-50 border-r border-[#2C2C2C] shadow-2xl">
-                {/* Profile Header */}
-                <div className="p-4 border-b border-[#2C2C2C]">
+        <div className="flex min-h-screen" style={{ background: '#F8F9FB' }}>
+            {/* ═══════════════════════════════════════════════════════════
+                SIDEBAR - Clean White with Soft Pill Active States
+            ═══════════════════════════════════════════════════════════ */}
+            <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-100 sticky top-0 h-screen">
+                {/* Logo */}
+                <div className="h-16 flex items-center px-6 border-b border-gray-100">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white font-medium text-xs border border-white/10">
-                            {userInitials}
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
+                            H
                         </div>
-                        <div>
-                            <p className="font-medium text-white text-sm tracking-tight">{userName}</p>
-                            <p className="text-[11px] text-gray-400 tracking-tight">{isHR ? 'HR Administrator' : 'Team Member'}</p>
-                        </div>
+                        <span className="font-bold text-gray-900 text-lg">HEMS</span>
                     </div>
                 </div>
 
-                {/* Logo */}
-                <div className="px-5 py-5">
-                    <span className="text-sm font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                        HEMS <span className="text-[10px] bg-[#2C2C2C] px-1.5 py-0.5 rounded text-gray-500 border border-[#3C3C3C]">v2.0</span>
-                    </span>
-                </div>
-
-                {/* Main Navigation */}
-                <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+                {/* Navigation */}
+                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
                     {isHR ? (
                         <>
-                            {/* WORKSPACE Section - HR */}
-                            <div className="pb-2 pt-4 px-3">
-                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            {/* WORKSPACE */}
+                            <div className="px-3 py-2">
+                                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                                     Workspace
                                 </span>
                             </div>
-                            <NavLinkClient href="/dashboard" icon={<LayoutDashboard size={20} />} label="Overview" />
-                            <NavLinkClient href="/dashboard/projects" icon={<FolderKanban size={20} />} label="Projects" />
-                            <NavLinkClient href="/dashboard/scout" icon={<Search size={20} />} label="Talent Scout" />
-                            <NavLinkClient href="/dashboard/hiring" icon={<Users size={20} />} label="Generic Hiring" />
-                            <NavLinkClient href="/dashboard/hired" icon={<CheckCircle2 size={20} />} label="Onboarded" />
+                            <NavLinkClient href="/dashboard" icon={<LayoutDashboard size={18} />} label="Overview" />
+                            <NavLinkClient href="/dashboard/projects" icon={<FolderKanban size={18} />} label="Projects" />
+                            <NavLinkClient href="/dashboard/scout" icon={<Search size={18} />} label="Talent Scout" />
+                            <NavLinkClient href="/dashboard/hiring" icon={<Users size={18} />} label="Hiring" />
+                            <NavLinkClient href="/dashboard/hired" icon={<CheckCircle2 size={18} />} label="Onboarded" />
 
-                            {/* PEOPLE Section - HR */}
-                            <div className="pt-6 pb-2 px-3">
-                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            {/* PEOPLE */}
+                            <div className="px-3 py-2 mt-6">
+                                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                                     People
                                 </span>
                             </div>
@@ -89,9 +75,9 @@ export default async function DashboardLayout({
                             <NavLinkClient href="/dashboard/leave" icon={<Calendar size={18} />} label="Leave" />
                             <NavLinkClient href="/dashboard/performance" icon={<BarChart3 size={18} />} label="Performance" />
 
-                            {/* ADMIN Section - HR */}
-                            <div className="pt-6 pb-2 px-3">
-                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            {/* ADMIN */}
+                            <div className="px-3 py-2 mt-6">
+                                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                                     Admin
                                 </span>
                             </div>
@@ -100,47 +86,72 @@ export default async function DashboardLayout({
                         </>
                     ) : (
                         <>
-                            {/* WORKSPACE Section - Employee */}
-                            <div className="pb-2 pt-4 px-3">
-                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            {/* WORKSPACE - Employee */}
+                            <div className="px-3 py-2">
+                                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                                     Workspace
                                 </span>
                             </div>
                             <NavLinkClient href="/dashboard" icon={<LayoutDashboard size={18} />} label="Overview" />
                             <NavLinkClient href="/dashboard/projects" icon={<FolderKanban size={18} />} label="My Projects" />
 
-                            {/* PERSONAL Section - Employee */}
-                            <div className="pt-6 pb-2 px-3">
-                                <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            {/* PERSONAL */}
+                            <div className="px-3 py-2 mt-6">
+                                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                                     Personal
                                 </span>
                             </div>
-                            <NavLinkClient href="/dashboard/performance" icon={<BarChart3 size={18} />} label="My Performance" />
-                            <NavLinkClient href="/dashboard/leave" icon={<Calendar size={18} />} label="Leave Requests" />
+                            <NavLinkClient href="/dashboard/performance" icon={<BarChart3 size={18} />} label="Performance" />
+                            <NavLinkClient href="/dashboard/leave" icon={<Calendar size={18} />} label="Leave" />
                             <NavLinkClient href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" />
                         </>
                     )}
                 </nav>
 
-                {/* Help Center Footer */}
-                <div className="p-4 border-t border-[#2C2C2C] bg-[#1C1C1C]">
-                    <button className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-[#2C2C2C] transition-all w-full rounded-lg">
-                        <HelpCircle size={16} />
-                        Help Center
-                    </button>
+                {/* User Profile Footer */}
+                <div className="p-4 border-t border-gray-100">
+                    <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm">
+                            {userInitials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
+                            <p className="text-xs text-gray-500 truncate">{isHR ? 'HR Admin' : 'Employee'}</p>
+                        </div>
+                    </div>
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
-                {/* Header with Glassmorphism */}
-                <header className="h-14 flex items-center justify-between px-8 sticky top-0 z-40 bg-white/60 backdrop-blur-xl border-b border-gray-200/50">
-                    <h1 className="font-medium text-sm text-gray-500 tracking-tight">
-                        Workspace / <span className="text-gray-900 font-semibold">{isHR ? 'HR Dashboard' : 'My Dashboard'}</span>
-                    </h1>
-                    <UserNav />
+            {/* ═══════════════════════════════════════════════════════════
+                MAIN CONTENT
+            ═══════════════════════════════════════════════════════════ */}
+            <div className="flex-1 flex flex-col">
+                {/* Floating Top Bar */}
+                <header className="h-16 flex items-center justify-between px-6 sticky top-0 z-40 bg-[#F8F9FB]">
+                    {/* Search Bar */}
+                    <div className="relative w-96">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search employees, projects..."
+                            className="search-input pl-11"
+                        />
+                    </div>
+
+                    {/* Right Side */}
+                    <div className="flex items-center gap-4">
+                        {/* Notification Bell */}
+                        <button className="relative w-10 h-10 rounded-full bg-white shadow-card flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors">
+                            <Bell size={18} />
+                            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white" />
+                        </button>
+
+                        <UserNav />
+                    </div>
                 </header>
-                <main className="flex-1 p-6 overflow-auto bg-[#FAFAFA]">
+
+                {/* Page Content */}
+                <main className="flex-1 p-6">
                     {children}
                 </main>
             </div>

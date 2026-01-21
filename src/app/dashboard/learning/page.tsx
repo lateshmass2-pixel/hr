@@ -30,7 +30,7 @@ export default function LearningPage() {
 
     function getThumbnailIcon(type: string) {
         switch (type) {
-            case 'code': return <Code size={40} className="text-blue-400" />
+            case 'code': return <Code size={40} className="text-orange-400" />
             case 'design': return <Palette size={40} className="text-purple-400" />
             case 'leadership': return <Users size={40} className="text-emerald-400" />
             default: return <BookOpen size={40} className="text-gray-400" />
@@ -39,7 +39,7 @@ export default function LearningPage() {
 
     function getCategoryColor(category: string) {
         switch (category) {
-            case 'Engineering': return 'bg-blue-100 text-blue-700'
+            case 'Engineering': return 'bg-orange-100 text-orange-700'
             case 'Design': return 'bg-purple-100 text-purple-700'
             case 'Soft Skills': return 'bg-emerald-100 text-emerald-700'
             default: return 'bg-gray-100 text-gray-700'
@@ -360,7 +360,7 @@ export default function LearningPage() {
                     </div>
 
                     {/* AI Learning Path Generator */}
-                    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-100 p-5">
+                    <div className="bg-gradient-to-br from-purple-50 to-orange-50 rounded-xl border border-purple-100 p-5">
                         <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
                                 <Sparkles size={16} className="text-purple-600" />
@@ -434,7 +434,7 @@ export default function LearningPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
                                     🔥
                                 </div>
                                 <div>

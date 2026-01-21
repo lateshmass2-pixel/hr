@@ -108,9 +108,9 @@ export function EmployeeWorkplace() {
             {projectsAsMember.length > 0 && (
                 <section className="space-y-4">
                     <div className="flex items-center gap-2">
-                        <Wrench className="w-5 h-5 text-blue-500" />
+                        <Wrench className="w-5 h-5 text-orange-500" />
                         <h2 className="text-lg font-bold text-[#1a1a1a]">Projects Assigned to Me</h2>
-                        <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium border border-blue-200">
+                        <span className="bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full text-xs font-medium border border-orange-200">
                             {projectsAsMember.length}
                         </span>
                     </div>
@@ -150,7 +150,7 @@ export function EmployeeWorkplace() {
                                         <div className={cn(
                                             "w-1 h-12 rounded-full",
                                             task.priority === "High" ? "bg-red-500" :
-                                                task.priority === "Medium" ? "bg-blue-500" : "bg-gray-300"
+                                                task.priority === "Medium" ? "bg-amber-500" : "bg-gray-300"
                                         )} />
 
                                         {/* Task Info */}
@@ -211,7 +211,7 @@ function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }
                     <div className={cn(
                         "px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border",
                         project.status === 'ACTIVE' ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                            project.status === 'COMPLETED' ? "bg-blue-50 text-blue-700 border-blue-200" :
+                            project.status === 'COMPLETED' ? "bg-purple-50 text-purple-700 border-purple-200" :
                                 "bg-gray-50 text-gray-600 border-gray-200"
                     )}>
                         {project.status}

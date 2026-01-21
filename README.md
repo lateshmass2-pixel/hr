@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HEMS - HR Employee Management System
 
-## Getting Started
+A modern, "Soft SaaS" HR dashboard built with Next.js 14, Tailwind CSS, Supabase, and Framer Motion. This application manages employees, projects, payroll, and hiring pipelines with a premium, pastel-gradient aesthetic.
 
-First, run the development server:
+![Dashboard Preview](dashboard_preview.png) *Note: Add a screenshot here if available*
+
+## 🚀 Features
+
+- **Dynamic Dashboard**: Real-time overview of employees, leave requests, and hiring stats.
+- **Project Management**: 
+  - Gallery view for active projects.
+  - Kanban-style task tracking.
+  - Role-based access (Leads vs Members).
+- **Team Directory**: 
+  - Searchable employee list.
+  - Real-time data validation.
+- **Talent Scout**: 
+  - Integrated search for LinkedIn/GitHub candidates.
+  - AI-assisted risk analysis (mock UI).
+- **Payroll**: 
+  - Automated calculations based on employee count.
+  - Visual history and export options.
+- **Hiring Pipeline**: 
+  - Drag-and-drop candidate management.
+  - Automated offer generation.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + Custom Pastel Theme
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Database**: [Supabase](https://supabase.com/) (PostgreSQL)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Charts**: [Recharts](https://recharts.org/)
+
+## ⚡ Getting Started
+
+### 1. Prerequisites
+- Node.js 18+
+- Supabase Account
+
+### 2. Installation
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔐 Demo Credentials
 
-## Learn More
+The following users have been pre-configured for testing different roles:
 
-To learn more about Next.js, take a look at the following resources:
+| Name | Email | Password | Role | Position |
+|------|-------|----------|------|----------|
+| **Sarah Manager** | `sarah@hems.com` | `password123` | **HR_ADMIN** | HR Manager |
+| **Mike Developer** | `mike@hems.com` | `password123` | `STANDARD_USER` | Senior Developer |
+| **Emma Designer** | `emma@hems.com` | `password123` | `STANDARD_USER` | UI/UX Designer |
+| **David Product** | `david@hems.com` | `password123` | `STANDARD_USER` | Product Owner |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> **Note**: If you cannot see these users in the Team Directory, ensure you have run the database migration below.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🗄️ Database Setup (Important)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To fully enable all features (including avatars, positions, and project tracking), you must run the provided SQL scripts in your Supabase SQL Editor.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1.  **Add Profile Columns** (Required for Team/Profile views):
+    - Run the contents of `supabase/add_profile_columns.sql`.
+    - *Adds: `avatar_url`, `position`, `department` to the `profiles` table.*
+
+2.  **Fix Project Saving** (Required for Projects):
+    - Run the contents of `supabase/add_project_columns.sql`.
+    - *Adds: `team_lead_id`, `progress`, `member_ids` to the `projects` table.*
+
+3.  **Create Users Programmatically** (Optional):
+    - You can run `node scripts/create_users.js` to regenerate the demo users if needed.
+    - *Requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.*
+
+## 📂 Project Structure
+
+- `src/app`: Page routes and layouts.
+- `src/components`: Reusable UI components.
+  - `ui/gradient-stat-card.tsx`: Custom pastel cards.
+  - `ui/dashboard-charts.tsx`: Recharts visualizations.
+- `src/context/HemsContext.tsx`: Global state & Supabase Data Provider.
+- `supabase/`: SQL schemas and migration scripts.
+
+## 🎨 Design System
+
+The app follows a "Soft SaaS" visual language:
+- **Colors**: Orange (Primary), Peach, Mint, Lavender.
+- **Shapes**: `rounded-3xl` for containers, `rounded-full` for buttons.
+- **Typography**: Plus Jakarta Sans (Clean, geometric).
+- **Effects**: Glassmorphism (`backdrop-blur`), Soft Shadows (`shadow-lg`).
+
+---
+
+*Generated by Antigravity*

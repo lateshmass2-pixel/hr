@@ -380,7 +380,7 @@ export default function SettingsPage() {
 
                                 <div className="flex items-center justify-between p-4 border border-[#e8e4e0] rounded-2xl bg-[#faf8f5]">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-8 bg-gradient-to-r from-blue-600 to-blue-800 rounded flex items-center justify-center text-white text-xs font-bold">
+                                        <div className="w-12 h-8 bg-gradient-to-r from-orange-600 to-orange-800 rounded flex items-center justify-center text-white text-xs font-bold">
                                             VISA
                                         </div>
                                         <div>

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { motion, AnimatePresence } from "framer-motion"
 import {
     Calendar as CalendarIcon,
@@ -38,21 +39,40 @@ export default function LeavePage() {
     const [activeTab, setActiveTab] = useState<"calendar" | "requested" | "balances">("calendar")
     const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)) // Default to Jan 2026 for demo
 
+    const [currentUser, setCurrentUser] = useState<any>(null)
+
+    useEffect(() => {
+        const supabase = createClient()
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+                setCurrentUser({ ...user, ...profile })
+            }
+        }
+        getUser()
+    }, [])
+
     // Calendar Calculations
     const monthStart = startOfMonth(currentDate)
     const monthEnd = endOfMonth(currentDate)
     const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
     const startDayOfWeek = getDay(monthStart) // 0 = Sunday
 
+    // Filter leaves based on role
+    const visibleLeaves = (currentUser?.role === 'HR_ADMIN')
+        ? leaves
+        : leaves.filter(l => l.user_id === currentUser?.id)
+
     // Get leaves that overlap with the current month
-    const currentMonthLeaves = leaves.filter(leave => {
+    const currentMonthLeaves = visibleLeaves.filter(leave => {
         const leaveStart = new Date(leave.start_date)
         const leaveEnd = new Date(leave.end_date)
 
         return areIntervalsOverlapping(
             { start: leaveStart, end: leaveEnd },
             { start: monthStart, end: monthEnd }
-        ) && leave.status === 'approved' // Match DB status case 'approved' vs 'Approved'
+        ) && leave.status === 'approved'
     })
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1))
@@ -180,11 +200,13 @@ export default function LeavePage() {
             {/* Header & Tabs */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
                 <div className="flex bg-[#faf8f5] p-1 rounded-xl border border-[#e8e4e0]">
-                    {[
+                    {(currentUser?.role === 'HR_ADMIN' ? [
                         { id: 'requested', label: 'Requested' },
                         { id: 'balances', label: 'Balances' },
                         { id: 'calendar', label: 'Calendar' },
-                    ].map(tab => (
+                    ] : [
+                        { id: 'calendar', label: 'Calendar' }
+                    ]).map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}

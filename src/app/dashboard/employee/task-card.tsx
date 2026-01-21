@@ -26,13 +26,13 @@ type Task = {
 const priorityColors: Record<string, string> = {
     'HIGH': 'border-l-red-500 bg-red-50/50',
     'MEDIUM': 'border-l-amber-500 bg-amber-50/50',
-    'LOW': 'border-l-blue-500 bg-blue-50/50',
+    'LOW': 'border-l-emerald-500 bg-emerald-50/50',
 }
 
 const priorityBadgeColors: Record<string, string> = {
     'HIGH': 'bg-red-100 text-red-800',
     'MEDIUM': 'bg-amber-100 text-amber-800',
-    'LOW': 'bg-blue-100 text-blue-800',
+    'LOW': 'bg-emerald-100 text-emerald-800',
 }
 
 export function TaskCard({ task }: { task: Task }) {

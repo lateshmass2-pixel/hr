@@ -240,12 +240,12 @@ export default function OnboardingPage() {
 
                             {/* Equipment */}
                             <div className={`flex items-center gap-3 p-3 rounded-lg ${tasks.equipmentShipped === true ? 'bg-green-50' :
-                                tasks.equipmentShipped === 'shipping' ? 'bg-blue-50' : 'bg-gray-50'
+                                tasks.equipmentShipped === 'shipping' ? 'bg-orange-50' : 'bg-gray-50'
                                 }`}>
                                 {tasks.equipmentShipped === true ? (
                                     <CheckCircle size={20} className="text-green-600" />
                                 ) : tasks.equipmentShipped === 'shipping' ? (
-                                    <Truck size={20} className="text-blue-500" />
+                                    <Truck size={20} className="text-orange-500" />
                                 ) : (
                                     <Laptop size={20} className="text-gray-400" />
                                 )}
@@ -268,7 +268,7 @@ export default function OnboardingPage() {
                                     </select>
                                 )}
                                 {tasks.equipmentShipped === 'shipping' && (
-                                    <span className="text-xs text-blue-600 font-medium">Shipping</span>
+                                    <span className="text-xs text-orange-600 font-medium">Shipping</span>
                                 )}
                             </div>
                         </div>
@@ -304,7 +304,7 @@ export default function OnboardingPage() {
                     {/* Device Status Card */}
                     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <Laptop size={16} className="text-blue-500" />
+                            <Laptop size={16} className="text-orange-500" />
                             Device Status
                         </h4>
                         <div className="bg-gray-50 rounded-xl p-4 text-center">
@@ -315,7 +315,7 @@ export default function OnboardingPage() {
                                 <>
                                     <p className="font-medium text-gray-900">Shipping Label Created</p>
                                     <p className="text-xs text-gray-500 mt-1">Tracking #12345678</p>
-                                    <div className="flex items-center justify-center gap-1 mt-2 text-blue-600 text-xs">
+                                    <div className="flex items-center justify-center gap-1 mt-2 text-orange-600 text-xs">
                                         <Truck size={12} />
                                         In Transit
                                     </div>

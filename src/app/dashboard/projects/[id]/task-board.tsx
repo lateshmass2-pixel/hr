@@ -11,7 +11,7 @@ import { Loader2, MoreHorizontal } from "lucide-react"
 
 const COLUMNS = [
     { id: 'TODO', label: 'To Do', color: 'bg-zinc-500/10' },
-    { id: 'IN_PROGRESS', label: 'In Progress', color: 'bg-blue-500/10' },
+    { id: 'IN_PROGRESS', label: 'In Progress', color: 'bg-orange-500/10' },
     { id: 'REVIEW', label: 'Review', color: 'bg-yellow-500/10' },
     { id: 'DONE', label: 'Done', color: 'bg-green-500/10' },
 ]
@@ -50,7 +50,7 @@ export function TaskBoard({ tasks, projectId }: { tasks: Task[], projectId: stri
                                                     <button
                                                         disabled={isPending}
                                                         onClick={() => handleStatusChange(task.id, getNextStatus(col.id))}
-                                                        className="text-xs text-muted-foreground hover:text-blue-500"
+                                                        className="text-xs text-muted-foreground hover:text-orange-500"
                                                     >
                                                         Next &rarr;
                                                     </button>
@@ -61,7 +61,7 @@ export function TaskBoard({ tasks, projectId }: { tasks: Task[], projectId: stri
                                                 {task.assignee ? (
                                                     <div className="flex items-center gap-2" title={task.assignee.full_name}>
                                                         <Avatar className="h-6 w-6">
-                                                            <AvatarFallback className="text-[10px] bg-blue-100 text-blue-700">
+                                                            <AvatarFallback className="text-[10px] bg-orange-100 text-orange-700">
                                                                 {task.assignee.full_name.charAt(0).toUpperCase()}
                                                             </AvatarFallback>
                                                         </Avatar>
@@ -91,7 +91,7 @@ function getPriorityColor(priority: string) {
     switch (priority) {
         case 'HIGH': return '#ef4444'; // red-500
         case 'MEDIUM': return '#f59e0b'; // amber-500
-        case 'LOW': return '#3b82f6'; // blue-500
+        case 'LOW': return '#10B981'; // emerald-500
         default: return '#71717a';
     }
 }

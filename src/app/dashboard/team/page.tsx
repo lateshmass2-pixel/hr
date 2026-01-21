@@ -78,7 +78,7 @@ export default function TeamPage() {
                     trend="+12%"
                     trendUp={true}
                     icon={Users}
-                    colorClass="bg-blue-50 text-blue-600"
+                    colorClass="bg-orange-50 text-orange-600"
                 />
                 <StatCard
                     title="Active"
