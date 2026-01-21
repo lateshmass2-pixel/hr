@@ -1,6 +1,10 @@
 
 import Link from "next/link";
-import { LayoutDashboard, Users, FileText, CheckSquare, Settings, Calendar, CheckCircle2, HelpCircle, Search, Megaphone, Bell, FileQuestion, Gift, Inbox, Sparkles, ChevronLeft, ChevronUp, ChevronDown } from "lucide-react";
+import {
+    LayoutDashboard, Users, FileText, CheckSquare, Settings,
+    Calendar, CheckCircle2, HelpCircle, Search, Bell,
+    Wallet, BarChart3, FolderKanban
+} from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserNav } from "@/components/dashboard/user-nav";
@@ -26,6 +30,7 @@ export default async function DashboardLayout({
 
     // Default to EMPLOYEE if no profile/role found to be safe
     const role = profile?.role || 'EMPLOYEE';
+    const isHR = role === 'HR_ADMIN';
     const userName = profile?.full_name || user.user_metadata?.full_name || 'User';
     const userEmail = user.email || '';
     const userInitials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
@@ -42,7 +47,7 @@ export default async function DashboardLayout({
                         </div>
                         <div>
                             <p className="font-semibold text-[#1a1a1a] text-sm">{userName}</p>
-                            <p className="text-xs text-[#6b6b6b]">Human Resource</p>
+                            <p className="text-xs text-[#6b6b6b]">{isHR ? 'HR Administrator' : 'Team Member'}</p>
                         </div>
                     </div>
                 </div>
@@ -59,21 +64,21 @@ export default async function DashboardLayout({
 
                 {/* Main Navigation */}
                 <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
-                    {role === 'HR_ADMIN' ? (
+                    {isHR ? (
                         <>
-                            {/* WORKSPACE Section */}
+                            {/* WORKSPACE Section - HR */}
                             <div className="pb-2">
                                 <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
                                     Workspace
                                 </span>
                             </div>
                             <NavLinkClient href="/dashboard" icon={<LayoutDashboard size={20} />} label="Overview" />
-                            <NavLinkClient href="/dashboard/projects" icon={<CheckSquare size={20} />} label="Projects" />
+                            <NavLinkClient href="/dashboard/projects" icon={<FolderKanban size={20} />} label="Projects" />
                             <NavLinkClient href="/dashboard/scout" icon={<Search size={20} />} label="Talent Scout" />
                             <NavLinkClient href="/dashboard/hiring" icon={<Users size={20} />} label="Generic Hiring" />
                             <NavLinkClient href="/dashboard/hired" icon={<CheckCircle2 size={20} />} label="Onboarded" />
 
-                            {/* PEOPLE Section */}
+                            {/* PEOPLE Section - HR */}
                             <div className="pt-6 pb-2">
                                 <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
                                     People
@@ -82,14 +87,37 @@ export default async function DashboardLayout({
                             <NavLinkClient href="/dashboard/team" icon={<Users size={20} />} label="Team" />
                             <NavLinkClient href="/dashboard/announcements" icon={<Bell size={20} />} label="Announcements" />
                             <NavLinkClient href="/dashboard/leave" icon={<Calendar size={20} />} label="Leave" />
-                            <NavLinkClient href="/dashboard/performance" icon={<FileText size={20} />} label="Performance" />
+                            <NavLinkClient href="/dashboard/performance" icon={<BarChart3 size={20} />} label="Performance" />
+
+                            {/* ADMIN Section - HR */}
+                            <div className="pt-6 pb-2">
+                                <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
+                                    Admin
+                                </span>
+                            </div>
+                            <NavLinkClient href="/dashboard/payroll" icon={<Wallet size={20} />} label="Payroll" />
                             <NavLinkClient href="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />
                         </>
                     ) : (
                         <>
-                            <NavLinkClient href="/dashboard/employee" icon={<CheckSquare size={20} />} label="Tasks" />
-                            <NavLinkClient href="/dashboard/employee/leave" icon={<Calendar size={20} />} label="Leave" />
-                            <NavLinkClient href="/dashboard/employee/settings" icon={<Settings size={20} />} label="Settings" />
+                            {/* WORKSPACE Section - Employee */}
+                            <div className="pb-2">
+                                <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
+                                    Workspace
+                                </span>
+                            </div>
+                            <NavLinkClient href="/dashboard" icon={<LayoutDashboard size={20} />} label="Overview" />
+                            <NavLinkClient href="/dashboard/projects" icon={<FolderKanban size={20} />} label="My Projects" />
+
+                            {/* PERSONAL Section - Employee */}
+                            <div className="pt-6 pb-2">
+                                <span className="px-3 text-[11px] font-semibold text-[#a0a0a0] uppercase tracking-wider">
+                                    Personal
+                                </span>
+                            </div>
+                            <NavLinkClient href="/dashboard/performance" icon={<BarChart3 size={20} />} label="My Performance" />
+                            <NavLinkClient href="/dashboard/leave" icon={<Calendar size={20} />} label="Leave Requests" />
+                            <NavLinkClient href="/dashboard/settings" icon={<Settings size={20} />} label="Settings" />
                         </>
                     )}
                 </nav>
@@ -107,7 +135,7 @@ export default async function DashboardLayout({
             <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
                 <header className="h-16 flex items-center justify-between px-8 sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#e8e4e0]">
                     <h1 className="font-medium text-sm text-[#6b6b6b]">
-                        Workspace / <span className="text-[#1a1a1a] font-semibold">{role === 'HR_ADMIN' ? 'HR Dashboard' : 'My Dashboard'}</span>
+                        Workspace / <span className="text-[#1a1a1a] font-semibold">{isHR ? 'HR Dashboard' : 'My Dashboard'}</span>
                     </h1>
                     <UserNav />
                 </header>

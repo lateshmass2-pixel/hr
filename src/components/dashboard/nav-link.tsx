@@ -12,7 +12,7 @@ export interface NavLinkClientProps {
 
 // Spring animation config
 const springConfig = {
-    type: "spring",
+    type: "spring" as const,
     stiffness: 400,
     damping: 25,
 };

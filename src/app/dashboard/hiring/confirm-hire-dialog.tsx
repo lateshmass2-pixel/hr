@@ -16,6 +16,7 @@ import { UserCheck, Loader2, Mail, CheckCircle2, Sparkles, Calendar, Briefcase }
 import { format } from "date-fns"
 import { confirmHire } from "./actions"
 import confetti from 'canvas-confetti'
+import { toast } from 'sonner'
 
 type Application = {
     id: string
@@ -83,11 +84,11 @@ The HEMS HR Team`
                     colors: ['#22c55e', '#16a34a', '#15803d', '#fbbf24', '#f59e0b']
                 })
             } else {
-                alert('Failed to complete hiring: ' + result.message)
+                toast.error('Failed to complete hiring: ' + result.message)
             }
         } catch (error) {
             console.error(error)
-            alert('An error occurred')
+            toast.error('An error occurred')
         } finally {
             setIsSending(false)
         }

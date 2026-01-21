@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { submitAssessment } from "./actions"
 import { Loader2, CheckCircle2, XCircle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { toast } from 'sonner'
 
 type MCQ = {
     question: string
@@ -37,7 +38,7 @@ export function AssessmentForm({ questions, applicationId }: { questions: MCQ[],
 
     const handleSubmit = async () => {
         if (answers.some(a => a === null)) {
-            alert('Please answer all questions before submitting.')
+            toast.error('Please answer all questions before submitting.')
             return
         }
 
@@ -51,11 +52,11 @@ export function AssessmentForm({ questions, applicationId }: { questions: MCQ[],
                     feedback: response.feedback ?? ''
                 })
             } else {
-                alert('Error submitting assessment: ' + response.message)
+                toast.error('Error submitting assessment: ' + response.message)
             }
         } catch (e) {
             console.error(e)
-            alert('An unexpected error occurred.')
+            toast.error('An unexpected error occurred.')
         } finally {
             setIsSubmitting(false)
         }

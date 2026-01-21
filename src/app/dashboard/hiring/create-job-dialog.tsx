@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Plus, X, Loader2, Briefcase } from "lucide-react"
 import { createJob } from "./actions"
+import { toast } from 'sonner'
 
 export function CreateJobDialog() {
     const [isOpen, setIsOpen] = useState(false)
@@ -47,7 +48,7 @@ export function CreateJobDialog() {
 
     const handleSubmit = async () => {
         if (!title.trim()) {
-            alert('Please enter a job title')
+            toast.error('Please enter a job title')
             return
         }
 
@@ -59,12 +60,13 @@ export function CreateJobDialog() {
                 setTitle('')
                 setDescription('')
                 setSkills([])
+                toast.success('Job posting created successfully')
             } else {
-                alert('Failed to create job: ' + result.message)
+                toast.error('Failed to create job: ' + result.message)
             }
         } catch (error) {
             console.error(error)
-            alert('An error occurred')
+            toast.error('An error occurred')
         } finally {
             setIsSubmitting(false)
         }

@@ -9,6 +9,7 @@ import { submitAssessment, rejectApplication } from "./actions"
 import { Loader2, CheckCircle2, XCircle, ShieldAlert, Camera } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { AiProctor } from "@/components/quiz/AiProctor"
+import { toast } from 'sonner'
 
 type MCQ = {
     question: string
@@ -55,7 +56,7 @@ export function ProctoredAssessmentForm({ questions, applicationId, candidateNam
 
     const handleSubmit = async () => {
         if (answers.some(a => a === null)) {
-            alert('Please answer all questions before submitting.')
+            toast.error('Please answer all questions before submitting.')
             return
         }
 
@@ -70,11 +71,11 @@ export function ProctoredAssessmentForm({ questions, applicationId, candidateNam
                     feedback: response.feedback ?? ''
                 })
             } else {
-                alert('Error submitting assessment: ' + response.message)
+                toast.error('Error submitting assessment: ' + response.message)
             }
         } catch (e) {
             console.error(e)
-            alert('An unexpected error occurred.')
+            toast.error('An unexpected error occurred.')
         } finally {
             setIsSubmitting(false)
         }

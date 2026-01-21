@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, DollarSign, Calendar, Sparkles, Gift, Send, Check, FileText } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface OfferModalProps {
     isOpen: boolean
@@ -82,7 +83,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
             triggerConfetti()
             setIsSending(false)
             onClose()
-            alert(`🎉 Offer sent to ${candidateName}!`)
+            toast.success(`Offer sent to ${candidateName}!`)
         }, 1500)
     }
 
@@ -202,8 +203,8 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                                     key={option.id}
                                                     onClick={() => toggleBenefit(option.id)}
                                                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedBenefits.includes(option.id)
-                                                            ? 'bg-orange-100 text-orange-700 border border-orange-200'
-                                                            : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                                                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                                                        : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                                                         }`}
                                                 >
                                                     {selectedBenefits.includes(option.id) && <Check size={12} className="inline mr-1" />}

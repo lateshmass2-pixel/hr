@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Video, Phone, MapPin, Copy, Check, Calendar, Clock, Users } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface ScheduleModalProps {
     isOpen: boolean
@@ -53,8 +54,7 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
         setTimeout(() => {
             setSending(false)
             onClose()
-            // Show toast notification
-            alert('✅ Calendar invites sent to candidate and interviewers!')
+            toast.success('Calendar invites sent to candidate and interviewers!')
         }, 1500)
     }
 
@@ -116,8 +116,8 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                                 key={option.type}
                                                 onClick={() => setInterviewType(option.type)}
                                                 className={`p-4 rounded-xl border-2 transition-all ${interviewType === option.type
-                                                        ? 'border-orange-500 bg-orange-50'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    ? 'border-orange-500 bg-orange-50'
+                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
                                                     }`}
                                             >
                                                 <option.icon
@@ -154,8 +154,8 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                             <button
                                                 onClick={handleCopyLink}
                                                 className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 ${copied
-                                                        ? 'bg-green-100 text-green-700 border border-green-200'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                                                    ? 'bg-green-100 text-green-700 border border-green-200'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
                                                     }`}
                                             >
                                                 {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -209,8 +209,8 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                                 key={interviewer.id}
                                                 onClick={() => toggleInterviewer(interviewer.id)}
                                                 className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${selectedInterviewers.includes(interviewer.id)
-                                                        ? 'border-orange-500 bg-orange-50'
-                                                        : 'border-gray-200 hover:border-gray-300'
+                                                    ? 'border-orange-500 bg-orange-50'
+                                                    : 'border-gray-200 hover:border-gray-300'
                                                     }`}
                                             >
                                                 <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${interviewer.color} flex items-center justify-center text-white text-sm font-bold ${!selectedInterviewers.includes(interviewer.id) ? 'opacity-40' : ''

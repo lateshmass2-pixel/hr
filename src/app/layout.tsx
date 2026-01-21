@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { HemsProvider } from "@/context/HemsContext";
+import { Toaster } from "sonner";
 
 const font = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         font.className
       )}>
         <HemsProvider>
+          <Toaster richColors position="top-right" />
           {children}
         </HemsProvider>
       </body>

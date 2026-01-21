@@ -1,384 +1,300 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Upload, Plus, Users, X, Mail, Briefcase, FileText, CheckCircle, Sparkles } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
-
-interface TeamMember {
-    id: string
-    full_name: string
-    email: string
-    position?: string
-    department?: string
-    avatar_url?: string
-}
+import { useState } from "react"
+import { motion } from "framer-motion"
+import {
+    Search,
+    Filter,
+    Download,
+    Plus,
+    MoreHorizontal,
+    Users,
+    UserCheck,
+    UserX,
+    UserPlus,
+    ChevronLeft,
+    ChevronRight,
+    ArrowUpRight,
+    ArrowDownRight
+} from "lucide-react"
+import { useHems } from "@/context/HemsContext"
+import { cn } from "@/lib/utils"
 
 export default function TeamPage() {
-    const [members, setMembers] = useState<TeamMember[]>([])
-    const [loading, setLoading] = useState(true)
-    const [isUploadOpen, setIsUploadOpen] = useState(false)
-    const [isAddOpen, setIsAddOpen] = useState(false)
-    const [dragActive, setDragActive] = useState(false)
-    const [uploadFile, setUploadFile] = useState<File | null>(null)
+    const { employees, addEmployee } = useHems()
+    const [searchTerm, setSearchTerm] = useState("")
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 8
 
-    // Form state for adding member
-    const [newMember, setNewMember] = useState({
-        full_name: '',
-        email: '',
-        position: '',
-        department: ''
-    })
+    // Stats Calculations
+    const totalEmployees = employees.length
+    const activeEmployees = employees.filter(e => e.status === "Active").length
+    const inactiveEmployees = employees.filter(e => e.status === "Inactive").length
+    const onboardingEmployees = employees.filter(e => e.status === "Onboarding").length
 
-    useEffect(() => {
-        fetchMembers()
-    }, [])
+    // Filter Logic
+    const filteredEmployees = employees.filter(employee =>
+        employee.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.position.toLowerCase().includes(searchTerm.toLowerCase())
+    )
 
-    async function fetchMembers() {
-        const supabase = createClient()
-        const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .order('created_at', { ascending: false })
-        setMembers(data || [])
-        setLoading(false)
-    }
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const currentEmployees = filteredEmployees.slice(startIndex, startIndex + itemsPerPage)
 
-    async function handleAddMember(e: React.FormEvent) {
-        e.preventDefault()
-        const supabase = createClient()
-
-        const { error } = await supabase
-            .from('profiles')
-            .insert([{
-                full_name: newMember.full_name,
-                email: newMember.email,
-                position: newMember.position,
-                department: newMember.department
-            }])
-
-        if (!error) {
-            setNewMember({ full_name: '', email: '', position: '', department: '' })
-            setIsAddOpen(false)
-            fetchMembers()
-        } else {
-            alert('Error adding member: ' + error.message)
-        }
-    }
-
-    function handleDrag(e: React.DragEvent) {
-        e.preventDefault()
-        e.stopPropagation()
-        if (e.type === 'dragenter' || e.type === 'dragover') {
-            setDragActive(true)
-        } else if (e.type === 'dragleave') {
-            setDragActive(false)
-        }
-    }
-
-    function handleDrop(e: React.DragEvent) {
-        e.preventDefault()
-        e.stopPropagation()
-        setDragActive(false)
-
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            setUploadFile(e.dataTransfer.files[0])
-        }
-    }
-
-    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-        if (e.target.files && e.target.files[0]) {
-            setUploadFile(e.target.files[0])
-        }
-    }
-
-    async function handleUploadCSV() {
-        if (!uploadFile) return
-
-        // TODO: Implement CSV parsing and bulk insert
-        alert('CSV Upload functionality - parse and add members from: ' + uploadFile.name)
-        setUploadFile(null)
-        setIsUploadOpen(false)
-    }
-
-    function getInitials(name: string) {
-        return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-    }
+    const StatCard = ({ title, value, trend, trendUp, icon: Icon, colorClass }: any) => (
+        <div className="bg-white rounded-2xl p-5 border border-[#e8e4e0] shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start mb-4">
+                <div className={cn("p-3 rounded-xl", colorClass)}>
+                    <Icon size={20} className="text-current" />
+                </div>
+                {trend && (
+                    <div className={cn(
+                        "flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full",
+                        trendUp ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                    )}>
+                        {trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                        {trend}
+                    </div>
+                )}
+            </div>
+            <div className="space-y-1">
+                <h3 className="text-2xl font-bold text-[#1a1a1a]">{value}</h3>
+                <p className="text-[#6b6b6b] text-sm font-medium">{title}</p>
+            </div>
+        </div>
+    )
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-lg">
-                        <Users className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-[#1a1a1a]">Team Members</h2>
-                        <p className="text-[#6b6b6b] text-sm mt-1">Manage your organization's team and roles</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    {/* Help Bubble */}
-                    <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-[#e8e4e0]">
-                        <Sparkles className="w-4 h-4 text-[#e07850]" />
-                        <span className="text-[#1a1a1a] text-sm font-medium">Hey, Need help?</span>
-                        <span className="text-lg">👋</span>
-                    </div>
-                    <button
-                        onClick={() => setIsUploadOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] text-[#6b6b6b] rounded-full font-medium text-sm hover:bg-[#faf8f5] hover:border-[#d9d5d0] transition-colors shadow-sm"
-                    >
-                        <Upload size={16} />
-                        Upload CSV
-                    </button>
-                    <button
-                        onClick={() => setIsAddOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium text-sm hover:from-[#d45a3a] hover:to-[#c04a2a] transition-colors shadow-lg"
-                    >
-                        <Plus size={16} />
-                        Add Member
-                    </button>
-                </div>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                    title="Total Employees"
+                    value={totalEmployees}
+                    trend="+12%"
+                    trendUp={true}
+                    icon={Users}
+                    colorClass="bg-blue-50 text-blue-600"
+                />
+                <StatCard
+                    title="Active"
+                    value={activeEmployees}
+                    trend="+5%"
+                    trendUp={true}
+                    icon={UserCheck}
+                    colorClass="bg-emerald-50 text-emerald-600"
+                />
+                <StatCard
+                    title="Inactive"
+                    value={inactiveEmployees}
+                    trend="-2%"
+                    trendUp={false}
+                    icon={UserX}
+                    colorClass="bg-red-50 text-red-600"
+                />
+                <StatCard
+                    title="Onboarding"
+                    value={onboardingEmployees}
+                    trend="+8%"
+                    trendUp={true}
+                    icon={UserPlus}
+                    colorClass="bg-amber-50 text-amber-600"
+                />
             </div>
 
-            {/* Team Grid */}
-            {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="bg-white rounded-3xl border border-[#e8e4e0] p-6 animate-pulse shadow-md">
-                            <div className="w-20 h-20 rounded-full bg-[#f5f3f0] mx-auto mb-4" />
-                            <div className="h-4 bg-[#f5f3f0] rounded w-3/4 mx-auto mb-2" />
-                            <div className="h-3 bg-[#f5f3f0] rounded w-1/2 mx-auto" />
-                        </div>
-                    ))}
-                </div>
-            ) : members.length === 0 ? (
-                <div className="bg-white rounded-3xl border-2 border-dashed border-[#e8e4e0] p-12 text-center shadow-sm">
-                    <Users className="h-12 w-12 text-[#a0a0a0] mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#1a1a1a] mb-2">No team members yet</h3>
-                    <p className="text-[#6b6b6b] mb-4">Get started by adding your first team member</p>
-                    <button
-                        onClick={() => setIsAddOpen(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium text-sm hover:from-[#d45a3a] hover:to-[#c04a2a] transition-colors shadow-lg"
-                    >
-                        <Plus size={16} />
-                        Add Member
-                    </button>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {members.map((member, i) => (
-                        <motion.div
-                            key={member.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="bg-white rounded-3xl border border-[#e8e4e0] p-6 hover:shadow-lg hover:border-[#e07850]/30 transition-all shadow-md"
-                        >
-                            {/* Avatar */}
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                                {getInitials(member.full_name || 'U')}
-                            </div>
+            {/* Main Content Card */}
+            <div className="bg-white border border-[#e8e4e0] rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+                {/* Toolbar */}
+                <div className="p-5 border-b border-[#e8e4e0] flex flex-col md:flex-row justify-between gap-4 items-center bg-white sticky top-0 z-10">
+                    {/* Search */}
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0a0a0]" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search employees..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] transition-all"
+                        />
+                    </div>
 
-                            {/* Info */}
-                            <div className="text-center mb-4">
-                                <h3 className="font-bold text-[#1a1a1a] text-lg">{member.full_name || 'Unknown'}</h3>
-                                <p className="text-[#e07850] font-medium text-sm mt-0.5">
-                                    {member.position || 'Team Member'}
-                                </p>
-                                <p className="text-[#6b6b6b] text-sm mt-1 flex items-center justify-center gap-1">
-                                    <Mail size={12} />
-                                    {member.email}
-                                </p>
-                            </div>
-
-                            {/* Stats Footer */}
-                            <div className="border-t border-[#e8e4e0] pt-4 flex justify-center gap-6 text-center">
-                                <div>
-                                    <div className="text-lg font-bold text-[#1a1a1a]">12</div>
-                                    <div className="text-xs text-[#a0a0a0]">Projects</div>
-                                </div>
-                                <div className="w-px bg-[#e8e4e0]" />
-                                <div>
-                                    <div className="text-lg font-bold text-[#1a1a1a]">98%</div>
-                                    <div className="text-xs text-[#a0a0a0]">Attendance</div>
-                                </div>
-                                <div className="w-px bg-[#e8e4e0]" />
-                                <div>
-                                    <div className="text-lg font-bold text-[#1a1a1a]">4.8</div>
-                                    <div className="text-xs text-[#a0a0a0]">Rating</div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            )}
-
-            {/* Upload CSV Modal */}
-            {isUploadOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsUploadOpen(false)} />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="relative bg-white rounded-3xl p-6 w-full max-w-md mx-4 shadow-xl border border-[#e8e4e0]"
-                    >
-                        <button
-                            onClick={() => setIsUploadOpen(false)}
-                            className="absolute top-4 right-4 text-[#a0a0a0] hover:text-[#1a1a1a] transition-colors"
-                        >
-                            <X size={20} />
+                    {/* Actions */}
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#faf8f5] transition-colors">
+                            <Filter size={16} />
+                            Filter
                         </button>
+                        <button
+                            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#faf8f5] transition-colors"
+                            onClick={() => {
+                                // Create CSV content
+                                const headers = ['Name', 'Email', 'ID', 'Position', 'Department', 'Created At', 'Status']
+                                const csvContent = [
+                                    headers.join(','),
+                                    ...employees.map(e => [
+                                        `"${e.full_name}"`,
+                                        e.email,
+                                        e.id.substring(0, 8),
+                                        `"${e.position}"`,
+                                        `"${e.department}"`,
+                                        new Date(e.created_at).toLocaleDateString(),
+                                        e.status
+                                    ].join(','))
+                                ].join('\n')
 
-                        <h3 className="text-lg font-bold text-[#1a1a1a] mb-2">Upload Team CSV</h3>
-                        <p className="text-sm text-[#6b6b6b] mb-6">
-                            Upload a CSV file with columns: name, email, position, department
-                        </p>
-
-                        {/* Dropzone */}
-                        <div
-                            onDragEnter={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDragOver={handleDrag}
-                            onDrop={handleDrop}
-                            className={`border-2 border-dashed rounded-2xl p-8 text-center transition-colors ${dragActive
-                                ? 'border-[#e07850] bg-[#e07850]/5'
-                                : uploadFile
-                                    ? 'border-emerald-500 bg-emerald-50'
-                                    : 'border-[#e8e4e0] bg-[#faf8f5]'
-                                }`}
+                                // Download
+                                const blob = new Blob([csvContent], { type: 'text/csv' })
+                                const url = URL.createObjectURL(blob)
+                                const a = document.createElement('a')
+                                a.href = url
+                                a.download = `employees_${new Date().toISOString().split('T')[0]}.csv`
+                                a.click()
+                                URL.revokeObjectURL(url)
+                            }}
                         >
-                            {uploadFile ? (
-                                <div className="flex flex-col items-center">
-                                    <CheckCircle className="h-10 w-10 text-emerald-500 mb-2" />
-                                    <p className="text-sm font-medium text-[#1a1a1a]">{uploadFile.name}</p>
-                                    <p className="text-xs text-[#6b6b6b] mt-1">Ready to upload</p>
-                                </div>
+                            <Download size={16} />
+                            Export
+                        </button>
+                        <button
+                            className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-lg shadow-black/10 ml-auto md:ml-0"
+                            onClick={() => {
+                                // Add mock employee for demo
+                                addEmployee({
+                                    full_name: "New Employee",
+                                    email: `new.user${Date.now()}@company.com`,
+                                    position: "Onboarding Specialist",
+                                    department: "HR",
+                                    status: "Onboarding",
+                                    created_at: new Date().toISOString(),
+                                })
+                            }}
+                        >
+                            <Plus size={18} />
+                            Add New
+                        </button>
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto flex-1">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-[#faf8f5] border-b border-[#e8e4e0]">
+                                <th className="p-4 pl-6 w-10">
+                                    <input type="checkbox" className="rounded border-gray-300 text-[#e07850] focus:ring-[#e07850]" />
+                                </th>
+                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Name</th>
+                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">ID</th>
+                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Position</th>
+                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Department</th>
+                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Created At</th>
+                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Status</th>
+                                <th className="p-4 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#e8e4e0]">
+                            {currentEmployees.length > 0 ? (
+                                currentEmployees.map((employee) => (
+                                    <tr key={employee.id} className="group hover:bg-[#faf8f5] transition-colors">
+                                        <td className="p-4 pl-6">
+                                            <input type="checkbox" className="rounded border-gray-300 text-[#e07850] focus:ring-[#e07850]" />
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                                                    {employee.full_name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-semibold text-[#1a1a1a] text-sm">{employee.full_name}</div>
+                                                    <div className="text-xs text-[#6b6b6b]">{employee.email}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="p-4 text-sm font-medium text-[#6b6b6b] font-mono">{employee.id.substring(0, 8)}...</td>
+                                        <td className="p-4 text-sm font-medium text-[#1a1a1a]">{employee.position}</td>
+                                        <td className="p-4">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-[#6b6b6b] text-xs font-medium border border-gray-200">
+                                                {employee.department}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-sm text-[#6b6b6b]">{new Date(employee.created_at).toLocaleDateString()}</td>
+                                        <td className="p-4">
+                                            <span className={cn(
+                                                "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border",
+                                                employee.status === "Active" && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                                                employee.status === "Inactive" && "bg-red-50 text-red-700 border-red-200",
+                                                employee.status === "Onboarding" && "bg-amber-50 text-amber-700 border-amber-200"
+                                            )}>
+                                                {employee.status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <button className="p-2 text-[#a0a0a0] hover:text-[#1a1a1a] hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                                                <MoreHorizontal size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
                             ) : (
-                                <>
-                                    <FileText className="h-10 w-10 text-[#a0a0a0] mx-auto mb-2" />
-                                    <p className="text-sm text-[#6b6b6b] mb-2">Drag & drop CSV here</p>
-                                    <p className="text-xs text-[#a0a0a0] mb-3">or</p>
-                                    <label className="inline-block">
-                                        <span className="text-[#e07850] font-medium text-sm cursor-pointer hover:underline">
-                                            Browse files
-                                        </span>
-                                        <input
-                                            type="file"
-                                            accept=".csv"
-                                            onChange={handleFileChange}
-                                            className="hidden"
-                                        />
-                                    </label>
-                                </>
+                                <tr>
+                                    <td colSpan={8} className="p-12 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="w-16 h-16 bg-[#faf8f5] rounded-full flex items-center justify-center">
+                                                <Search className="text-[#a0a0a0]" size={32} />
+                                            </div>
+                                            <h3 className="text-[#1a1a1a] font-semibold">No employees found</h3>
+                                            <p className="text-[#6b6b6b] text-sm">Try adjusting your search or filters</p>
+                                        </div>
+                                    </td>
+                                </tr>
                             )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                onClick={() => { setIsUploadOpen(false); setUploadFile(null); }}
-                                className="px-4 py-2 text-[#6b6b6b] font-medium text-sm hover:text-[#1a1a1a] transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleUploadCSV}
-                                disabled={!uploadFile}
-                                className="px-4 py-2 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium text-sm hover:from-[#d45a3a] hover:to-[#c04a2a] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                            >
-                                Upload
-                            </button>
-                        </div>
-                    </motion.div>
+                        </tbody>
+                    </table>
                 </div>
-            )}
 
-            {/* Add Member Modal */}
-            {isAddOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsAddOpen(false)} />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="relative bg-white rounded-3xl p-6 w-full max-w-md mx-4 shadow-xl border border-[#e8e4e0]"
-                    >
+                {/* Pagination */}
+                <div className="p-4 border-t border-[#e8e4e0] flex items-center justify-between">
+                    <div className="text-sm text-[#6b6b6b]">
+                        Showing <span className="font-semibold text-[#1a1a1a]">{startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredEmployees.length)}</span> of <span className="font-semibold text-[#1a1a1a]">{filteredEmployees.length}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
                         <button
-                            onClick={() => setIsAddOpen(false)}
-                            className="absolute top-4 right-4 text-[#a0a0a0] hover:text-[#1a1a1a] transition-colors"
+                            className="p-2 border border-[#e8e4e0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#faf8f5] text-[#1a1a1a] transition-colors"
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
                         >
-                            <X size={20} />
+                            <ChevronLeft size={16} />
                         </button>
-
-                        <h3 className="text-lg font-bold text-[#1a1a1a] mb-2">Add Team Member</h3>
-                        <p className="text-sm text-[#6b6b6b] mb-6">
-                            Enter the details of the new team member
-                        </p>
-
-                        <form onSubmit={handleAddMember} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-[#1a1a1a] mb-1">Full Name *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={newMember.full_name}
-                                    onChange={e => setNewMember({ ...newMember, full_name: e.target.value })}
-                                    className="w-full px-3 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] placeholder-[#a0a0a0]"
-                                    placeholder="John Doe"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#1a1a1a] mb-1">Email *</label>
-                                <input
-                                    type="email"
-                                    required
-                                    value={newMember.email}
-                                    onChange={e => setNewMember({ ...newMember, email: e.target.value })}
-                                    className="w-full px-3 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] placeholder-[#a0a0a0]"
-                                    placeholder="john@company.com"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#1a1a1a] mb-1">Position</label>
-                                <input
-                                    type="text"
-                                    value={newMember.position}
-                                    onChange={e => setNewMember({ ...newMember, position: e.target.value })}
-                                    className="w-full px-3 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] placeholder-[#a0a0a0]"
-                                    placeholder="Senior Developer"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#1a1a1a] mb-1">Department</label>
-                                <input
-                                    type="text"
-                                    value={newMember.department}
-                                    onChange={e => setNewMember({ ...newMember, department: e.target.value })}
-                                    className="w-full px-3 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] placeholder-[#a0a0a0]"
-                                    placeholder="Engineering"
-                                />
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-2">
+                        <div className="flex items-center gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                 <button
-                                    type="button"
-                                    onClick={() => setIsAddOpen(false)}
-                                    className="px-4 py-2 text-[#6b6b6b] font-medium text-sm hover:text-[#1a1a1a] transition-colors"
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={cn(
+                                        "w-8 h-8 rounded-lg text-sm font-medium transition-colors",
+                                        currentPage === page
+                                            ? "bg-[#1a1a1a] text-white"
+                                            : "text-[#6b6b6b] hover:bg-[#faf8f5]"
+                                    )}
                                 >
-                                    Cancel
+                                    {page}
                                 </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium text-sm hover:from-[#d45a3a] hover:to-[#c04a2a] shadow-md"
-                                >
-                                    Add Member
-                                </button>
-                            </div>
-                        </form>
-                    </motion.div>
+                            ))}
+                        </div>
+                        <button
+                            className="p-2 border border-[#e8e4e0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#faf8f5] text-[#1a1a1a] transition-colors"
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                        >
+                            <ChevronRight size={16} />
+                        </button>
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     )
 }

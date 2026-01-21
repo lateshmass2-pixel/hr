@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react"
 import { deleteEmployee } from "@/app/actions/employee"
 import { useState } from "react"
 import { format } from "date-fns"
+import { toast } from 'sonner'
 
 interface Employee {
     id: string
@@ -25,8 +26,10 @@ export function EmployeeList({ employees }: { employees: Employee[] }) {
         const result = await deleteEmployee(id)
         setLoadingId(null)
 
-        if (!result.success) {
-            alert(result.message)
+        if (result.success) {
+            toast.success('Employee deleted successfully')
+        } else {
+            toast.error(result.message)
         }
     }
 

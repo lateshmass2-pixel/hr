@@ -4,6 +4,7 @@ import { updateLeaveStatus } from '@/app/actions/leave'
 import { Button } from '@/components/ui/button'
 import { Check, X } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 export function ApprovalActions({ requestId }: { requestId: string }) {
     const [loading, setLoading] = useState(false)
@@ -16,8 +17,10 @@ export function ApprovalActions({ requestId }: { requestId: string }) {
         setLoading(true)
         const result = await updateLeaveStatus(requestId, status)
 
-        if (!result.success) {
-            alert(result.message)
+        if (result.success) {
+            toast.success(`Leave request ${status}`)
+        } else {
+            toast.error(result.message)
         }
 
         setLoading(false)

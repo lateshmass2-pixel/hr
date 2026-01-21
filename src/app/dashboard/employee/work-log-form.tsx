@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Send, CheckCircle2 } from "lucide-react"
 import { submitWorkLog } from "./actions"
+import { toast } from 'sonner'
 
 export function WorkLogForm() {
     const [description, setDescription] = useState('')
@@ -19,7 +20,7 @@ export function WorkLogForm() {
         e.preventDefault()
 
         if (!description.trim() || !hours) {
-            alert('Please fill in all fields')
+            toast.error('Please fill in all fields')
             return
         }
 
@@ -31,12 +32,13 @@ export function WorkLogForm() {
         const result = await submitWorkLog(formData)
 
         if (result.success) {
+            toast.success('Work log submitted successfully')
             setSuccess(true)
             setDescription('')
             setHours('')
             setTimeout(() => setSuccess(false), 2000)
         } else {
-            alert(result.message)
+            toast.error(result.message)
         }
 
         setIsSubmitting(false)

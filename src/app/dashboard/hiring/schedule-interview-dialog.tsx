@@ -22,6 +22,7 @@ import { Calendar, Video, Users, Phone, Loader2, Send, Mail, Link as LinkIcon, C
 import { format, parse } from "date-fns"
 import { scheduleInterview } from "./actions"
 import confetti from 'canvas-confetti'
+import { toast } from 'sonner'
 
 type Application = {
     id: string
@@ -134,11 +135,11 @@ The HEMS HR Team`
                     origin: { y: 0.6 }
                 })
             } else {
-                alert('Failed to schedule interview: ' + result.message)
+                toast.error('Failed to schedule interview: ' + result.message)
             }
         } catch (error) {
             console.error(error)
-            alert('An error occurred while scheduling the interview')
+            toast.error('An error occurred while scheduling the interview')
         } finally {
             setIsSending(false)
         }

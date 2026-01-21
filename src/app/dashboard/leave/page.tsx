@@ -1,269 +1,244 @@
-import { getAllLeaveRequests } from '@/app/actions/leave'
-import { createClient } from '@/lib/supabase/server'
-import { ApprovalActions } from './approval-actions'
-import { Clock, TrendingUp, TrendingDown, UserX, Plane, Search, Calendar, Sparkles } from 'lucide-react'
-import { format, differenceInDays } from 'date-fns'
+"use client"
 
-export const dynamic = 'force-dynamic'
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+    Calendar as CalendarIcon,
+    Clock,
+    MoreHorizontal,
+    ChevronLeft,
+    ChevronRight,
+    Plus,
+    Filter,
+    Download,
+    CheckCircle2,
+    XCircle,
+    AlertCircle,
+    PartyPopper,
+    Thermometer
+} from "lucide-react"
+import { useHems } from "@/context/HemsContext"
+import { cn } from "@/lib/utils"
+import {
+    format,
+    startOfMonth,
+    endOfMonth,
+    eachDayOfInterval,
+    isSameMonth,
+    isSameDay,
+    addMonths,
+    subMonths,
+    getDay,
+    isToday,
+    areIntervalsOverlapping
+} from "date-fns"
 
-async function getProfiles() {
-    const supabase = await createClient()
-    const { data } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, role')
-    return data || []
-}
+export default function LeavePage() {
+    const { leaves, employees, addLeave } = useHems()
+    const [activeTab, setActiveTab] = useState<"calendar" | "requested" | "balances">("calendar")
+    const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)) // Default to Jan 2026 for demo
 
-export default async function LeavePage() {
-    const allRequests = await getAllLeaveRequests()
-    const profiles = await getProfiles()
+    // Calendar Calculations
+    const monthStart = startOfMonth(currentDate)
+    const monthEnd = endOfMonth(currentDate)
+    const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    const startDayOfWeek = getDay(monthStart) // 0 = Sunday
 
-    const pendingRequests = allRequests.filter(r => r.status === 'pending')
-    const approvedRequests = allRequests.filter(r => r.status === 'approved')
+    // Get leaves that overlap with the current month
+    const currentMonthLeaves = leaves.filter(leave => {
+        const leaveStart = new Date(leave.start_date)
+        const leaveEnd = new Date(leave.end_date)
 
-    // Calculate stats from real data
-    const totalEmployees = profiles.length
-    const onLeaveToday = approvedRequests.filter(r => {
-        const today = new Date()
-        const start = new Date(r.start_date)
-        const end = new Date(r.end_date)
-        return today >= start && today <= end
+        return areIntervalsOverlapping(
+            { start: leaveStart, end: leaveEnd },
+            { start: monthStart, end: monthEnd }
+        ) && leave.status === 'approved' // Match DB status case 'approved' vs 'Approved'
     })
 
-    function getInitials(name: string) {
-        return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??'
-    }
+    const nextMonth = () => setCurrentDate(addMonths(currentDate, 1))
+    const prevMonth = () => setCurrentDate(subMonths(currentDate, 1))
 
-    function getDayCount(startDate: string, endDate: string) {
-        return differenceInDays(new Date(endDate), new Date(startDate)) + 1
-    }
+    const getEmployee = (id: string) => employees.find(e => e.id === id)
+
+    // Components
+    const CalendarView = () => (
+        <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-sm overflow-hidden flex flex-col h-full animate-in fade-in zoom-in-95 duration-300">
+            {/* Calendar Header */}
+            <div className="p-6 border-b border-[#e8e4e0] flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-bold text-[#1a1a1a]">
+                        {format(currentDate, "MMMM yyyy")}
+                    </h2>
+                    <div className="flex items-center gap-1 bg-[#faf8f5] rounded-lg p-1 border border-[#e8e4e0]">
+                        <button onClick={prevMonth} className="p-1 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#6b6b6b]">
+                            <ChevronLeft size={16} />
+                        </button>
+                        <button onClick={nextMonth} className="p-1 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#6b6b6b]">
+                            <ChevronRight size={16} />
+                        </button>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-[#6b6b6b] bg-[#faf8f5] px-3 py-1.5 rounded-full border border-[#e8e4e0]">
+                        <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                        Sick Leave
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-[#6b6b6b] bg-[#faf8f5] px-3 py-1.5 rounded-full border border-[#e8e4e0]">
+                        <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                        Annual Leave
+                    </span>
+                </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 border-b border-[#e8e4e0] bg-[#faf8f5]">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="py-3 text-center text-xs font-semibold text-[#a0a0a0] uppercase tracking-wider">
+                        {day}
+                    </div>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-7 flex-1 overflow-y-auto bg-white">
+                {/* Empty cells for start of month */}
+                {Array.from({ length: startDayOfWeek }).map((_, i) => (
+                    <div key={`empty-${i}`} className="min-h-[120px] p-2 border-b border-r border-[#f5f3f0]" />
+                ))}
+
+                {/* Days */}
+                {daysInMonth.map(day => {
+                    const activeLeaves = currentMonthLeaves.filter(leave => {
+                        const start = new Date(leave.start_date)
+                        const end = new Date(leave.end_date)
+                        // Check if 'day' is within start and end inclusive
+                        // Normalize dates to ignore time for comparison if needed, or rely on date objects
+                        return (day >= start && day <= end) || isSameDay(day, start) || isSameDay(day, end)
+                    })
+                    const isTodayDate = isToday(day)
+
+                    return (
+                        <div
+                            key={day.toISOString()}
+                            className={cn(
+                                "min-h-[120px] p-3 border-b border-r border-[#f5f3f0] hover:bg-[#faf8f5]/50 transition-colors group relative",
+                                isTodayDate && "bg-[#faf8f5]"
+                            )}
+                        >
+                            <span className={cn(
+                                "text-sm font-medium inline-flex w-7 h-7 items-center justify-center rounded-full mb-2",
+                                isTodayDate ? "bg-[#1a1a1a] text-white" : "text-[#6b6b6b] group-hover:text-[#1a1a1a]"
+                            )}>
+                                {format(day, "d")}
+                            </span>
+
+                            <div className="space-y-1.5">
+                                {activeLeaves.map(leave => {
+                                    const employee = getEmployee(leave.user_id)
+                                    if (!employee) return null
+
+                                    const isSick = leave.type === 'Sick'
+
+                                    return (
+                                        <motion.div
+                                            key={leave.id}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className={cn(
+                                                "px-2 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform",
+                                                isSick
+                                                    ? "bg-amber-50 text-gray-600 border-amber-100" // Yellow Emoji + Gray Text
+                                                    : "bg-orange-50 text-orange-700 border-orange-100" // Orange Emoji + Orange Text
+                                            )}
+                                        >
+                                            {isSick ? <Thermometer className="w-3 h-3 text-amber-500" /> : <PartyPopper className="w-3 h-3 text-orange-500" />}
+                                            <span className="truncate max-w-[80px]">{employee.full_name.split(' ')[0]}</span>
+                                        </motion.div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+
+    const PlaceholderView = ({ title, icon: Icon }: any) => (
+        <div className="bg-white rounded-3xl border border-[#e8e4e0] p-12 text-center shadow-sm min-h-[500px] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 bg-[#faf8f5] rounded-2xl flex items-center justify-center mb-4">
+                <Icon size={32} className="text-[#a0a0a0]" />
+            </div>
+            <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">{title}</h3>
+            <p className="text-[#6b6b6b] max-w-sm mx-auto">
+                This module is currently under development. Please check back later for full functionality.
+            </p>
+        </div>
+    )
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-lg">
-                        <Calendar className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-[#1a1a1a]">Leave Management</h2>
-                        <p className="text-[#6b6b6b] text-sm mt-1">Track attendance and manage leave requests</p>
-                    </div>
+        <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col">
+            {/* Header & Tabs */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+                <div className="flex bg-[#faf8f5] p-1 rounded-xl border border-[#e8e4e0]">
+                    {[
+                        { id: 'requested', label: 'Requested' },
+                        { id: 'balances', label: 'Balances' },
+                        { id: 'calendar', label: 'Calendar' },
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={cn(
+                                "px-6 py-2.5 rounded-lg text-sm font-medium transition-all",
+                                activeTab === tab.id
+                                    ? "bg-white text-[#1a1a1a] shadow-sm border border-[#e8e4e0]/50"
+                                    : "text-[#6b6b6b] hover:text-[#1a1a1a]"
+                            )}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
 
-                {/* Help Bubble */}
-                <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-5 py-3 shadow-md border border-[#e8e4e0]">
-                    <Sparkles className="w-5 h-5 text-[#e07850]" />
-                    <span className="text-[#1a1a1a] font-medium">Hey, Need help?</span>
-                    <span className="text-2xl">👋</span>
+                <div className="flex items-center gap-3">
+                    <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#faf8f5] transition-colors">
+                        <Filter size={16} />
+                        Filter
+                    </button>
+                    <button
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-lg shadow-black/10"
+                        onClick={() => {
+                            // Demo add leave
+                            const randomEmployee = employees[Math.floor(Math.random() * employees.length)]
+                            const date = new Date(2026, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0]
+                            addLeave({
+                                user_id: randomEmployee.id,
+                                type: Math.random() > 0.5 ? 'Sick' : 'Annual',
+                                start_date: date,
+                                end_date: date,
+                                status: 'approved'
+                            })
+                        }}
+                    >
+                        <Plus size={18} />
+                        Request Leave
+                    </button>
                 </div>
             </div>
 
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Employees */}
-                <div className="bg-white rounded-3xl border border-[#e8e4e0] p-5 shadow-md hover:shadow-lg transition-all">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md">
-                            <Clock size={22} className="text-white" />
-                        </div>
-                        <div className="flex items-center gap-1 text-emerald-700 text-xs font-medium bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">
-                            <TrendingUp size={14} />
-                            Active
-                        </div>
-                    </div>
-                    <div className="text-3xl font-bold text-[#1a1a1a]">{totalEmployees}</div>
-                    <div className="text-sm text-[#6b6b6b] mt-1">Total Employees</div>
-                </div>
-
-                {/* Pending Requests */}
-                <div className="bg-white rounded-3xl border border-[#e8e4e0] p-5 shadow-md hover:shadow-lg transition-all">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-md">
-                            <Calendar size={22} className="text-white" />
-                        </div>
-                        {pendingRequests.length > 0 && (
-                            <div className="flex items-center gap-1 text-[#e07850] text-xs font-medium bg-[#e07850]/10 px-2 py-1 rounded-full border border-[#e07850]/20">
-                                <TrendingUp size={14} />
-                                Action Needed
-                            </div>
-                        )}
-                    </div>
-                    <div className="text-3xl font-bold text-[#1a1a1a]">{pendingRequests.length}</div>
-                    <div className="text-sm text-[#6b6b6b] mt-1">Pending Requests</div>
-                </div>
-
-                {/* Approved Leaves */}
-                <div className="bg-white rounded-3xl border border-[#e8e4e0] p-5 shadow-md hover:shadow-lg transition-all">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md">
-                            <UserX size={22} className="text-white" />
-                        </div>
-                    </div>
-                    <div className="text-3xl font-bold text-[#1a1a1a]">{approvedRequests.length}</div>
-                    <div className="text-sm text-[#6b6b6b] mt-1">Approved Leaves</div>
-                </div>
-
-                {/* On Leave Today */}
-                <div className="bg-white rounded-3xl border border-[#e8e4e0] p-5 shadow-md hover:shadow-lg transition-all">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-md">
-                            <Plane size={22} className="text-white" />
-                        </div>
-                    </div>
-                    {onLeaveToday.length > 0 ? (
-                        <>
-                            <div className="flex items-center gap-1 mb-2">
-                                {onLeaveToday.slice(0, 3).map((request, i) => (
-                                    <div
-                                        key={request.id}
-                                        className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow-md"
-                                        style={{ marginLeft: i > 0 ? '-8px' : 0, zIndex: 3 - i }}
-                                        title={request.profile?.full_name}
-                                    >
-                                        {getInitials(request.profile?.full_name || '')}
-                                    </div>
-                                ))}
-                                {onLeaveToday.length > 3 && (
-                                    <span className="text-sm text-[#6b6b6b] ml-2">+{onLeaveToday.length - 3}</span>
-                                )}
-                            </div>
-                            <div className="text-sm text-[#6b6b6b]">On Leave Today</div>
-                        </>
-                    ) : (
-                        <>
-                            <div className="text-3xl font-bold text-[#1a1a1a]">0</div>
-                            <div className="text-sm text-[#6b6b6b] mt-1">On Leave Today</div>
-                        </>
+            {/* Content Area */}
+            <div className="flex-1 min-h-0">
+                <AnimatePresence mode="wait">
+                    {activeTab === 'calendar' && (
+                        <CalendarView key="calendar" />
                     )}
-                </div>
-            </div>
-
-            {/* Pending Requests */}
-            <div className="bg-white rounded-3xl border border-[#e8e4e0] p-6 shadow-md">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-semibold text-[#1a1a1a]">Pending Requests</h3>
-                    <span className="px-2.5 py-1 bg-[#e07850]/10 text-[#e07850] rounded-full text-xs font-semibold border border-[#e07850]/20">
-                        {pendingRequests.length} Pending
-                    </span>
-                </div>
-
-                {pendingRequests.length === 0 ? (
-                    <div className="text-center py-8 text-[#a0a0a0]">
-                        No pending leave requests 🎉
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {pendingRequests.map(request => (
-                            <div
-                                key={request.id}
-                                className="border border-[#e8e4e0] bg-[#faf8f5] rounded-2xl p-4 hover:shadow-md hover:border-[#e07850]/30 transition-all"
-                            >
-                                {/* Header */}
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white text-sm font-bold shadow-md">
-                                        {getInitials(request.profile?.full_name || '')}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h4 className="font-semibold text-[#1a1a1a] text-sm">
-                                            {request.profile?.full_name || 'Unknown'}
-                                        </h4>
-                                        <span className="px-2 py-0.5 bg-[#f5f3f0] text-[#6b6b6b] rounded text-xs border border-[#e8e4e0]">
-                                            Leave Request
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Date */}
-                                <div className="flex items-center gap-2 text-sm text-[#6b6b6b] mb-2">
-                                    <Calendar size={14} className="text-[#a0a0a0]" />
-                                    <span>
-                                        {format(new Date(request.start_date), 'MMM d')} - {format(new Date(request.end_date), 'MMM d, yyyy')}
-                                    </span>
-                                    <span className="text-[#e8e4e0]">•</span>
-                                    <span className="font-medium text-[#1a1a1a]">
-                                        {getDayCount(request.start_date, request.end_date)} Day{getDayCount(request.start_date, request.end_date) > 1 ? 's' : ''}
-                                    </span>
-                                </div>
-
-                                {/* Reason */}
-                                <p className="text-sm text-[#a0a0a0] line-clamp-2 mb-4">
-                                    {request.reason}
-                                </p>
-
-                                {/* Actions */}
-                                <ApprovalActions requestId={request.id} />
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* Approved Leave Calendar */}
-            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md">
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-[#e8e4e0]">
-                    <h3 className="text-base font-semibold text-[#1a1a1a]">Approved Leaves</h3>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold border border-emerald-200">
-                        {approvedRequests.length} Approved
-                    </span>
-                </div>
-
-                {approvedRequests.length === 0 ? (
-                    <div className="text-center py-12 text-[#a0a0a0]">
-                        No approved leaves yet
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="bg-[#faf8f5] border-b border-[#e8e4e0]">
-                                    <th className="text-left py-3 px-6 font-medium text-[#6b6b6b] text-xs uppercase tracking-wider">Employee</th>
-                                    <th className="text-left py-3 px-6 font-medium text-[#6b6b6b] text-xs uppercase tracking-wider">Dates</th>
-                                    <th className="text-left py-3 px-6 font-medium text-[#6b6b6b] text-xs uppercase tracking-wider">Duration</th>
-                                    <th className="text-left py-3 px-6 font-medium text-[#6b6b6b] text-xs uppercase tracking-wider">Reason</th>
-                                    <th className="text-left py-3 px-6 font-medium text-[#6b6b6b] text-xs uppercase tracking-wider">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[#e8e4e0]">
-                                {approvedRequests.map(request => (
-                                    <tr key={request.id} className="hover:bg-[#faf8f5] transition-colors">
-                                        <td className="py-4 px-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                                                    {getInitials(request.profile?.full_name || '')}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-[#1a1a1a]">{request.profile?.full_name || 'Unknown'}</p>
-                                                    <p className="text-xs text-[#a0a0a0]">{request.profile?.email}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className="text-[#6b6b6b]">
-                                                {format(new Date(request.start_date), 'MMM d')} - {format(new Date(request.end_date), 'MMM d, yyyy')}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className="font-medium text-[#1a1a1a]">
-                                                {getDayCount(request.start_date, request.end_date)} Day{getDayCount(request.start_date, request.end_date) > 1 ? 's' : ''}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <p className="text-[#6b6b6b] line-clamp-1 max-w-[200px]">{request.reason}</p>
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                Approved
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                    {activeTab === 'requested' && (
+                        <PlaceholderView key="requested" title="Leave Requests" icon={Clock} />
+                    )}
+                    {activeTab === 'balances' && (
+                        <PlaceholderView key="balances" title="Leave Balances" icon={CheckCircle2} />
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     )

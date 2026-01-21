@@ -21,6 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { XCircle, Loader2, AlertTriangle, Mail } from "lucide-react"
 import { rejectCandidate } from "./actions"
+import { toast } from 'sonner'
 
 type Application = {
     id: string
@@ -45,7 +46,7 @@ export function RejectDialog({ application, trigger }: { application: Applicatio
 
     const handleSubmit = async () => {
         if (!reason) {
-            alert('Please select a reason')
+            toast.error('Please select a reason')
             return
         }
 
@@ -54,13 +55,14 @@ export function RejectDialog({ application, trigger }: { application: Applicatio
             const result = await rejectCandidate(application.id, reason, sendEmail)
 
             if (result.success) {
+                toast.success('Candidate rejected')
                 handleClose()
             } else {
-                alert('Failed to reject candidate: ' + result.message)
+                toast.error('Failed to reject candidate: ' + result.message)
             }
         } catch (error) {
             console.error(error)
-            alert('An error occurred')
+            toast.error('An error occurred')
         } finally {
             setIsSubmitting(false)
         }

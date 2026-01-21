@@ -6,6 +6,7 @@ import {
     User, Bell, Shield, CreditCard, Camera, Mail, Lock,
     Smartphone, Download, Check, Eye, EyeOff, Sparkles
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 type TabType = 'profile' | 'notifications' | 'security' | 'billing'
 
@@ -59,7 +60,7 @@ export default function SettingsPage() {
         setSaving(true)
         setTimeout(() => {
             setSaving(false)
-            alert('✅ Settings updated successfully!')
+            toast.success('Settings updated successfully!')
         }, 1000)
     }
 

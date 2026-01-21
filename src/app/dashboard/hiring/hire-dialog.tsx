@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Gift, Loader2, Sparkles, Send, CheckCircle2 } from "lucide-react"
 import { draftOffer, sendOffer } from "./actions"
+import { toast } from 'sonner'
 
 type Application = {
     id: string
@@ -37,7 +38,7 @@ export function HireDialog({ application }: { application: Application }) {
 
     const handleGenerateDraft = async () => {
         if (!role || !salary || !startDate) {
-            alert('Please fill in all fields')
+            toast.error('Please fill in all fields')
             return
         }
 
@@ -48,11 +49,11 @@ export function HireDialog({ application }: { application: Application }) {
                 setOfferContent(result.content)
                 setStep('review')
             } else {
-                alert('Failed to generate draft: ' + result.message)
+                toast.error('Failed to generate draft: ' + result.message)
             }
         } catch (error) {
             console.error(error)
-            alert('An error occurred while generating the draft')
+            toast.error('An error occurred while generating the draft')
         } finally {
             setIsGenerating(false)
         }
@@ -60,7 +61,7 @@ export function HireDialog({ application }: { application: Application }) {
 
     const handleSendOffer = async () => {
         if (!offerContent.trim()) {
-            alert('Offer content cannot be empty')
+            toast.error('Offer content cannot be empty')
             return
         }
 
@@ -70,11 +71,11 @@ export function HireDialog({ application }: { application: Application }) {
             if (result.success) {
                 setStep('success')
             } else {
-                alert('Failed to send offer: ' + result.message)
+                toast.error('Failed to send offer: ' + result.message)
             }
         } catch (error) {
             console.error(error)
-            alert('An error occurred while sending the offer')
+            toast.error('An error occurred while sending the offer')
         } finally {
             setIsSending(false)
         }

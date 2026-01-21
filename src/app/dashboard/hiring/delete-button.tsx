@@ -15,6 +15,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deleteApplication } from "./actions"
+import { toast } from 'sonner'
 
 export function DeleteApplicationButton({ applicationId, candidateName }: { applicationId: string, candidateName: string }) {
     const [isDeleting, setIsDeleting] = useState(false)
@@ -24,12 +25,14 @@ export function DeleteApplicationButton({ applicationId, candidateName }: { appl
         setIsDeleting(true)
         try {
             const result = await deleteApplication(applicationId)
-            if (!result.success) {
-                alert('Failed to delete: ' + result.message)
+            if (result.success) {
+                toast.success('Application deleted successfully')
+            } else {
+                toast.error('Failed to delete: ' + result.message)
             }
         } catch (error) {
             console.error('Delete error:', error)
-            alert('An error occurred while deleting')
+            toast.error('An error occurred while deleting')
         } finally {
             setIsDeleting(false)
             setOpen(false)
