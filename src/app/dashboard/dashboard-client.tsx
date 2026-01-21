@@ -8,7 +8,7 @@ import {
     Briefcase, Users, TrendingUp, Calendar, ArrowRight,
     CheckCircle, XCircle, Clock, Plus, GraduationCap, Video,
     UserCheck, AlertCircle, FileText, ChevronDown, MoreHorizontal,
-    Megaphone, Bell, ClipboardList, Sparkles
+    Megaphone, Bell, ClipboardList, Sparkles, Sun, Moon, Sunset
 } from 'lucide-react'
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
@@ -16,6 +16,7 @@ import {
 import { format, subDays, isAfter, startOfMonth } from 'date-fns'
 import { ApprovalActions } from './leave/approval-actions'
 import { useHems } from '@/context/HemsContext'
+import { ProStatCard } from '@/components/ui/pro-stat-card'
 
 interface DashboardClientProps {
     pendingTasks: number
@@ -24,6 +25,51 @@ interface DashboardClientProps {
     applicationsData: any[]
     pendingLeaveRequests: any[]
     userName: string
+}
+
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.1
+        }
+    }
+}
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 24 }
+    }
+}
+
+// Get time-based greeting
+function getTimeBasedGreeting(): { greeting: string; icon: React.ReactNode; gradient: string } {
+    const hour = new Date().getHours()
+    if (hour < 12) {
+        return {
+            greeting: 'Good Morning',
+            icon: <Sun className="w-6 h-6" />,
+            gradient: 'from-amber-500/20 via-orange-400/10 to-yellow-300/5'
+        }
+    } else if (hour < 17) {
+        return {
+            greeting: 'Good Afternoon',
+            icon: <Sun className="w-6 h-6" />,
+            gradient: 'from-blue-500/15 via-cyan-400/10 to-sky-300/5'
+        }
+    } else {
+        return {
+            greeting: 'Good Evening',
+            icon: <Sunset className="w-6 h-6" />,
+            gradient: 'from-purple-500/20 via-indigo-400/10 to-violet-300/5'
+        }
+    }
 }
 
 export default function DashboardClient({
@@ -37,6 +83,9 @@ export default function DashboardClient({
     const router = useRouter()
     const { announcements } = useHems()
     const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false)
+
+    // Time-based greeting
+    const { greeting, icon: greetingIcon, gradient: greetingGradient } = getTimeBasedGreeting()
 
     // Derived Real Data
     // ------------------------------------------------------------------
@@ -62,6 +111,11 @@ export default function DashboardClient({
         e.created_at && isAfter(new Date(e.created_at), startOfMonth(new Date()))
     ).length
     const growthTrend = newEmployeesThisMonth > 0 ? `+${newEmployeesThisMonth} this month` : 'No change'
+
+    // Sparkline data (simulated trend over last 7 periods)
+    const teamSparkline = [teamMembers - 5, teamMembers - 3, teamMembers - 4, teamMembers - 2, teamMembers - 1, teamMembers, teamMembers]
+    const hiringSparkline = [2, 4, 3, 5, 7, 6, funnelCounts.interview]
+    const onboardingSparkline = [1, 2, 1, 3, 2, 4, newEmployeesThisMonth || 2]
 
     // 3. Action Center Items
     const pendingOffer = applicationsData.find(a => a.status === 'offer')
@@ -89,152 +143,144 @@ export default function DashboardClient({
     // ------------------------------------------------------------------
 
     return (
-        <div className="space-y-6">
-            {/* Smart Greeting & Quick Actions */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-lg">
-                        <Calendar className="w-7 h-7 text-white" />
+        <motion.div
+            className="space-y-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            {/* Smart Greeting Card with Time-Based Gradient */}
+            <motion.div
+                variants={itemVariants}
+                className="relative overflow-hidden rounded-3xl bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-orange-200 via-orange-100 to-white border border-white/60 shadow-sm"
+            >
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 gap-4 relative z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-[18px] bg-white shadow-sm flex items-center justify-center text-orange-600 ring-1 ring-black/5">
+                            {greetingIcon}
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{greeting}, {userName}</h1>
+                            <p className="text-gray-500 text-sm mt-1 font-medium">
+                                You have <span className="text-orange-600 font-semibold">{pendingTasks} urgent tasks</span> today.
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-[#1a1a1a]">Good Morning, {userName} 👋</h1>
-                        <p className="text-[#6b6b6b] text-sm mt-1">
-                            You have <span className="font-semibold text-[#e07850]">{pendingTasks} urgent tasks</span> today.
-                        </p>
+
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
+                                className="flex items-center gap-2 px-5 py-3 bg-white/40 backdrop-blur-md border border-white/50 text-gray-900 rounded-full font-semibold hover:bg-white/60 transition-all shadow-sm active:scale-95"
+                            >
+                                <Plus size={18} className="text-orange-600" />
+                                Quick Actions
+                                <ChevronDown size={16} className={`text-gray-400 transition-transform ${isQuickActionsOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isQuickActionsOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-[#e8e4e0]/60 py-1 z-50 origin-top-right overflow-hidden"
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                router.push('/dashboard/hiring')
+                                                setIsQuickActionsOpen(false)
+                                            }}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
+                                        >
+                                            <Briefcase size={16} /> Post Job
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                router.push('/dashboard/team')
+                                                setIsQuickActionsOpen(false)
+                                            }}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
+                                        >
+                                            <Users size={16} /> Add Employee
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                router.push('/dashboard/settings')
+                                                setIsQuickActionsOpen(false)
+                                            }}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
+                                        >
+                                            <ClipboardList size={16} /> Draft Policy
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    {/* Help Bubble */}
-                    <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-5 py-3 shadow-md border border-[#e8e4e0]">
-                        <Sparkles className="w-5 h-5 text-[#e07850]" />
-                        <span className="text-[#1a1a1a] font-medium">Hey, Need help?</span>
-                        <span className="text-2xl">👋</span>
-                    </div>
+                {/* Decorative Subtle Elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200/20 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/60 rounded-full blur-2xl -ml-10 -mb-10 pointer-events-none" />
+            </motion.div>
 
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
-                            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-semibold hover:from-[#d45a3a] hover:to-[#c04a2a] transition-all shadow-lg"
-                        >
-                            <Plus size={18} />
-                            Quick Actions
-                            <ChevronDown size={16} className={`transition-transform ${isQuickActionsOpen ? 'rotate-180' : ''}`} />
-                        </button>
+            {/* Pulse Stats - Pro Cards with Sparklines */}
+            <motion.div
+                variants={containerVariants}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            >
+                <motion.div variants={itemVariants}>
+                    <ProStatCard
+                        title="Total Employees"
+                        value={teamMembers}
+                        icon={<Users size={20} />}
+                        iconGradient="bg-orange-100 text-orange-600"
+                        trend={{ value: newEmployeesThisMonth, label: growthTrend, isPositive: newEmployeesThisMonth > 0 }}
+                        sparklineData={teamSparkline}
+                        href="/dashboard/team"
+                    />
+                </motion.div>
 
-                        <AnimatePresence>
-                            {isQuickActionsOpen && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-[#e8e4e0] py-1 z-50 origin-top-right overflow-hidden"
-                                >
-                                    <button
-                                        onClick={() => {
-                                            router.push('/dashboard/hiring')
-                                            setIsQuickActionsOpen(false)
-                                        }}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
-                                    >
-                                        <Briefcase size={16} /> Post Job
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            router.push('/dashboard/team')
-                                            setIsQuickActionsOpen(false)
-                                        }}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
-                                    >
-                                        <Users size={16} /> Add Employee
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            // Placeholder for documents/policy
-                                            router.push('/dashboard/settings')
-                                            setIsQuickActionsOpen(false)
-                                        }}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-[#6b6b6b] hover:bg-[#e07850]/10 hover:text-[#e07850] transition-colors flex items-center gap-2"
-                                    >
-                                        <ClipboardList size={16} /> Draft Policy
-                                    </button>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                </div>
-            </div>
+                <motion.div variants={itemVariants}>
+                    <ProStatCard
+                        title="Hiring Pipeline"
+                        value={funnelCounts.interview}
+                        icon={<UserCheck size={20} />}
+                        iconGradient="bg-blue-100 text-blue-600"
+                        badge={`${applicationsData.length} Total`}
+                        badgeColor="blue"
+                        sparklineData={hiringSparkline}
+                        href="/dashboard/hiring"
+                    />
+                </motion.div>
 
-            {/* Pulse Stats - Connected to Modules */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Employees */}
-                <Link href="/dashboard/team">
-                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
-                        <div className="flex justify-between items-start mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
-                                <Users size={22} />
-                            </div>
-                            <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full flex items-center gap-1 border border-emerald-200">
-                                <TrendingUp size={10} /> {growthTrend}
-                            </span>
-                        </div>
-                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{teamMembers}</div>
-                        <div className="text-sm text-[#6b6b6b]">Total Employees</div>
-                    </div>
-                </Link>
+                <motion.div variants={itemVariants}>
+                    <ProStatCard
+                        title="New Hires (30d)"
+                        value={onboardingCount}
+                        icon={<GraduationCap size={20} />}
+                        iconGradient="bg-emerald-100 text-emerald-600"
+                        sparklineData={onboardingSparkline}
+                        href="/dashboard/onboarding"
+                    />
+                </motion.div>
 
-                {/* Hiring */}
-                <Link href="/dashboard/hiring">
-                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
-                        <div className="flex justify-between items-start mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
-                                <UserCheck size={22} />
-                            </div>
-                            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-full border border-blue-200">
-                                {applicationsData.length} Total
-                            </span>
-                        </div>
-                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{funnelCounts.interview}</div>
-                        <div className="text-sm text-[#6b6b6b]">Hiring Pipeline</div>
-                    </div>
-                </Link>
-
-                {/* Onboarding */}
-                <Link href="/dashboard/onboarding">
-                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
-                        <div className="flex justify-between items-start mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
-                                <GraduationCap size={22} />
-                            </div>
-                        </div>
-                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{onboardingCount}</div>
-                        <div className="text-sm text-[#6b6b6b]">
-                            {latestHire ? `Latest: ${latestHire.full_name?.split(' ')[0]}` : 'New Hires (30 days)'}
-                        </div>
-                    </div>
-                </Link>
-
-                {/* Pending Approvals */}
-                <Link href="/dashboard/leave">
-                    <div className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md hover:shadow-lg transition-all cursor-pointer group h-full">
-                        <div className="flex justify-between items-start mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
-                                <Bell size={22} />
-                            </div>
-                            {pendingLeaveRequests.length > 0 && (
-                                <span className="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-1 rounded-full border border-purple-200">
-                                    Needs review
-                                </span>
-                            )}
-                        </div>
-                        <div className="text-3xl font-bold text-[#1a1a1a] mt-3">{pendingLeaveRequests.length}</div>
-                        <div className="text-sm text-[#6b6b6b]">Pending Approvals</div>
-                    </div>
-                </Link>
-            </div>
+                <motion.div variants={itemVariants}>
+                    <ProStatCard
+                        title="Pending Reviews"
+                        value={pendingLeaveRequests.length}
+                        icon={<Bell size={20} />}
+                        iconGradient="bg-purple-100 text-purple-600"
+                        badge={pendingLeaveRequests.length > 0 ? 'Action' : undefined}
+                        badgeColor="purple"
+                        href="/dashboard/leave"
+                    />
+                </motion.div>
+            </motion.div>
 
             {/* Action Center - Split View */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column - Requires Action */}
                 <div className="lg:col-span-2 space-y-4">
                     <h3 className="font-semibold text-[#1a1a1a] flex items-center gap-2">
@@ -245,7 +291,7 @@ export default function DashboardClient({
                     {/* 1. Offer Pending (Real Data) */}
                     {pendingOffer && (
                         <motion.div
-                            whileHover={{ scale: 1.01 }}
+                            whileHover={{ scale: 1.01, y: -2 }}
                             className="bg-white p-4 rounded-2xl border border-[#e8e4e0] shadow-md flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all"
                         >
                             <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
@@ -267,7 +313,7 @@ export default function DashboardClient({
                         pendingLeaveRequests.map((request: any) => (
                             <motion.div
                                 key={request.id}
-                                whileHover={{ scale: 1.01 }}
+                                whileHover={{ scale: 1.01, y: -2 }}
                                 className="bg-white p-4 rounded-2xl border border-[#e8e4e0] shadow-md flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-lg transition-all"
                             >
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white shrink-0 font-bold shadow-md">
@@ -291,7 +337,7 @@ export default function DashboardClient({
                     {/* 3. Interview (Real Data) */}
                     {nextInterview && (
                         <motion.div
-                            whileHover={{ scale: 1.01 }}
+                            whileHover={{ scale: 1.01, y: -2 }}
                             className="bg-white p-4 rounded-2xl border border-[#e8e4e0] shadow-md flex items-center gap-4 cursor-pointer hover:shadow-lg transition-all"
                         >
                             <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
@@ -342,10 +388,10 @@ export default function DashboardClient({
                         </ResponsiveContainer>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Company Announcements */}
-            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
+            <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
                 <h3 className="font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
                     <Megaphone size={18} className="text-[#e07850]" />
                     Company Announcements
@@ -354,17 +400,18 @@ export default function DashboardClient({
                     {announcements.map((announcement) => (
                         <motion.div
                             key={announcement.id}
-                            whileHover={{ y: -2 }}
+                            whileHover={{ y: -4, scale: 1.01 }}
                             className={`p-4 rounded-2xl border cursor-pointer transition-all ${announcement.priority === 'High'
-                                ? 'bg-[#e07850]/5 border-[#e07850]/30 hover:border-[#e07850]/50'
-                                : 'bg-[#faf8f5] border-[#e8e4e0] hover:border-[#d9d5d0]'
+                                ? 'bg-[#e07850]/5 border-[#e07850]/30 hover:border-[#e07850]/50 hover:shadow-md'
+                                : 'bg-[#faf8f5] border-[#e8e4e0] hover:border-[#d9d5d0] hover:shadow-md'
                                 }`}
                         >
                             <div className="flex items-start justify-between mb-2">
-                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${announcement.priority === 'High'
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${announcement.priority === 'High'
                                     ? 'bg-[#e07850]/10 text-[#e07850] border border-[#e07850]/20'
                                     : 'bg-[#f5f3f0] text-[#6b6b6b]'
                                     }`}>
+                                    {announcement.priority === 'High' && <span className="w-1.5 h-1.5 bg-[#e07850] rounded-full" />}
                                     {announcement.priority}
                                 </span>
                                 <span className="text-xs text-[#a0a0a0]">
@@ -377,8 +424,8 @@ export default function DashboardClient({
                         </motion.div>
                     ))}
                 </div>
-            </div>
+            </motion.div>
 
-        </div>
+        </motion.div>
     )
 }

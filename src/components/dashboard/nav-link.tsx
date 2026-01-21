@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export interface NavLinkClientProps {
     href: string;
@@ -23,19 +24,36 @@ export function NavLinkClient({ href, icon, label }: NavLinkClientProps) {
 
     return (
         <motion.div
-            whileHover={{ scale: 1.02, x: 4 }}
+            whileHover={{ x: 4 }}
             whileTap={{ scale: 0.98 }}
             transition={springConfig}
+            className="relative"
         >
             <Link
                 href={href}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
-                    ? "text-[#e07850] font-semibold bg-[#e07850]/10 border-r-[3px] border-[#e07850]"
-                    : "text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#f5f3f0]"
-                    }`}
+                className={cn(
+                    "relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    isActive
+                        ? "text-white bg-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+                        : "text-gray-400 hover:text-gray-100 hover:bg-[#2C2C2C]"
+                )}
             >
-                <span className={isActive ? "text-[#e07850]" : "text-[#a0a0a0]"}>{icon}</span>
-                {label}
+                {/* Active Glow Accent - Left Border */}
+                {isActive && (
+                    <motion.div
+                        layoutId="activeNavIndicator"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#F97316] rounded-r-sm shadow-[0_0_12px_rgba(249,115,22,0.6)]"
+                        transition={springConfig}
+                    />
+                )}
+
+                <span className={cn(
+                    "transition-colors duration-200",
+                    isActive ? "text-[#F97316]" : "text-gray-500 group-hover:text-gray-300"
+                )}>
+                    {icon}
+                </span>
+                <span className="tracking-tight">{label}</span>
             </Link>
         </motion.div>
     );

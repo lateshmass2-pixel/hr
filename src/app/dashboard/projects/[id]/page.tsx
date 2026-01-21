@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useHems, Task, TaskStatus } from "@/context/HemsContext"
 import { useParams, useRouter } from "next/navigation"
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
+import { motion } from "framer-motion"
 import {
     Clock,
     CheckCircle2,
@@ -18,7 +19,8 @@ import {
     Layout,
     Plus,
     ArrowLeft,
-    Users
+    Users,
+    ClipboardList
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow, format } from "date-fns"
@@ -42,6 +44,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import Link from "next/link"
+import { AvatarStack } from "@/components/ui/avatar-stack"
+import { EmptyState } from "@/components/ui/empty-state"
 
 const COLUMN_ORDER: TaskStatus[] = ["To Do", "In Progress", "Review", "Done"]
 
@@ -147,6 +151,9 @@ export default function ProjectDetailsPage() {
     }
 
     // --- Components ---
+    // Task ID Generator (Mock)
+    const getTaskId = (id: string) => `HEMS-${id.substring(0, 3).toUpperCase()}`
+
     const KanbanCard = ({ task, index }: { task: Task, index: number }) => {
         const assignee = users.find(u => u.id === task.assigneeId) || employees.find(e => e.id === task.assigneeId)
         const isVerified = task.verificationStatus === "Verified"
@@ -165,52 +172,51 @@ export default function ProjectDetailsPage() {
                         {...provided.dragHandleProps}
                         onClick={() => projectRole === "LEADER" && isPending && setVerificationTask(task)}
                         className={cn(
-                            "bg-white p-4 rounded-xl border-2 shadow-sm mb-3 group transition-all relative overflow-hidden",
-                            snapshot.isDragging && "shadow-lg rotate-2 scale-105 z-50",
-                            isPending ? "border-amber-400 ring-2 ring-amber-400/20" :
-                                isVerified ? "border-emerald-200" : "border-[#e8e4e0]",
-                            projectRole === "LEADER" && isPending ? "cursor-pointer hover:bg-amber-50/50" :
+                            "bg-white p-3.5 rounded-lg border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] mb-3 group relative overflow-hidden",
+                            "hover:shadow-lg hover:border-orange-300 hover:-translate-y-1 transition-all duration-300",
+                            snapshot.isDragging && "shadow-xl rotate-2 scale-105 z-50",
+                            isPending ? "border-amber-400 ring-1 ring-amber-400/20" :
+                                isVerified ? "border-emerald-200" : "border-gray-200",
+                            projectRole === "LEADER" && isPending ? "cursor-pointer" :
                                 canDrag ? "cursor-grab" : "cursor-default"
                         )}
                         style={provided.draggableProps.style}
                     >
-                        {/* Priority Stripe */}
-                        <div className={cn(
-                            "absolute left-0 top-0 bottom-0 w-1",
-                            task.priority === "High" ? "bg-red-500" :
-                                task.priority === "Medium" ? "bg-blue-500" : "bg-gray-300"
-                        )} />
-
-                        {/* Badges */}
-                        <div className="flex flex-wrap gap-2 mb-2 pl-2">
-                            {task.priority === "High" && <Badge variant="outline" className="text-[10px] py-0 h-5 border-red-200 text-red-600 bg-red-50">High</Badge>}
-                            {isPending && <Badge className="text-[10px] py-0 h-5 bg-amber-100 text-amber-800 hover:bg-amber-100 border-none">Review</Badge>}
-                            {isVerified && <Badge className="text-[10px] py-0 h-5 bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none flex gap-1"><CheckCircle2 size={8} /> Verified</Badge>}
-                            {isRejected && <Badge className="text-[10px] py-0 h-5 bg-red-100 text-red-800 hover:bg-red-100 border-none">Rejected</Badge>}
+                        {/* ID Badge */}
+                        <div className="absolute top-3 right-3 text-[10px] font-mono text-gray-400 group-hover:text-gray-600 transition-colors">
+                            {getTaskId(task.id)}
                         </div>
 
-                        <div className="flex justify-between items-start gap-2 pl-2">
-                            <p className="font-semibold text-[#1a1a1a] text-sm leading-snug">{task.title}</p>
-                            <MoreHorizontal size={14} className="text-gray-400 shrink-0" />
+                        {/* Priority Stripe Removed for Cleaner Look, using Badges instead */}
+
+                        {/* Badges - Linear Style Pills */}
+                        <div className="flex flex-wrap gap-1.5 mb-2 pr-8">
+                            {task.priority === "High" && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-100">
+                                    High
+                                </span>
+                            )}
+                            {isPending && <span className="inline-flex px-1.5 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100">Review</span>}
+                            {isVerified && <span className="inline-flex px-1.5 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">Verified</span>}
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between pl-2">
+                        <div className="mb-3">
+                            <p className="font-medium text-gray-900 text-sm leading-snug tracking-tight">{task.title}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            {/* Stacked Assignee */}
                             {assignee ? (
-                                <div className="flex items-center gap-2" title={(assignee as any).name || (assignee as any).full_name}>
-                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 border border-white shadow-sm flex items-center justify-center text-[9px] font-bold text-gray-600">
-                                        {((assignee as any).name || (assignee as any).full_name).substring(0, 2)}
+                                <div className="flex items-center -space-x-2">
+                                    <div className="w-6 h-6 rounded-full bg-indigo-50 border border-white flex items-center justify-center text-[9px] font-bold text-indigo-600 shadow-sm" title={(assignee as any).name || (assignee as any).full_name}>
+                                        {((assignee as any).name || (assignee as any).full_name).substring(0, 1)}
                                     </div>
-                                    <span className="text-xs text-[#6b6b6b] truncate max-w-[80px]">
-                                        {((assignee as any).name || (assignee as any).full_name).split(' ')[0]}
-                                    </span>
                                 </div>
                             ) : <div className="h-6" />}
 
-                            {task.proofUrl && (
-                                <div className="text-emerald-600 bg-emerald-50 w-6 h-6 rounded-full flex items-center justify-center" title="Proof attached">
-                                    <LinkIcon size={12} />
-                                </div>
-                            )}
+                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreHorizontal size={14} className="text-gray-400 cursor-pointer hover:text-gray-600" />
+                            </div>
                         </div>
                     </div>
                 )}
@@ -288,24 +294,19 @@ export default function ProjectDetailsPage() {
                             )
                         })()}
 
-                        {/* Squad Stack */}
-                        <div className="flex items-center -space-x-2">
-                            {project.memberIds?.map(mid => {
+                        {/* Squad Stack - Using AvatarStack component */}
+                        <AvatarStack
+                            avatars={(project.memberIds || []).map(mid => {
                                 const m = users.find(u => u.id === mid) || employees.find(e => e.id === mid)
-                                if (!m) return null
-                                return (
-                                    <div key={mid} className="relative group hover:z-10 transition-all hover:scale-110">
-                                        {(m as any).avatar || (m as any).avatar_url ? (
-                                            <img src={(m as any).avatar || (m as any).avatar_url} className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm bg-gray-100" alt={(m as any).name || (m as any).full_name} title={(m as any).name || (m as any).full_name} />
-                                        ) : (
-                                            <div className="w-8 h-8 rounded-full border-2 border-white bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-700 shadow-sm" title={(m as any).name || (m as any).full_name}>
-                                                {((m as any).name || (m as any).full_name).substring(0, 2)}
-                                            </div>
-                                        )}
-                                    </div>
-                                )
-                            })}
-                        </div>
+                                return {
+                                    id: mid,
+                                    name: (m as any)?.name || (m as any)?.full_name || 'Unknown',
+                                    avatar: (m as any)?.avatar || (m as any)?.avatar_url
+                                }
+                            }).filter(a => a.name !== 'Unknown')}
+                            maxVisible={4}
+                            size="md"
+                        />
                     </div>
 
                     {/* Create Task Button - LEADER ONLY */}
@@ -349,13 +350,32 @@ export default function ProjectDetailsPage() {
                                                 {...provided.droppableProps}
                                                 ref={provided.innerRef}
                                                 className={cn(
-                                                    "flex-1 bg-[#f4f2ef]/50 rounded-2xl border border-dashed border-[#e8e4e0] p-3 transition-colors",
-                                                    snapshot.isDraggingOver && "bg-indigo-50/50 border-indigo-200"
+                                                    "flex-1 bg-gray-50/80 rounded-xl border-r border-dashed border-gray-200 p-2 min-h-[500px] transition-colors",
+                                                    snapshot.isDraggingOver && "bg-orange-50/30 border-orange-200 ring-1 ring-orange-200"
                                                 )}
                                             >
-                                                {colTasks.map((task, index) => (
-                                                    <KanbanCard key={task.id} task={task} index={index} />
-                                                ))}
+                                                {/* Sticky Header with Pill Counter */}
+                                                <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100 p-2 mb-3 rounded-t-lg shadow-sm flex items-center justify-between">
+                                                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider pl-1">{colId}</span>
+                                                    <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-gray-200">
+                                                        {colTasks.length}
+                                                    </span>
+                                                </div>
+
+                                                {colTasks.length === 0 ? (
+                                                    <div className="h-40 flex items-center justify-center">
+                                                        <EmptyState
+                                                            icon={ClipboardList}
+                                                            title=""
+                                                            description="No tasks"
+                                                            className="py-2 opacity-50 scale-75"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    colTasks.map((task, index) => (
+                                                        <KanbanCard key={task.id} task={task} index={index} />
+                                                    ))
+                                                )}
                                                 {provided.placeholder}
                                             </div>
                                         )}

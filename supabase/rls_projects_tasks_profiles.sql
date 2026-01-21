@@ -3,17 +3,60 @@
 -- Industrial Grade Security Implementation
 -- =====================================================
 
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- =====================================================
+-- CREATE PROJECT_MEMBERS TABLE (if not exists)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS project_members (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  project_id uuid REFERENCES projects(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  role TEXT DEFAULT 'MEMBER', -- 'LEADER', 'MEMBER', 'VIEWER'
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(project_id, user_id)
+);
+
 -- Enable RLS on all tables
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_members ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies to start fresh
+-- =====================================================
+-- DROP ALL EXISTING POLICIES (makes script re-runnable)
+-- =====================================================
+
+-- Drop old policies
 DROP POLICY IF EXISTS "Allow all authenticated access to profiles" ON profiles;
 DROP POLICY IF EXISTS "Allow all authenticated access to projects" ON projects;
 DROP POLICY IF EXISTS "Allow all authenticated access to tasks" ON tasks;
 DROP POLICY IF EXISTS "Allow all authenticated access to project_members" ON project_members;
+
+-- Drop profiles policies
+DROP POLICY IF EXISTS "Authenticated users can view profiles" ON profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+
+-- Drop projects policies
+DROP POLICY IF EXISTS "HR_ADMIN full access to projects" ON projects;
+DROP POLICY IF EXISTS "Standard users can view accessible projects" ON projects;
+DROP POLICY IF EXISTS "Authenticated users can create projects" ON projects;
+DROP POLICY IF EXISTS "Project lead can update project" ON projects;
+DROP POLICY IF EXISTS "Project lead can delete project" ON projects;
+
+-- Drop tasks policies
+DROP POLICY IF EXISTS "HR_ADMIN full access to tasks" ON tasks;
+DROP POLICY IF EXISTS "Users can view tasks for accessible projects" ON tasks;
+DROP POLICY IF EXISTS "Users can create tasks for accessible projects" ON tasks;
+DROP POLICY IF EXISTS "Users can update assigned tasks" ON tasks;
+DROP POLICY IF EXISTS "Project leads can verify tasks" ON tasks;
+
+-- Drop project_members policies
+DROP POLICY IF EXISTS "HR_ADMIN full access to project_members" ON project_members;
+DROP POLICY IF EXISTS "Project leads can manage members" ON project_members;
+DROP POLICY IF EXISTS "Users can view own memberships" ON project_members;
+DROP POLICY IF EXISTS "Project leads can modify project_members" ON project_members;
 
 -- =====================================================
 -- PROFILES TABLE POLICIES
@@ -163,29 +206,13 @@ WITH CHECK (
   )
 );
 
--- Allow users to update their assigned tasks (status and proof_url only)
+-- Allow users to update their assigned tasks
 CREATE POLICY "Users can update assigned tasks"
 ON tasks FOR UPDATE
 TO authenticated
 USING (
   -- User is assigned to the task
   assignee_id = auth.uid()
-)
-WITH CHECK (
-  -- User is assigned to the task
-  assignee_id = auth.uid()
-  AND 
-  -- Can only update specific columns
-  (
-    -- Update to status 'COMPLETED' requires proof_url
-    (status = 'COMPLETED' AND proof_url IS NOT NULL AND OLD.status != 'COMPLETED')
-    OR
-    -- Update from COMPLETED back to IN_PROGRESS for rejected tasks
-    (status = 'IN_PROGRESS' AND OLD.status = 'COMPLETED')
-    OR
-    -- Normal status updates between other statuses
-    (status != OLD.status AND status IN ('TODO', 'IN_PROGRESS', 'READY_FOR_REVIEW'))
-  )
 );
 
 -- Project leads can update any task in their project (for verification)
@@ -199,11 +226,6 @@ USING (
     WHERE projects.id = tasks.project_id
     AND projects.team_lead_id = auth.uid()
   )
-)
-WITH CHECK (
-  -- Can only update verification_status and related fields
-  verification_status IS DISTINCT FROM OLD.verification_status
-  OR status IS DISTINCT FROM OLD.status
 );
 
 -- =====================================================
@@ -239,22 +261,3 @@ CREATE POLICY "Users can view own memberships"
 ON project_members FOR SELECT
 TO authenticated
 USING (user_id = auth.uid());
-
--- Allow project leads to add/remove members
-CREATE POLICY "Project leads can modify project_members"
-ON project_members FOR ALL
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM projects
-    WHERE projects.id = project_members.project_id
-    AND projects.team_lead_id = auth.uid()
-  )
-)
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM projects
-    WHERE projects.id = project_members.project_id
-    AND projects.team_lead_id = auth.uid()
-  )
-);

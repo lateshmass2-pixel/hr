@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(
-        "min-h-screen bg-background font-sans antialiased text-sm selection:bg-purple-100 selection:text-purple-900",
+        "min-h-screen bg-background font-sans antialiased tracking-tight text-sm selection:bg-purple-100 selection:text-purple-900",
         font.className
       )}>
         <HemsProvider>
