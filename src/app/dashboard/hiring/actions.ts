@@ -3,8 +3,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { parsePDF } from "@/lib/pdf-parser"
-import { openai, AI_MODEL } from "@/lib/ai"
+import { openai, AI_MODEL, groq } from "@/lib/ai"
 import { sendAssessmentInvite, sendRejectionEmail, sendOfferEmail } from "@/lib/email"
+import { generateObject } from "ai"
+import { z } from "zod"
+import { AssessmentSchema } from "@/lib/assessment-schema"
 
 export async function deleteApplication(applicationId: string) {
     console.log('🗑️ Attempting to delete application:', applicationId)
@@ -144,7 +147,7 @@ export async function processApplication(formData: FormData) {
         const rawText = await parsePDF(buffer)
         const resumeText = rawText.substring(0, 3000)
 
-        // 4. Build skill-aware AI prompt
+        // 4. Build skill-aware AI prompt and Generate using Structured Outputs
         const skillsContext = requiredSkills.length > 0
             ? `\n\n**CRITICAL REQUIREMENT:** The candidate MUST have experience with these specific skills: [${requiredSkills.join(', ')}].
 - Check for the presence and depth of these specific skills in the resume.
@@ -152,38 +155,25 @@ export async function processApplication(formData: FormData) {
 - If they have ALL required skills, score based on experience level.`
             : ''
 
-        const completion = await openai.chat.completions.create({
-            model: AI_MODEL,
-            messages: [
-                {
-                    role: "system",
-                    content: `You are an expert HR Recruiter and Technical Assessor. Analyze the resume for the position: "${jobTitle}".${skillsContext}
-
-Output a JSON object with:
-- score: number (0-100) based on resume relevance and skill match
-- summary: string (brief reasoning about the candidate)
-- missing_skills: array of strings (skills from required list that are NOT found in resume, empty if all present)
-- questions: array of 10-15 MCQ objects, each with:
-  - question: string (the question text)
-  - options: array of 4 strings (A, B, C, D choices)
-  - correct: number (0-3 index of correct answer)
-- candidate_name: string (extracted from resume, or "Unknown Candidate")
-- candidate_email: string (extracted from resume, or "unknown@example.com")
-
-Generate MCQs based on ${requiredSkills.length > 0 ? 'the REQUIRED SKILLS' : 'skills found in the resume'}. Mix difficulty:
-- 40% Easy, 40% Medium, 20% Hard
-
-Return ONLY valid JSON.`
-                },
-                {
-                    role: "user",
-                    content: `Resume Text: ${resumeText}`
-                }
-            ],
-            response_format: { type: "json_object" }
+        const { object: aiResponse } = await generateObject({
+            model: groq(AI_MODEL),
+            schema: z.object({
+                score: z.number().min(0).max(100).describe("Relevance score based on skills"),
+                summary: z.string().describe("Reasoning for the score"),
+                missing_skills: z.array(z.string()).describe("Required skills missing from resume"),
+                questions: AssessmentSchema,
+                candidate_name: z.string().nullable().describe("Extracted candidate name"),
+                candidate_email: z.string().nullable().describe("Extracted candidate email")
+            }),
+            system: `You are an expert HR Recruiter and Technical Assessor. Analyze the resume for the position: "${jobTitle}".${skillsContext}
+            
+            Generate a rigorous assessment test.
+            - APTITUDE: General logic/reasoning.
+            - TECHNICAL: Specific to ${jobTitle} and ${requiredSkills.join(', ')}.
+            - Mix difficulty: 40% Easy, 40% Medium, 20% Hard.`,
+            prompt: `Resume Text: ${resumeText}`
         })
 
-        const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
         const { score, summary, missing_skills, questions, candidate_name, candidate_email } = aiResponse
 
         // Use formData values if present (manual override), otherwise use AI extracted values

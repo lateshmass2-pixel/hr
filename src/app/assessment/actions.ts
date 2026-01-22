@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { openai, AI_MODEL } from "@/lib/ai"
 import { sendRejectionEmail, sendInterviewReadyEmail } from "@/lib/email"
+import { calculateScore } from "@/lib/grading"
+import { Question } from "@/lib/assessment-schema"
 
 type MCQ = {
     question: string
@@ -35,25 +37,50 @@ export async function submitAssessment(applicationId: string, answers: number[])
     }
 
     try {
-        const questions = app.generated_questions as MCQ[]
+        let questions: Question[] = []
+        const generated = app.generated_questions
 
-        // Calculate score based on correct answers
-        let correctCount = 0
-        const detailedResults: { question: string; correct: boolean; userAnswer: string; correctAnswer: string }[] = []
-
-        questions.forEach((q, idx) => {
-            const isCorrect = answers[idx] === q.correct
-            if (isCorrect) correctCount++
-
-            detailedResults.push({
+        // Normalize questions to Question[] format
+        if (Array.isArray(generated)) {
+            questions = generated.map((q: any) => ({
+                id: q.id || 'legacy',
                 question: q.question,
-                correct: isCorrect,
-                userAnswer: q.options[answers[idx]] || 'No answer',
-                correctAnswer: q.options[q.correct]
-            })
-        })
+                options: q.options,
+                // Legacy 'correct' is 0-3 index usually
+                correctOptionIndex: typeof q.correct === 'number' ? q.correct : (q.correctOptionIndex ?? 0),
+                explanation: q.explanation || ''
+            }))
+        } else if (generated && typeof generated === 'object') {
+            const gen = generated as { aptitude?: any[], technical?: any[] }
+            const raw = [...(gen.aptitude || []), ...(gen.technical || [])]
+            questions = raw.map((q: any) => ({
+                id: q.id || 'unknown',
+                question: q.question,
+                options: q.options,
+                correctOptionIndex: typeof q.correct === 'number' ? q.correct : (q.correctOptionIndex ?? 0),
+                explanation: q.explanation || ''
+            }))
+        }
 
-        const score = Math.round((correctCount / questions.length) * 100)
+        if (questions.length === 0) {
+            throw new Error('No questions found in application record')
+        }
+
+        // Use deterministic grading
+        const { score, correctCount, details } = calculateScore(answers, questions)
+
+        // Map details for AI feedback context
+        const detailedResults = details.map(d => {
+            const q = questions.find(q => q.id === d.questionId)
+            // Find the original question object to get options text
+            // Note: calculateScore details has indices
+            return {
+                question: q?.question || 'Unknown',
+                correct: d.isCorrect,
+                userAnswer: q?.options[d.userAnswerIndex ?? -1] || 'No answer',
+                correctAnswer: q?.options[d.correctAnswerIndex] || 'Unknown'
+            }
+        })
 
         console.log(`📊 MCQ Results: ${correctCount}/${questions.length} correct = ${score}%`)
 

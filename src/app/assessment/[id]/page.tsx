@@ -8,9 +8,12 @@ type Props = {
 }
 
 type MCQ = {
+    id?: string
     question: string
     options: string[]
-    correct: number
+    correct?: number
+    correctOptionIndex?: number
+    explanation?: string
 }
 
 // Component for completed assessments - simple confirmation only
@@ -77,10 +80,24 @@ export default async function AssessmentPage(props: Props) {
 
     // 1. Test is ready to be taken
     if (status === 'TEST_PENDING') {
-        const questions = (application.generated_questions || []) as MCQ[]
+        const generated = application.generated_questions
+        let aptitude: MCQ[] = []
+        let technical: MCQ[] = []
 
-        // Validate MCQ structure
-        if (!questions.length || !questions[0]?.options) {
+        // Handle both new (object) and old (array) formats
+        if (Array.isArray(generated)) {
+            // Old format: treat all as technical, or maybe split them? 
+            // Let's treat as technical to be safe
+            technical = generated as MCQ[]
+        } else if (generated && typeof generated === 'object') {
+            // New format
+            aptitude = (generated.aptitude as MCQ[]) || []
+            technical = (generated.technical as MCQ[]) || []
+        }
+
+        // Validate we have questions
+        const totalQuestions = aptitude.length + technical.length
+        if (totalQuestions === 0) {
             return (
                 <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-slate-50">
                     <div className="max-w-md">
@@ -93,13 +110,20 @@ export default async function AssessmentPage(props: Props) {
             )
         }
 
+        // SECURITY: Strip answer keys before sending to client
+        const stripAnswers = (qs: MCQ[]) => qs.map(q => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { correct, correctOptionIndex, explanation, ...safeQuestion } = q
+            return safeQuestion as MCQ
+        })
+
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-4">
                 <div className="max-w-2xl w-full space-y-8">
                     <div className="text-center">
                         <h1 className="text-3xl font-bold text-slate-900">Technical Assessment</h1>
                         <p className="text-slate-600 mt-2">
-                            Hi <strong>{application.candidate_name}</strong>, please complete this {questions.length}-question MCQ test.
+                            Hi <strong>{application.candidate_name}</strong>, please complete this {totalQuestions}-question assessments.
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">
                             You need 70% or above to proceed to the interview stage.
@@ -107,7 +131,8 @@ export default async function AssessmentPage(props: Props) {
                     </div>
 
                     <ProctoredAssessmentForm
-                        questions={questions}
+                        aptitude={stripAnswers(aptitude)}
+                        technical={stripAnswers(technical)}
                         applicationId={application.id}
                         candidateName={application.candidate_name}
                     />
