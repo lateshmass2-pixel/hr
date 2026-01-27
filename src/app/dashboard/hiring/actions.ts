@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 import { parsePDF } from "@/lib/pdf-parser"
 import { openai, AI_MODEL, groq } from "@/lib/ai"
 import { sendAssessmentInvite, sendRejectionEmail, sendOfferEmail } from "@/lib/email"
-import { generateObject } from "ai"
+import { generateText } from "ai"
 import { z } from "zod"
 import { AssessmentSchema } from "@/lib/assessment-schema"
 
@@ -98,6 +98,7 @@ export async function createJob(title: string, description: string, requiredSkil
 }
 
 export async function processApplication(formData: FormData) {
+    console.log('🔄 Processing Application with AI Model:', AI_MODEL)
     const supabase = await createClient()
 
     const file = formData.get('resume') as File
@@ -155,24 +156,37 @@ export async function processApplication(formData: FormData) {
 - If they have ALL required skills, score based on experience level.`
             : ''
 
-        const { object: aiResponse } = await generateObject({
+        const { text: aiText } = await generateText({
             model: groq(AI_MODEL),
-            schema: z.object({
-                score: z.number().min(0).max(100).describe("Relevance score based on skills"),
-                summary: z.string().describe("Reasoning for the score"),
-                missing_skills: z.array(z.string()).describe("Required skills missing from resume"),
-                questions: AssessmentSchema,
-                candidate_name: z.string().nullable().describe("Extracted candidate name"),
-                candidate_email: z.string().nullable().describe("Extracted candidate email")
-            }),
             system: `You are an expert HR Recruiter and Technical Assessor. Analyze the resume for the position: "${jobTitle}".${skillsContext}
             
             Generate a rigorous assessment test.
             - APTITUDE: General logic/reasoning.
             - TECHNICAL: Specific to ${jobTitle} and ${requiredSkills.join(', ')}.
-            - Mix difficulty: 40% Easy, 40% Medium, 20% Hard.`,
+            - Mix difficulty: 40% Easy, 40% Medium, 20% Hard.
+            
+            IMPORTANT: Respond with ONLY valid JSON (no markdown, no extra text):
+            {
+              "score": <number 0-100>,
+              "summary": "<string>",
+              "missing_skills": ["<string>"],
+              "questions": [{"id": "<string>", "type": "mcq"|"shortAnswer"|"essay", "category": "aptitude"|"technical", "text": "<string>", "difficulty": "easy"|"medium"|"hard", "options": ["<string>"], "correctAnswer": "<string>", "timeLimit": <number>}],
+              "candidate_name": "<string or null>",
+              "candidate_email": "<string or null>"
+            }`,
             prompt: `Resume Text: ${resumeText}`
         })
+
+        // Clean the AI response (remove markdown code blocks if present)
+        const cleanAiText = aiText.replace(/```json\n?|```/g, '').trim()
+
+        let aiResponse
+        try {
+            aiResponse = JSON.parse(cleanAiText)
+        } catch (parseError) {
+            console.error('Failed to parse AI response:', cleanAiText)
+            throw new Error('Failed to parse AI structured response')
+        }
 
         const { score, summary, missing_skills, questions, candidate_name, candidate_email } = aiResponse
 
