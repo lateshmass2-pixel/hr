@@ -171,7 +171,7 @@ export default function DashboardClient({
             {/* ═══════════════════════════════════════════════════════════
                 GRADIENT STATS ROW - Real Data
             ═══════════════════════════════════════════════════════════ */}
-            <motion.div
+            {/* <motion.div
                 variants={containerVariants}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
             >
@@ -223,7 +223,7 @@ export default function DashboardClient({
                         />
                     </Link>
                 </motion.div>
-            </motion.div>
+            </motion.div> */}
 
             {/* ═══════════════════════════════════════════════════════════
                 CHARTS ROW - Real Data

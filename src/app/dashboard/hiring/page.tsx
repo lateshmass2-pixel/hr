@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { UploadDialog } from "./upload-dialog"
 import { CreateJobDialog } from "./create-job-dialog"
 import { HiringInbox } from "./hiring-inbox"
+import { KanbanBoard } from "./kanban-board"
+import { KBUploadDialog } from "./kb-upload-dialog"
 import { Users, Sparkles, Search, TrendingUp } from "lucide-react"
 import { GradientStatCard, SoftCard } from "@/components/ui/gradient-stat-card"
 
@@ -28,7 +30,7 @@ export default async function HiringDashboard() {
     }
 
     return (
-        <div className="space-y-6 animate-fade-in-up">
+        <div className="space-y-6">
             {/* ═══════════════════════════════════════════════════════════
                 HEADER
             ═══════════════════════════════════════════════════════════ */}
@@ -49,6 +51,7 @@ export default async function HiringDashboard() {
                         />
                     </div>
 
+                    <KBUploadDialog />
                     <CreateJobDialog />
                     <UploadDialog />
                 </div>
@@ -57,7 +60,7 @@ export default async function HiringDashboard() {
             {/* ═══════════════════════════════════════════════════════════
                 STATS ROW - Pipeline Overview
             ═══════════════════════════════════════════════════════════ */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <GradientStatCard
                     title="Total Candidates"
                     value={counts.total}
@@ -81,12 +84,14 @@ export default async function HiringDashboard() {
                     value={counts.offer}
                     variant="mint"
                 />
-            </div>
+            </div> */}
 
             {/* ═══════════════════════════════════════════════════════════
-                HIRING INBOX - Tabbed List View
+                HIRING INBOX - Kanban Board View
             ═══════════════════════════════════════════════════════════ */}
-            <HiringInbox applications={activeCandidates} />
+            <div className="h-[calc(100vh-280px)] min-h-[500px]">
+                <KanbanBoard applications={activeCandidates} />
+            </div>
         </div>
     )
 }

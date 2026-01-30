@@ -169,11 +169,17 @@ export async function processApplication(formData: FormData) {
             {
               "score": <number 0-100>,
               "summary": "<string>",
+              "extracted_skills": ["<string>"],
               "missing_skills": ["<string>"],
               "questions": [{"id": "<string>", "type": "mcq"|"shortAnswer"|"essay", "category": "aptitude"|"technical", "text": "<string>", "difficulty": "easy"|"medium"|"hard", "options": ["<string>"], "correctAnswer": "<string>", "timeLimit": <number>}],
               "candidate_name": "<string or null>",
               "candidate_email": "<string or null>"
-            }`,
+            }
+            
+            EXTRACTED SKILLS INSTRUCTION:
+            - List ALL technical skills, tools, languages, and frameworks found in the resume.
+            - Be specific (e.g., "React.js" instead of just "Web Development").
+            - Limit to top 15 most relevant skills.`,
             prompt: `Resume Text: ${resumeText}`
         })
 
@@ -188,7 +194,7 @@ export async function processApplication(formData: FormData) {
             throw new Error('Failed to parse AI structured response')
         }
 
-        const { score, summary, missing_skills, questions, candidate_name, candidate_email } = aiResponse
+        const { score, summary, extracted_skills, missing_skills, questions, candidate_name, candidate_email } = aiResponse
 
         // Use formData values if present (manual override), otherwise use AI extracted values
         const finalName = candidateName || candidate_name || 'Unknown Candidate'
@@ -212,6 +218,7 @@ export async function processApplication(formData: FormData) {
                 resume_url: resumeUrl,
                 resume_text: resumeText,
                 score: score,
+                skills: extracted_skills || [],
                 ai_reasoning: aiReasoning,
                 generated_questions: questions,
                 status: status
@@ -597,4 +604,22 @@ export async function rejectCandidate(
         console.error('Reject candidate error:', error)
         return { success: false, message: error.message }
     }
+}
+
+export async function updateApplicationStatus(applicationId: string, newStatus: string) {
+    const supabase = await createClient()
+
+    // Normalize status casing if needed, but for now assuming strict match
+    const { error } = await supabase
+        .from('applications')
+        .update({ status: newStatus })
+        .eq('id', applicationId)
+
+    if (error) {
+        console.error('Error updating status:', error)
+        return { success: false, message: error.message }
+    }
+
+    revalidatePath('/dashboard/hiring')
+    return { success: true }
 }

@@ -7,7 +7,6 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -20,143 +19,222 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus, Crown, Calendar, Users } from "lucide-react"
+import { Plus, X, Calendar, GripVertical, UserCircle } from "lucide-react"
 
 export default function CreateProjectModal() {
-    const { addProject, users } = useHems()
+    const { addProject, addTask, users, currentUser } = useHems()
     const [open, setOpen] = useState(false)
+
+    // Form State
     const [title, setTitle] = useState("")
     const [deadline, setDeadline] = useState("")
+    const [managerId, setManagerId] = useState(currentUser?.id || "")
     const [teamLeadId, setTeamLeadId] = useState("")
     const [selectedMembers, setSelectedMembers] = useState<string[]>([])
 
-    // Filter Users by Role (Standard users can lead projects)
-    const leads = users.filter(u => u.globalRole === "STANDARD_USER" || u.globalRole === "HR_ADMIN")
-    const employees = users.filter(u => u.globalRole === "STANDARD_USER")
+    // Tasks State
+    const [tasks, setTasks] = useState<string[]>([])
+    const [newTask, setNewTask] = useState("")
 
-    const handleCreate = () => {
-        if (!title || !teamLeadId) return
+    const handleAddTask = () => {
+        if (!newTask.trim()) return
+        setTasks([...tasks, newTask])
+        setNewTask("")
+    }
 
-        addProject({
+    const removeTask = (index: number) => {
+        setTasks(tasks.filter((_, i) => i !== index))
+    }
+
+    const handleCreate = async () => {
+        if (!title || !teamLeadId || !deadline) return
+
+        // Create Project
+        const newProject = await addProject({
             title,
             deadline,
             teamLeadId,
             memberIds: selectedMembers,
-            status: 'ACTIVE'
+            status: 'ACTIVE' as const
         })
-        setOpen(false)
+
+        if (newProject && newProject.id) {
+            // Create Initial Tasks
+            for (const taskTitle of tasks) {
+                await addTask({
+                    projectId: newProject.id,
+                    title: taskTitle,
+                    status: 'To Do',
+                    assigneeId: teamLeadId, // Default to Team Lead
+                    priority: 'Medium',
+                    verificationStatus: 'None'
+                })
+            }
+        }
+
         // Reset form
         setTitle("")
         setDeadline("")
+        setManagerId("")
         setTeamLeadId("")
         setSelectedMembers([])
+        setTasks([])
+        setOpen(false)
     }
 
     const toggleMember = (id: string) => {
-        setSelectedMembers(prev =>
-            prev.includes(id)
-                ? prev.filter(mid => mid !== id)
-                : [...prev, id]
-        )
+        if (selectedMembers.includes(id)) {
+            setSelectedMembers(selectedMembers.filter(m => m !== id))
+        } else {
+            setSelectedMembers([...selectedMembers, id])
+        }
     }
+
+    const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 font-medium">
-                    <Plus size={18} /> New Project
+                <Button className="bg-black hover:bg-gray-900 text-white rounded-xl px-6">
+                    <Plus size={18} className="mr-2" /> New Project
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl">
+            <DialogContent className="max-w-xl p-8 rounded-3xl bg-white">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-[#1a1a1a]">Create New Project</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-black">Create New Project</DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-6 pt-4">
-                    {/* Section 1: Project Details */}
-                    <div className="space-y-4">
-                        <div className="space-y-1.5">
-                            <Label className="text-xs uppercase text-gray-500 font-bold tracking-wider">Project Name</Label>
+                <div className="space-y-6 mt-4">
+                    {/* Row 1: Title & Deadline */}
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label className="text-sm font-bold text-black">Project Title</Label>
                             <Input
-                                placeholder="e.g. Mobile App Redesign"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="h-10 border-gray-200"
+                                className="rounded-xl border-gray-300 h-11"
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <Label className="text-xs uppercase text-gray-500 font-bold tracking-wider">Deadline</Label>
+                        <div className="space-y-2">
+                            <Label className="text-sm font-bold text-black">Deadline</Label>
                             <div className="relative">
-                                <Calendar className="absolute left-3 top-2.5 text-gray-400 h-4 w-4" />
                                 <Input
                                     type="date"
                                     value={deadline}
-                                    onChange={(e) => setDeadline(e.target.value)}
-                                    className="pl-9 h-10 border-gray-200 w-full"
+                                    onChange={(e) => setDeadline(e.target.value)} // Keep yyyy-mm-dd for state, display handled by browser
+                                    className="rounded-xl border-gray-300 h-11 pr-10"
                                 />
+                                <Calendar className="absolute right-3 top-3 text-gray-500 w-5 h-5 pointer-events-none" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Section 2: Appoint Leadership */}
-                    <div className="space-y-3 pt-2 border-t border-gray-100">
-                        <Label className="text-sm font-semibold text-[#1a1a1a] flex items-center gap-2">
-                            Assign Team Lead <Crown size={14} className="text-amber-500 fill-amber-500" />
-                        </Label>
-                        <Select onValueChange={setTeamLeadId} value={teamLeadId}>
-                            <SelectTrigger className="w-full border-gray-200">
-                                <SelectValue placeholder="Select a Leader" />
+                    {/* Row 2: Manager & Lead */}
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label className="text-sm font-bold text-black">Project Manager</Label>
+                            <Select value={managerId} onValueChange={setManagerId}>
+                                <SelectTrigger className="rounded-xl border-gray-300 h-11">
+                                    <SelectValue placeholder="Select Manager" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {users.map(user => (
+                                        <SelectItem key={user.id} value={user.id}>
+                                            <span className="font-medium">{user.name}</span>
+                                            <span className="text-gray-500 ml-2 text-xs">({user.jobTitle || user.globalRole})</span>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-sm font-bold text-black">Project Team Lead</Label>
+                            <Select value={teamLeadId} onValueChange={setTeamLeadId}>
+                                <SelectTrigger className="rounded-xl border-gray-300 h-11">
+                                    <SelectValue placeholder="Select Lead" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {users.map(user => (
+                                        <SelectItem key={user.id} value={user.id}>
+                                            <span className="font-medium">{user.name}</span>
+                                            <span className="text-gray-500 ml-2 text-xs">({user.jobTitle || user.globalRole})</span>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Row 3: Team Members */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-bold text-black">Team Members</Label>
+                        <Select onValueChange={toggleMember}>
+                            <SelectTrigger className="rounded-xl border-gray-300 h-11">
+                                <SelectValue placeholder="Add member to squad" />
                             </SelectTrigger>
                             <SelectContent>
-                                {leads.map(lead => (
-                                    <SelectItem key={lead.id} value={lead.id}>
-                                        <div className="flex items-center gap-2">
-                                            {lead.avatar && (
-                                                <img src={lead.avatar} className="w-5 h-5 rounded-full" alt="" />
-                                            )}
-                                            {lead.name}
-                                            <span className="text-xs text-gray-400 ml-1">({lead.jobTitle || lead.globalRole})</span>
-                                        </div>
+                                {users.filter(u => !selectedMembers.includes(u.id)).map(user => (
+                                    <SelectItem key={user.id} value={user.id}>
+                                        {user.name} <span className="text-gray-400 text-xs">({user.jobTitle || 'Member'})</span>
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
 
-                    {/* Section 3: Build the Squad */}
-                    <div className="space-y-3 pt-2 border-t border-gray-100">
-                        <Label className="text-sm font-semibold text-[#1a1a1a] flex items-center gap-2">
-                            Build the Squad <Users size={14} className="text-indigo-500" />
-                        </Label>
-                        <div className="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 max-h-40 overflow-y-auto">
-                            {employees.map(emp => (
-                                <div
-                                    key={emp.id}
-                                    onClick={() => toggleMember(emp.id)}
-                                    className={`
-                                        flex items-center gap-2 p-2 rounded-md cursor-pointer border transition-all
-                                        ${selectedMembers.includes(emp.id)
-                                            ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200'
-                                            : 'bg-white border-gray-200 hover:border-gray-300'}
-                                    `}
-                                >
-                                    <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedMembers.includes(emp.id) ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300'}`}>
-                                        {selectedMembers.includes(emp.id) && <div className="w-1.5 h-1.5 bg-white rounded-sm" />}
+                        {/* Member Pills */}
+                        <div className="flex flex-wrap gap-3 mt-3">
+                            {selectedMembers.map(memberId => {
+                                const member = users.find(u => u.id === memberId)
+                                if (!member) return null
+                                return (
+                                    <div key={memberId} className="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-3 py-1.5 shadow-sm">
+                                        <div className="w-5 h-5 rounded-full bg-gray-100 border flex items-center justify-center text-[10px] font-bold">
+                                            {member.avatar ? <img src={member.avatar} className="w-full h-full rounded-full" /> : getInitials(member.name)}
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-700">{member.name}</span>
+                                        <button onClick={() => toggleMember(memberId)} className="text-gray-400 hover:text-red-500">
+                                            <X size={14} />
+                                        </button>
                                     </div>
-                                    <div className="flex items-center gap-2 overflow-hidden">
-                                        {emp.avatar && <img src={emp.avatar} className="w-5 h-5 rounded-full shrink-0" alt="" />}
-                                        <span className="text-sm truncate">{emp.name}</span>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
-                </div>
 
-                <DialogFooter className="mt-4">
-                    <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white">Create Project</Button>
-                </DialogFooter>
+                    {/* Row 4: Initial Tasks */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <Label className="text-sm font-bold text-black">Initial Tasks</Label>
+                            <button onClick={handleAddTask} className="text-xs font-bold text-gray-400 hover:text-black flex items-center gap-1">
+                                <Plus size={14} /> Add Task
+                            </button>
+                        </div>
+
+                        {/* Task List */}
+                        <div className="space-y-2">
+                            {tasks.map((task, idx) => (
+                                <div key={idx} className="flex items-center gap-3 group">
+                                    <GripVertical size={16} className="text-gray-300 cursor-move" />
+                                    <span className="text-sm text-gray-700 flex-1">{task}</span>
+                                    <button onClick={() => removeTask(idx)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500">
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            ))}
+                            <Input
+                                placeholder="Press Enter to add task..."
+                                value={newTask}
+                                onChange={(e) => setNewTask(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleAddTask() }}
+                                className="border-none shadow-none px-0 text-sm focus-visible:ring-0 placeholder:text-gray-400"
+                            />
+                        </div>
+                    </div>
+
+                    <Button onClick={handleCreate} className="w-full h-12 bg-black hover:bg-gray-900 text-white text-lg font-bold rounded-xl mt-4">
+                        Create Project
+                    </Button>
+                </div>
             </DialogContent>
         </Dialog>
     )

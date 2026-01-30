@@ -1,4 +1,4 @@
-import { getApplication } from "../actions"
+import { getApplication, getAssessmentSession, submitAssessment } from "../actions"
 import { notFound } from "next/navigation"
 import { ProctoredAssessmentForm } from "../proctored-assessment-form"
 import { CheckCircle2, Clock, AlertTriangle } from "lucide-react"
@@ -67,36 +67,71 @@ function AssessmentUnavailable() {
 }
 
 export default async function AssessmentPage(props: Props) {
-    // Await the params object (Next.js 15 requirement)
     const params = await props.params
     const id = params.id
 
-    const application = await getApplication(id)
+    let application = null
+    let aptitude: MCQ[] = []
+    let technical: MCQ[] = []
+
+    // 1. Try to fetch from New RAG System
+    const sessionData = await getAssessmentSession(id)
+
+    if (sessionData && sessionData.session && sessionData.app) {
+        application = sessionData.app
+        const ragQuestions = sessionData.session.assessment_questions || []
+
+        // Start creating questions formatted for frontend
+        const allQuestions = ragQuestions.map((q: any) => {
+            let opts = []
+            try {
+                opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || []
+            } catch (e) {
+                opts = []
+            }
+            return {
+                id: q.id,
+                question: q.question_text,
+                options: opts,
+            }
+        })
+
+        // For RAG, we might not have 'aptitude' vs 'technical' separation yet
+        // So we'll put all into 'technical' or split 50/50 if needed
+        // For now, let's put all in Technical to be safe, or if >5 split them
+        if (allQuestions.length > 5) {
+            const split = Math.floor(allQuestions.length / 2)
+            aptitude = allQuestions.slice(0, split)
+            technical = allQuestions.slice(split)
+        } else {
+            technical = allQuestions
+        }
+
+    } else {
+        // 2. Fallback to Legacy System
+        application = await getApplication(id)
+
+        if (application) {
+            const generated = application.generated_questions
+            // Handle both new (object) and old (array) formats
+            if (Array.isArray(generated)) {
+                technical = generated as MCQ[]
+            } else if (generated && typeof generated === 'object') {
+                aptitude = (generated.aptitude as MCQ[]) || []
+                technical = (generated.technical as MCQ[]) || []
+            }
+        }
+    }
 
     if (!application) return notFound()
 
     // Status-based routing
-    const { status, test_score } = application
+    const { status } = application
 
     // 1. Test is ready to be taken
     if (status === 'TEST_PENDING') {
-        const generated = application.generated_questions
-        let aptitude: MCQ[] = []
-        let technical: MCQ[] = []
-
-        // Handle both new (object) and old (array) formats
-        if (Array.isArray(generated)) {
-            // Old format: treat all as technical, or maybe split them? 
-            // Let's treat as technical to be safe
-            technical = generated as MCQ[]
-        } else if (generated && typeof generated === 'object') {
-            // New format
-            aptitude = (generated.aptitude as MCQ[]) || []
-            technical = (generated.technical as MCQ[]) || []
-        }
-
-        // Validate we have questions
         const totalQuestions = aptitude.length + technical.length
+
         if (totalQuestions === 0) {
             return (
                 <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-slate-50">
@@ -109,13 +144,6 @@ export default async function AssessmentPage(props: Props) {
                 </div>
             )
         }
-
-        // SECURITY: Strip answer keys before sending to client
-        const stripAnswers = (qs: MCQ[]) => qs.map(q => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { correct, correctOptionIndex, explanation, ...safeQuestion } = q
-            return safeQuestion as MCQ
-        })
 
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-4">
@@ -131,9 +159,9 @@ export default async function AssessmentPage(props: Props) {
                     </div>
 
                     <ProctoredAssessmentForm
-                        aptitude={stripAnswers(aptitude)}
-                        technical={stripAnswers(technical)}
-                        applicationId={application.id}
+                        aptitude={aptitude}
+                        technical={technical}
+                        applicationId={id}
                         candidateName={application.candidate_name}
                     />
                 </div>

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { SoftCard } from '@/components/ui/gradient-stat-card'
 import { ScheduleInterviewDialog } from './schedule-interview-dialog'
+import { LaunchAssessmentDialog } from './launch-assessment-dialog'
 import { DecisionFooter } from './decision-footer'
 import { DeleteApplicationButton } from './delete-button'
 import { extractSkills } from '@/utils/skill-extractor'
@@ -29,6 +30,7 @@ interface Application {
     resume_text?: string
     ai_reasoning?: string
     raw_text?: string
+    skills?: string[]
     created_at?: string
 }
 
@@ -145,7 +147,10 @@ function CandidateRow({
         application.raw_text || '',
         application.offer_role || ''
     ].join(' ')
-    const skills = extractSkills(resumeContent, 4)
+    // Use stored skills if available, otherwise fallback to empty array (or legacy extraction if absolutely necessary, but preferring stored)
+    const skills = (application.skills && application.skills.length > 0)
+        ? application.skills.slice(0, 5)
+        : extractSkills(resumeContent, 4)
 
     const statusColors: Record<string, string> = {
         'TEST_PENDING': 'bg-amber-100 text-amber-700',
@@ -291,11 +296,11 @@ function CandidateRow({
 
                                     <div className="flex items-center gap-2">
                                         {application.status === 'TEST_PENDING' && (
-                                            <Link href={`/assessment/${application.id}`} target="_blank">
-                                                <button className="pill-button-secondary text-sm px-4 py-2 flex items-center gap-2">
-                                                    <ExternalLink size={14} /> Test
-                                                </button>
-                                            </Link>
+                                            <LaunchAssessmentDialog
+                                                candidateId={application.id}
+                                                candidateName={application.candidate_name || 'Candidate'}
+                                                jobId={undefined} // Pass actual job ID if available in application data
+                                            />
                                         )}
 
                                         {application.resume_url && (

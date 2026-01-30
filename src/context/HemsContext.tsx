@@ -179,10 +179,10 @@ interface HemsContextType {
     enrollCourse: (courseId: number) => void
     addLeave: (leave: Omit<Leave, "id">) => Promise<void>
     refreshData: () => Promise<void>
-    addProject: (project: Omit<Project, "id" | "activityLog" | "progress">) => Promise<void>
+    addProject: (project: Omit<Project, "id" | "activityLog" | "progress">) => Promise<Project | null>
     addTeam: (team: Omit<Team, "id">) => void
     updateTask: (taskId: string, updates: Partial<Task>) => void
-    addTask: (task: Omit<Task, "id">) => void
+    addTask: (task: Omit<Task, "id">) => Promise<void>
     moveTask: (taskId: string, newStatus: TaskStatus, proofUrl?: string) => void
     verifyTask: (taskId: string, isApproved: boolean) => void
     deleteProject: (projectId: string) => Promise<void>
@@ -348,6 +348,21 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 setProjects(mappedProjects)
             }
 
+            // Fetch tasks
+            const { data: dbTasks } = await supabase.from('tasks').select('*')
+            if (dbTasks) {
+                const mappedTasks: Task[] = dbTasks.map((t: any) => ({
+                    id: t.id,
+                    projectId: t.project_id,
+                    title: t.title,
+                    status: t.status === 'TODO' ? 'To Do' : t.status === 'IN_PROGRESS' ? 'In Progress' : 'Done',
+                    assigneeId: t.assignee_id,
+                    priority: t.priority || 'Medium',
+                    verificationStatus: 'None'
+                }))
+                setTasks(mappedTasks)
+            }
+
         } catch (error) {
             console.error("Failed to fetch data", error)
         } finally {
@@ -416,7 +431,7 @@ export function HemsProvider({ children }: { children: ReactNode }) {
         }).select().single()
 
         if (error) {
-            console.error("Failed to create project:", error)
+            console.error("Failed to create project (using local fallback):", error)
             // Fallback to local state
             const newProject: Project = {
                 ...project,
@@ -425,6 +440,7 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 activityLog: []
             }
             setProjects(prev => [...prev, newProject])
+            return newProject
         } else if (data) {
             // Add to local state with DB data
             const newProject: Project = {
@@ -439,7 +455,9 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 activityLog: []
             }
             setProjects(prev => [...prev, newProject])
+            return newProject
         }
+        return null
     }
 
     const addTeam = (team: Omit<Team, "id">) => {
@@ -450,12 +468,28 @@ export function HemsProvider({ children }: { children: ReactNode }) {
         setTeams(prev => [...prev, newTeam])
     }
 
-    const addTask = (task: Omit<Task, "id">) => {
-        const newTask: Task = {
-            ...task,
-            id: crypto.randomUUID(),
+    const addTask = async (task: Omit<Task, "id">) => {
+        const { data, error } = await supabase.from('tasks').insert({
+            title: task.title,
+            project_id: task.projectId,
+            assignee_id: task.assigneeId,
+            status: 'TODO',
+            priority: task.priority
+        }).select().single()
+
+        if (data) {
+            const newTask: Task = {
+                ...task,
+                id: data.id,
+            }
+            setTasks(prev => [...prev, newTask])
+        } else {
+            const newTask: Task = {
+                ...task,
+                id: crypto.randomUUID(),
+            }
+            setTasks(prev => [...prev, newTask])
         }
-        setTasks(prev => [...prev, newTask])
     }
 
     const updateTask = (taskId: string, updates: Partial<Task>) => {

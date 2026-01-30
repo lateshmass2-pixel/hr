@@ -13,40 +13,129 @@ type MCQ = {
     correct: number
 }
 
-export async function submitAssessment(applicationId: string, answers: number[]) {
+export async function getAssessmentSession(sessionId: string) {
     const supabase = await createClient()
 
-    console.log('📝 Processing MCQ assessment for:', applicationId)
-
-    // Fetch the application with questions and candidate info
-    const { data: app, error: fetchError } = await supabase
-        .from('applications')
-        .select('id, generated_questions, resume_text, ai_reasoning, candidate_name, candidate_email, status')
-        .eq('id', applicationId)
+    // Fetch session with questions
+    const { data: session, error } = await supabase
+        .from('assessment_sessions')
+        .select(`
+            *,
+            assessment_questions (*)
+        `)
+        .eq('id', sessionId)
         .single()
 
-    if (fetchError || !app) {
-        console.error('Application fetch error:', fetchError)
-        return { message: 'Application not found' }
+    if (error || !session) {
+        return null
     }
 
-    // Prevent re-submission
-    if (app.status !== 'TEST_PENDING') {
-        console.log('⚠️ Assessment already submitted. Current status:', app.status)
-        return { message: 'Assessment already submitted', score: null, status: app.status, passed: false, feedback: '' }
-    }
+    // Fetch linked application to check status
+    const { data: app } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('id', session.candidate_id)
+        .single()
 
-    try {
-        let questions: Question[] = []
+    return { session, app }
+}
+
+export async function getApplication(id: string) {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+    if (error) {
+        return null
+    }
+    return data
+}
+
+export async function submitAssessment(id: string, answers: number[]) {
+    const supabase = await createClient()
+
+    console.log('📝 Processing assessment submission for:', id)
+
+    // Check if this is a RAG Assessment Session
+    const { data: session } = await supabase
+        .from('assessment_sessions')
+        .select('*, assessment_questions(*)')
+        .eq('id', id)
+        .single()
+
+    let applicationId = id
+    let questions: Question[] = []
+    let appStatus = ''
+    let candidateName = ''
+    let candidateEmail = ''
+    let aiReasoning = ''
+
+    if (session) {
+        // --- NEW RAG FLOW ---
+        applicationId = session.candidate_id
+
+        // Fetch Application
+        const { data: app } = await supabase
+            .from('applications')
+            .select('*')
+            .eq('id', applicationId)
+            .single()
+
+        if (!app) return { message: 'Application not found' }
+
+        appStatus = app.status
+        candidateName = app.candidate_name
+        candidateEmail = app.candidate_email
+        aiReasoning = app.ai_reasoning || ''
+
+        // Convert DB Questions to grading format
+        questions = session.assessment_questions.map((q: any) => {
+            // Parse options if stored as JSON string
+            let options = []
+            try {
+                options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options
+            } catch (e) {
+                options = []
+            }
+
+            return {
+                id: q.id,
+                question: q.question_text,
+                options: options,
+                // RAG Correct Answer is text, we need index for grading compatibility
+                // Logic: Find index of correct_answer in options
+                correctOptionIndex: options.findIndex((o: string) => o === q.correct_answer),
+                explanation: ''
+            }
+        })
+
+    } else {
+        // --- LEGACY FLOW ---
+        const { data: app, error } = await supabase
+            .from('applications')
+            .select('id, generated_questions, resume_text, ai_reasoning, candidate_name, candidate_email, status')
+            .eq('id', id)
+            .single()
+
+        if (error || !app) {
+            console.error('Application fetch error:', error)
+            return { message: 'Application/Session not found' }
+        }
+
+        appStatus = app.status
+        candidateName = app.candidate_name
+        candidateEmail = app.candidate_email
+        aiReasoning = app.ai_reasoning
         const generated = app.generated_questions
 
-        // Normalize questions to Question[] format
         if (Array.isArray(generated)) {
             questions = generated.map((q: any) => ({
                 id: q.id || 'legacy',
                 question: q.question,
                 options: q.options,
-                // Legacy 'correct' is 0-3 index usually
                 correctOptionIndex: typeof q.correct === 'number' ? q.correct : (q.correctOptionIndex ?? 0),
                 explanation: q.explanation || ''
             }))
@@ -61,143 +150,79 @@ export async function submitAssessment(applicationId: string, answers: number[])
                 explanation: q.explanation || ''
             }))
         }
+    }
 
-        if (questions.length === 0) {
-            throw new Error('No questions found in application record')
-        }
+    // Common Logic
+    if (appStatus !== 'TEST_PENDING') {
+        console.log('⚠️ Assessment already submitted. Status:', appStatus)
+        return { message: 'Assessment already submitted', score: null, status: appStatus, passed: false, feedback: '' }
+    }
 
-        // Use deterministic grading
-        const { score, correctCount, details } = calculateScore(answers, questions)
+    if (questions.length === 0) {
+        throw new Error('No questions found for this assessment')
+    }
 
-        // Map details for AI feedback context
-        const detailedResults = details.map(d => {
-            const q = questions.find(q => q.id === d.questionId)
-            // Find the original question object to get options text
-            // Note: calculateScore details has indices
-            return {
-                question: q?.question || 'Unknown',
-                correct: d.isCorrect,
-                userAnswer: q?.options[d.userAnswerIndex ?? -1] || 'No answer',
-                correctAnswer: q?.options[d.correctAnswerIndex] || 'Unknown'
-            }
-        })
+    // Strict Grading
+    const { score, correctCount, details } = calculateScore(answers, questions)
 
-        console.log(`📊 MCQ Results: ${correctCount}/${questions.length} correct = ${score}%`)
-
-        // Generate AI feedback based on results
-        const completion = await openai.chat.completions.create({
-            model: AI_MODEL,
-            messages: [
-                {
-                    role: "system",
-                    content: `You are a Senior Tech Lead providing brief feedback on a candidate's technical assessment results.
-                    
-Output a JSON object with:
-- feedback: string (2-3 sentences summarizing their performance, mentioning areas of strength or weakness based on which questions they got wrong)
-
-Be encouraging but honest. Return ONLY valid JSON.`
-                },
-                {
-                    role: "user",
-                    content: `
-Score: ${score}%
-Correct: ${correctCount} out of ${questions.length}
-
-Results breakdown:
-${detailedResults.map((r, i) => `Q${i + 1}: ${r.correct ? '✓' : '✗'} - ${r.question.substring(0, 50)}...`).join('\n')}
-                    `
-                }
-            ],
-            response_format: { type: "json_object" }
-        })
-
-        const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
-        const feedback = aiResponse.feedback || 'Assessment completed.'
-
-        console.log(`💬 AI Feedback: ${feedback}`)
-
-        // Determine final status based on score (70% pass threshold)
-        const passed = score >= 70
-        const newStatus = passed ? 'INTERVIEW' : 'REJECTED'
-
-        console.log(`🔄 Updating status: TEST_PENDING → ${newStatus}`)
-
-        // Update Database
-        const { error: updateError } = await supabase
-            .from('applications')
-            .update({
-                test_score: score,
-                candidate_answers: answers,
-                ai_reasoning: `**Resume Analysis:** ${app.ai_reasoning || 'N/A'}\n\n**MCQ Test Score: ${score}%** (${correctCount}/${questions.length} correct)\n\n**Feedback:** ${feedback}`,
-                status: newStatus
-            })
-            .eq('id', applicationId)
-
-        if (updateError) {
-            console.error('❌ Database update error:', updateError)
-            throw new Error('Failed to update application: ' + updateError.message)
-        }
-
-        console.log('✅ Database updated successfully')
-
-        // AUTOMATED EMAIL TRIGGER
-        if (passed) {
-            console.log(`🎉 Candidate ${app.candidate_name} PASSED with ${score}%! Sending interview invitation...`)
-            const emailResult = await sendInterviewReadyEmail(
-                app.candidate_email,
-                app.candidate_name
-            )
-            if (emailResult.success) {
-                console.log('✅ Interview invitation email sent')
-            } else {
-                console.error('❌ Failed to send interview email:', emailResult.error)
-            }
-        } else {
-            console.log(`❌ Candidate ${app.candidate_name} scored ${score}%. Sending rejection email...`)
-            const emailResult = await sendRejectionEmail(
-                app.candidate_email,
-                app.candidate_name
-            )
-            if (emailResult.success) {
-                console.log('✅ Rejection email sent')
-            } else {
-                console.error('❌ Failed to send rejection email:', emailResult.error)
-            }
-        }
-
-        // UI Refresh - Only revalidate the hiring dashboard, NOT the assessment page
-        // The assessment page shows results via client state, revalidating causes flash
-        revalidatePath('/dashboard/hiring')
-
-        console.log('🏁 MCQ Assessment complete!')
-
+    // AI Feedback Generation
+    const detailedResults = details.map(d => {
+        const q = questions.find(q => q.id === d.questionId)
         return {
-            message: 'Success',
-            score,
-            status: newStatus,
-            feedback,
-            passed
+            question: q?.question || 'Unknown',
+            correct: d.isCorrect
         }
+    })
 
-    } catch (error: any) {
-        console.error('❌ Grading Error:', error)
-        return { message: error.message, score: 0, passed: false, feedback: '' }
-    }
-}
+    console.log(`📊 Results: ${correctCount}/${questions.length} correct = ${score}%`)
 
-export async function getApplication(id: string) {
-    const supabase = await createClient()
-    const { data, error } = await supabase
+    // Generate Feedback
+    const completion = await openai.chat.completions.create({
+        model: AI_MODEL,
+        messages: [
+            {
+                role: "system",
+                content: `You are a Senior Tech Lead. Provide brief, encouraging but honest feedback (2 sentences) on a candidate's test results. Return JSON: { "feedback": "..." }`
+            },
+            {
+                role: "user",
+                content: `Score: ${score}%. Breakdown: ${JSON.stringify(detailedResults)}`
+            }
+        ],
+        response_format: { type: "json_object" }
+    })
+
+    const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
+    const feedback = aiResponse.feedback || 'Assessment completed.'
+
+    const passed = score >= 70
+    const newStatus = passed ? 'INTERVIEW' : 'REJECTED'
+
+    console.log(`🔄 Updating Application ${applicationId}: TEST_PENDING → ${newStatus}`)
+
+    const { error: updateError } = await supabase
         .from('applications')
-        .select('*')
-        .eq('id', id)
-        .single()
+        .update({
+            test_score: score,
+            candidate_answers: answers,
+            ai_reasoning: `**Previous Analysis:** ${aiReasoning || 'N/A'}\n\n**Test Score: ${score}%**\n**Feedback:** ${feedback}`,
+            status: newStatus
+        })
+        .eq('id', applicationId)
 
-    if (error) {
-        console.error('Error fetching application:', error)
-        return null
+    if (updateError) {
+        throw new Error('Failed to update application: ' + updateError.message)
     }
-    return data
+
+    // Trigger Emails
+    if (passed) {
+        await sendInterviewReadyEmail(candidateEmail, candidateName)
+    } else {
+        await sendRejectionEmail(candidateEmail, candidateName)
+    }
+
+    revalidatePath('/dashboard/hiring')
+    return { message: 'Success', score, status: newStatus, feedback, passed }
 }
 
 export async function rejectApplication(applicationId: string, reason: string) {
