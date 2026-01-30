@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 export interface NavLinkClientProps {
     href: string;
@@ -19,7 +20,12 @@ const springConfig = {
 
 export function NavLinkClient({ href, icon, label }: NavLinkClientProps) {
     const pathname = usePathname();
-    const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+    const [isActive, setIsActive] = useState(false);
+
+    // Compute isActive only on client to avoid hydration mismatch
+    useEffect(() => {
+        setIsActive(pathname === href || (href !== "/dashboard" && pathname.startsWith(href)));
+    }, [pathname, href]);
 
     return (
         <motion.div

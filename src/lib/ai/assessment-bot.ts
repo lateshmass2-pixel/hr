@@ -5,15 +5,16 @@ import { groq, AI_MODEL } from '@/lib/ai';
 
 const AssessmentQuestionSchema = z.object({
     question_text: z.string().describe("The formulated question text."),
-    question_type: z.enum(['mcq', 'true_false', 'short_answer']),
-    options: z.array(z.string()).optional().describe("Options for MCQ/TrueFalse. 4 options for MCQ."),
+    question_type: z.literal('mcq').describe("Only MCQ type questions."),
+    category: z.enum(['aptitude', 'technical']).describe("Category of the question."),
+    options: z.array(z.string()).length(4).describe("Exactly 4 options for MCQ."),
     correct_answer: z.string(),
     explanation: z.string().describe("Brief explanation referencing the Knowledge Base."),
     difficulty: z.enum(['Junior', 'Mid', 'Senior']),
 });
 
 const AssessmentOutputSchema = z.object({
-    questions: z.array(AssessmentQuestionSchema).length(5).describe("Generate exactly 5 questions.")
+    questions: z.array(AssessmentQuestionSchema).length(10).describe("Generate exactly 10 MCQ questions: 5 aptitude + 5 technical.")
 });
 
 export type Difficulty = 'Junior' | 'Mid' | 'Senior';
@@ -70,13 +71,15 @@ export async function generateRagAssessment(
         KNOWLEDGE BASE CONTEXT (SOURCE OF TRUTH):
         ${knowledgeBaseContext}
         
-        Generate 5 ${difficulty} questions now.
-        RETURN ONLY VALID JSON. No markdown.
+        Generate 10 ${difficulty} MCQ questions now:
+        - 5 APTITUDE questions: General logic, reasoning, problem-solving (category: "aptitude")
+        - 5 TECHNICAL questions: Based on job requirements and candidate skills (category: "technical")
+        - ALL questions must be MCQ with exactly 4 options each.
+        - DO NOT include short_answer, true_false, or essay questions.
         
-        IMPORTANT: "question_type" MUST be one of: "mcq", "true_false", "short_answer".
-        Do NOT use "open-ended" or "essay". Use "short_answer" instead.
+        RETURN ONLY VALID JSON. No markdown.
 
-        Schema: { "questions": [ { "question_text": "...", "question_type": "mcq" | "true_false" | "short_answer", "options": ["..."], "correct_answer": "...", "explanation": "...", "difficulty": "..." } ] }
+        Schema: { "questions": [ { "question_text": "...", "question_type": "mcq", "category": "aptitude" | "technical", "options": ["A", "B", "C", "D"], "correct_answer": "exact text of correct option", "explanation": "...", "difficulty": "..." } ] }
         `
     });
 
@@ -90,12 +93,11 @@ export async function generateRagAssessment(
         throw new Error("AI Generation failed to produce valid JSON");
     }
 
-    // Normalize question types to ensure DB compatibility
+    // Normalize question types to ensure DB compatibility (all should be mcq now)
     const normalizedQuestions = result.questions.map((q: any) => ({
         ...q,
-        question_type: ['mcq', 'true_false', 'short_answer'].includes(q.question_type)
-            ? q.question_type
-            : 'short_answer' // Fallback for 'open-ended' or others
+        question_type: 'mcq', // Force MCQ type
+        category: q.category || 'technical' // Default to technical if missing
     }));
 
     // 4. Return results + Metadata (which chunks were used)

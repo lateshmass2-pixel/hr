@@ -160,10 +160,12 @@ export async function processApplication(formData: FormData) {
             model: groq(AI_MODEL),
             system: `You are an expert HR Recruiter and Technical Assessor. Analyze the resume for the position: "${jobTitle}".${skillsContext}
             
-            Generate a rigorous assessment test.
-            - APTITUDE: General logic/reasoning.
-            - TECHNICAL: Specific to ${jobTitle} and ${requiredSkills.join(', ')}.
+            Generate a rigorous assessment test with EXACTLY 10 MULTIPLE CHOICE QUESTIONS:
+            - 5 APTITUDE questions: General logic, reasoning, and problem-solving.
+            - 5 TECHNICAL questions: Specific to ${jobTitle} and candidate's skills.
+            - ALL questions must be MCQ type with 4 options each.
             - Mix difficulty: 40% Easy, 40% Medium, 20% Hard.
+            - DO NOT include short answer or essay questions.
             
             IMPORTANT: Respond with ONLY valid JSON (no markdown, no extra text):
             {
@@ -171,7 +173,7 @@ export async function processApplication(formData: FormData) {
               "summary": "<string>",
               "extracted_skills": ["<string>"],
               "missing_skills": ["<string>"],
-              "questions": [{"id": "<string>", "type": "mcq"|"shortAnswer"|"essay", "category": "aptitude"|"technical", "text": "<string>", "difficulty": "easy"|"medium"|"hard", "options": ["<string>"], "correctAnswer": "<string>", "timeLimit": <number>}],
+              "questions": [{"id": "<string>", "type": "mcq", "category": "aptitude"|"technical", "text": "<string>", "difficulty": "easy"|"medium"|"hard", "options": ["<string>", "<string>", "<string>", "<string>"], "correctAnswer": "<exact text of correct option>", "timeLimit": <number>}],
               "candidate_name": "<string or null>",
               "candidate_email": "<string or null>"
             }
@@ -200,8 +202,9 @@ export async function processApplication(formData: FormData) {
         const finalName = candidateName || candidate_name || 'Unknown Candidate'
         const finalEmail = candidateEmail || candidate_email || 'unknown@example.com'
 
-        // 5. Determine status based on score
-        const status = score >= 60 ? 'TEST_PENDING' : 'REJECTED'
+        // 5. All uploaded resumes go directly to Screening (TEST_PENDING)
+        // They will be filtered based on quiz performance later
+        const status = 'TEST_PENDING'
 
         // Build AI reasoning with skill info
         const aiReasoning = missing_skills && missing_skills.length > 0
@@ -218,8 +221,7 @@ export async function processApplication(formData: FormData) {
                 resume_url: resumeUrl,
                 resume_text: resumeText,
                 score: score,
-                skills: extracted_skills || [],
-                ai_reasoning: aiReasoning,
+                ai_reasoning: aiReasoning + (extracted_skills?.length ? `\n\n**Skills Found:** ${extracted_skills.join(', ')}` : ''),
                 generated_questions: questions,
                 status: status
             })
@@ -228,9 +230,8 @@ export async function processApplication(formData: FormData) {
 
         if (dbError) throw new Error('DB Insert failed: ' + dbError.message)
 
-        // 6. AUTOMATED EMAIL TRIGGER
-        if (status === 'TEST_PENDING' && insertedApplication) {
-            // Send assessment invite immediately
+        // 6. AUTOMATED EMAIL TRIGGER - Send assessment invite
+        if (insertedApplication) {
             console.log(`📧 Sending assessment invite to ${finalEmail}...`)
             const emailResult = await sendAssessmentInvite(
                 finalEmail,
@@ -241,15 +242,6 @@ export async function processApplication(formData: FormData) {
                 console.log('✅ Assessment invite sent successfully')
             } else {
                 console.error('❌ Failed to send assessment invite:', emailResult.error)
-            }
-        } else if (status === 'REJECTED') {
-            // Optionally send rejection email
-            console.log(`📧 Sending rejection email to ${finalEmail}...`)
-            const emailResult = await sendRejectionEmail(finalEmail, finalName)
-            if (emailResult.success) {
-                console.log('✅ Rejection email sent')
-            } else {
-                console.error('❌ Failed to send rejection email:', emailResult.error)
             }
         }
 
@@ -455,7 +447,7 @@ export async function scheduleInterview(
         const { error: updateError } = await supabase
             .from('applications')
             .update({
-                status: 'INTERVIEW',
+                status: 'offer',  // Move to Offer column after interview is scheduled
                 interview_type: interviewType,
                 interview_date: date,
                 interview_time: time,

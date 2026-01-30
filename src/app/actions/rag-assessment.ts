@@ -61,11 +61,11 @@ export async function startAssessmentSession(
     }
 
     // 4. Save Questions
-    const questionsToInsert = questions.map(q => ({
+    const questionsToInsert = questions.map((q: { question_text: string; question_type: string; options?: string[]; correct_answer: string }) => ({
         session_id: session.id,
         question_text: q.question_text,
         question_type: q.question_type,
-        options: q.options ? JSON.stringify(q.options) : null, // Store as JSONB
+        options: q.options || null, // JSONB column handles serialization automatically
         correct_answer: q.correct_answer,
     }));
 

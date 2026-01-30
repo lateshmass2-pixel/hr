@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { submitAssessment, rejectApplication } from "./actions"
 import { Loader2, CheckCircle2, XCircle, ShieldAlert, Camera, ArrowRight, BrainCircuit, Code2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
@@ -16,6 +17,7 @@ type MCQ = {
     id?: string
     question: string
     options: string[]
+    type?: 'mcq' | 'shortAnswer' | 'essay'  // Question type
 }
 
 type AssessmentResult = {
@@ -34,9 +36,10 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
 }) {
     const [phase, setPhase] = useState<QuizPhase>('consent')
 
-    // Separate state for each section
-    const [aptitudeAnswers, setAptitudeAnswers] = useState<(number | null)[]>(new Array(aptitude.length).fill(null))
-    const [technicalAnswers, setTechnicalAnswers] = useState<(number | null)[]>(new Array(technical.length).fill(null))
+    // Answer state - can be number (MCQ option index) or string (text answer)
+    type Answer = number | string | null
+    const [aptitudeAnswers, setAptitudeAnswers] = useState<Answer[]>(new Array(aptitude.length).fill(null))
+    const [technicalAnswers, setTechnicalAnswers] = useState<Answer[]>(new Array(technical.length).fill(null))
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [result, setResult] = useState<AssessmentResult | null>(null)
@@ -46,13 +49,27 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
     const currentAnswers = phase === 'aptitude' ? aptitudeAnswers : technicalAnswers
     const setCurrentAnswers = phase === 'aptitude' ? setAptitudeAnswers : setTechnicalAnswers
 
-    const answeredCount = currentAnswers.filter(a => a !== null).length
+    // Check if answer is provided (number for MCQ, non-empty string for text)
+    const isAnswered = (answer: Answer) => {
+        if (answer === null) return false
+        if (typeof answer === 'number') return true
+        if (typeof answer === 'string') return answer.trim().length > 0
+        return false
+    }
+
+    const answeredCount = currentAnswers.filter(isAnswered).length
     const totalQuestions = currentQuestions.length
     const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0
 
     const handleAnswerChange = (questionIndex: number, optionIndex: number) => {
         const newAnswers = [...currentAnswers]
         newAnswers[questionIndex] = optionIndex
+        setCurrentAnswers(newAnswers)
+    }
+
+    const handleTextAnswerChange = (questionIndex: number, text: string) => {
+        const newAnswers = [...currentAnswers]
+        newAnswers[questionIndex] = text
         setCurrentAnswers(newAnswers)
     }
 
@@ -64,7 +81,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
     }
 
     const handleAptitudeSubmit = () => {
-        if (aptitudeAnswers.some(a => a === null)) {
+        if (aptitudeAnswers.some(a => !isAnswered(a))) {
             toast.error('Please answer all aptitude questions first.')
             return
         }
@@ -78,7 +95,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
     }
 
     const handleFinalSubmit = async () => {
-        if (technicalAnswers.some(a => a === null)) {
+        if (technicalAnswers.some(a => !isAnswered(a))) {
             toast.error('Please answer all technical questions.')
             return
         }
@@ -300,7 +317,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
                     >
-                        <Card className={`transition-all duration-300 ${currentAnswers[idx] !== null
+                        <Card className={`transition-all duration-300 ${isAnswered(currentAnswers[idx])
                             ? 'ring-2 ring-green-500/20 border-green-200 bg-green-50/10'
                             : 'hover:shadow-md'
                             }`}>
@@ -313,30 +330,46 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="pt-2">
-                                <RadioGroup
-                                    value={currentAnswers[idx]?.toString() ?? ""}
-                                    onValueChange={(value) => handleAnswerChange(idx, parseInt(value))}
-                                    className="space-y-3"
-                                >
-                                    {q.options.map((option, optIdx) => (
-                                        <div
-                                            key={optIdx}
-                                            className={`relative flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${currentAnswers[idx] === optIdx
-                                                ? 'border-indigo-600 bg-indigo-50/50'
-                                                : 'border-transparent bg-gray-50 hover:bg-gray-100'
-                                                }`}
-                                            onClick={() => handleAnswerChange(idx, optIdx)}
-                                        >
-                                            <RadioGroupItem value={optIdx.toString()} id={`${phase}-q${idx}-opt${optIdx}`} />
-                                            <Label htmlFor={`${phase}-q${idx}-opt${optIdx}`} className="flex-1 cursor-pointer font-normal text-gray-700">
-                                                <span className="font-semibold text-gray-400 mr-3 w-4 inline-block">
-                                                    {String.fromCharCode(65 + optIdx)}
-                                                </span>
-                                                {option}
-                                            </Label>
-                                        </div>
-                                    ))}
-                                </RadioGroup>
+                                {/* MCQ Questions - show radio buttons */}
+                                {(!q.type || q.type === 'mcq') && (q.options || []).length > 0 ? (
+                                    <RadioGroup
+                                        value={currentAnswers[idx]?.toString() ?? ""}
+                                        onValueChange={(value) => handleAnswerChange(idx, parseInt(value))}
+                                        className="space-y-3"
+                                    >
+                                        {(q.options || []).map((option, optIdx) => (
+                                            <div
+                                                key={optIdx}
+                                                className={`relative flex items-center space-x-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${currentAnswers[idx] === optIdx
+                                                    ? 'border-indigo-600 bg-indigo-50/50'
+                                                    : 'border-transparent bg-gray-50 hover:bg-gray-100'
+                                                    }`}
+                                                onClick={() => handleAnswerChange(idx, optIdx)}
+                                            >
+                                                <RadioGroupItem value={optIdx.toString()} id={`${phase}-q${idx}-opt${optIdx}`} />
+                                                <Label htmlFor={`${phase}-q${idx}-opt${optIdx}`} className="flex-1 cursor-pointer font-normal text-gray-700">
+                                                    <span className="font-semibold text-gray-400 mr-3 w-4 inline-block">
+                                                        {String.fromCharCode(65 + optIdx)}
+                                                    </span>
+                                                    {option}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </RadioGroup>
+                                ) : (
+                                    /* Short Answer / Essay Questions - show textarea */
+                                    <div className="space-y-2">
+                                        <Textarea
+                                            placeholder="Type your answer here..."
+                                            className="min-h-[120px] resize-none border-2 border-gray-200 focus:border-indigo-500 rounded-xl p-4"
+                                            value={typeof currentAnswers[idx] === 'string' ? currentAnswers[idx] as string : ''}
+                                            onChange={(e) => handleTextAnswerChange(idx, e.target.value)}
+                                        />
+                                        <p className="text-xs text-gray-400">
+                                            {q.type === 'essay' ? 'Write a detailed response' : 'Provide a brief answer'}
+                                        </p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </motion.div>
@@ -347,7 +380,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">
                 <div className="max-w-2xl mx-auto flex justify-between items-center">
                     <span className="text-sm text-gray-500 hidden sm:inline">
-                        {currentAnswers.some(a => a === null)
+                        {currentAnswers.some(a => !isAnswered(a))
                             ? `${totalQuestions - answeredCount} questions remaining`
                             : 'All questions answered'}
                     </span>
@@ -355,7 +388,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
                     {phase === 'aptitude' ? (
                         <Button
                             onClick={handleAptitudeSubmit}
-                            disabled={currentAnswers.some(a => a === null)}
+                            disabled={currentAnswers.some(a => !isAnswered(a))}
                             className="w-full sm:w-auto px-8 bg-blue-600 hover:bg-blue-700 font-semibold"
                         >
                             Proceed to Technical <ArrowRight className="ml-2 w-4 h-4" />
@@ -363,7 +396,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
                     ) : (
                         <Button
                             onClick={handleFinalSubmit}
-                            disabled={isSubmitting || currentAnswers.some(a => a === null)}
+                            disabled={isSubmitting || currentAnswers.some(a => !isAnswered(a))}
                             className="w-full sm:w-auto px-8 bg-black hover:bg-slate-800 text-white font-semibold"
                         >
                             {isSubmitting ? (

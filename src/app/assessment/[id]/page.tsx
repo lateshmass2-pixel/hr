@@ -14,6 +14,8 @@ type MCQ = {
     correct?: number
     correctOptionIndex?: number
     explanation?: string
+    type?: 'mcq' | 'shortAnswer' | 'essay'  // Question type
+    category?: 'aptitude' | 'technical'      // Question category
 }
 
 // Component for completed assessments - simple confirmation only
@@ -83,10 +85,19 @@ export default async function AssessmentPage(props: Props) {
 
         // Start creating questions formatted for frontend
         const allQuestions = ragQuestions.map((q: any) => {
-            let opts = []
+            let opts: string[] = []
             try {
-                opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || []
+                // Handle various formats the options might be in
+                if (Array.isArray(q.options)) {
+                    // Already an array (correctly stored JSONB)
+                    opts = q.options
+                } else if (typeof q.options === 'string') {
+                    // Might be JSON string (old double-stringified data)
+                    const parsed = JSON.parse(q.options)
+                    opts = Array.isArray(parsed) ? parsed : []
+                }
             } catch (e) {
+                console.error('Failed to parse options:', q.options, e)
                 opts = []
             }
             return {
@@ -113,12 +124,29 @@ export default async function AssessmentPage(props: Props) {
 
         if (application) {
             const generated = application.generated_questions
-            // Handle both new (object) and old (array) formats
+
+            // Helper to normalize question format (AI uses 'text', frontend expects 'question')
+            const normalizeQuestion = (q: any): MCQ => ({
+                id: q.id,
+                question: q.question || q.text || '',  // Handle both field names
+                options: Array.isArray(q.options) ? q.options : [],
+                correct: q.correct ?? q.correctAnswer ?? 0,
+                correctOptionIndex: q.correctOptionIndex ?? q.correct ?? 0,
+                explanation: q.explanation || '',
+                type: q.type || 'mcq',            // Default to mcq
+                category: q.category || 'technical'  // Default to technical
+            })
+
+            // Handle both new (object with aptitude/technical) and old (flat array) formats
             if (Array.isArray(generated)) {
-                technical = generated as MCQ[]
+                const allQuestions = generated.map(normalizeQuestion)
+                // Split by category field that AI provides
+                aptitude = allQuestions.filter(q => q.category === 'aptitude')
+                technical = allQuestions.filter(q => q.category === 'technical')
             } else if (generated && typeof generated === 'object') {
-                aptitude = (generated.aptitude as MCQ[]) || []
-                technical = (generated.technical as MCQ[]) || []
+                const gen = generated as { aptitude?: any[], technical?: any[] }
+                aptitude = (gen.aptitude || []).map(normalizeQuestion)
+                technical = (gen.technical || []).map(normalizeQuestion)
             }
         }
     }

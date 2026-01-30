@@ -5,10 +5,10 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { motion } from 'framer-motion'
 import {
     MoreHorizontal, Mail, ExternalLink, Calendar,
-    CheckCircle2, AlertCircle, Clock
+    CheckCircle2, AlertCircle, Clock, Trash2
 } from 'lucide-react'
 import { SoftCard } from '@/components/ui/gradient-stat-card'
-import { updateApplicationStatus } from './actions'
+import { updateApplicationStatus, deleteApplication } from './actions'
 import { cn } from '@/lib/utils'
 import { extractSkills } from '@/utils/skill-extractor'
 import { LaunchAssessmentDialog } from './launch-assessment-dialog'
@@ -120,7 +120,10 @@ export function KanbanBoard({ applications }: { applications: Application[] }) {
                                                     style={{ ...provided.draggableProps.style }}
                                                     className={cn("outline-none", snapshot.isDragging && "scale-105 shadow-xl z-50")}
                                                 >
-                                                    <KanbanCard application={app} />
+                                                    <KanbanCard
+                                                        application={app}
+                                                        onDelete={(id) => setApps(apps.filter(a => a.id !== id))}
+                                                    />
                                                 </div>
                                             )}
                                         </Draggable>
@@ -136,9 +139,30 @@ export function KanbanBoard({ applications }: { applications: Application[] }) {
     )
 }
 
-function KanbanCard({ application }: { application: Application }) {
+function KanbanCard({ application, onDelete }: { application: Application, onDelete: (id: string) => void }) {
+    const [isDeleting, setIsDeleting] = useState(false)
     const score = application.test_score ?? application.score
     const isHighScore = (score ?? 0) >= 70
+
+    const handleDelete = async () => {
+        if (!confirm(`Are you sure you want to delete ${application.candidate_name}'s application?`)) {
+            return
+        }
+        setIsDeleting(true)
+        try {
+            const res = await deleteApplication(application.id)
+            if (res.success) {
+                toast.success('Application deleted')
+                onDelete(application.id)
+            } else {
+                toast.error(res.message || 'Failed to delete')
+            }
+        } catch (err) {
+            toast.error('Error deleting application')
+        } finally {
+            setIsDeleting(false)
+        }
+    }
 
     // Use stored skills if available, otherwise fallback to empty array (or legacy extraction if absolutely necessary)
     const skills = (application.skills && application.skills.length > 0)
@@ -210,6 +234,16 @@ function KanbanCard({ application }: { application: Application }) {
                     }} />
                 )}
 
+                {/* Offer: Show Hire/Reject buttons */}
+                {application.status === 'offer' && (
+                    <DecisionFooter application={{
+                        id: application.id,
+                        candidate_name: application.candidate_name,
+                        candidate_email: application.candidate_email,
+                        offer_role: application.offer_role
+                    }} />
+                )}
+
                 {/* General: Link to Resume/Email */}
                 <Link href={`mailto:${application.candidate_email}`} className="ml-auto">
                     <button className="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600">
@@ -223,6 +257,15 @@ function KanbanCard({ application }: { application: Application }) {
                         </button>
                     </Link>
                 )}
+
+                {/* Delete Button */}
+                <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="p-1.5 hover:bg-red-100 rounded text-gray-400 hover:text-red-600 disabled:opacity-50"
+                >
+                    <Trash2 size={14} />
+                </button>
             </div>
         </SoftCard>
     )

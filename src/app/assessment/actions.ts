@@ -93,12 +93,17 @@ export async function submitAssessment(id: string, answers: number[]) {
 
         // Convert DB Questions to grading format
         questions = session.assessment_questions.map((q: any) => {
-            // Parse options if stored as JSON string
-            let options = []
-            try {
-                options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options
-            } catch (e) {
-                options = []
+            // Parse options if stored as JSON string (legacy) or use directly if array (correct JSONB)
+            let options: string[] = []
+            if (Array.isArray(q.options)) {
+                options = q.options
+            } else if (typeof q.options === 'string') {
+                try {
+                    const parsed = JSON.parse(q.options)
+                    options = Array.isArray(parsed) ? parsed : []
+                } catch (e) {
+                    options = []
+                }
             }
 
             return {
