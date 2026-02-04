@@ -34,11 +34,16 @@ const avatarColors = [
 ]
 
 export default function ProjectsPage() {
-    const { projects, employees, deleteProject } = useHems()
+    const { projects, employees, deleteProject, currentUser } = useHems()
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
-    const activeProjects = projects.filter(p => p.status === 'ACTIVE').length
-    const completedProjects = projects.filter(p => p.status === 'COMPLETED').length
+    // Filter projects based on role
+    const visibleProjects = currentUser.globalRole === 'HR_ADMIN'
+        ? projects
+        : projects.filter(p => p.teamLeadId === currentUser.id || p.memberIds?.includes(currentUser.id))
+
+    const activeProjects = visibleProjects.filter(p => p.status === 'ACTIVE').length
+    const completedProjects = visibleProjects.filter(p => p.status === 'COMPLETED').length
 
     return (
         <div className="space-y-6 animate-fade-in-up">
@@ -49,7 +54,9 @@ export default function ProjectsPage() {
                     <p className="text-gray-500 mt-1">Manage ongoing initiatives and track progress</p>
                 </div>
 
-                <CreateProjectModal />
+                {currentUser.globalRole === 'HR_ADMIN' && (
+                    <CreateProjectModal />
+                )}
             </div>
 
             {/* Stats Row */}
@@ -82,7 +89,7 @@ export default function ProjectsPage() {
             {/* Project Grid */}
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-min items-start">
                 <AnimatePresence>
-                    {projects.map((project, index) => (
+                    {visibleProjects.map((project, index) => (
                         <ProjectCard key={project.id} project={project} employees={employees} />
                     ))}
                 </AnimatePresence>

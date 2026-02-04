@@ -170,7 +170,6 @@ export async function submitAssessment(id: string, answers: number[]) {
     // Strict Grading
     const { score, correctCount, details } = calculateScore(answers, questions)
 
-    // AI Feedback Generation
     const detailedResults = details.map(d => {
         const q = questions.find(q => q.id === d.questionId)
         return {
@@ -181,13 +180,25 @@ export async function submitAssessment(id: string, answers: number[]) {
 
     console.log(`📊 Results: ${correctCount}/${questions.length} correct = ${score}%`)
 
-    // Generate Feedback
+    // AI Feedback Generation
+    const passed = score >= 70
+
     const completion = await openai.chat.completions.create({
         model: AI_MODEL,
         messages: [
             {
                 role: "system",
-                content: `You are a Senior Tech Lead. Provide brief, encouraging but honest feedback (2 sentences) on a candidate's test results. Return JSON: { "feedback": "..." }`
+                content: `You are a Senior Tech Lead. Analyze the candidate's test results.
+                
+                If the score is >= 70%:
+                - Provide a short "suitability_reasoning" (approx 50 words) explaining why they are a good fit for the interview stage.
+                - Provide "feedback" (1 sentence).
+
+                If the score is < 70%:
+                - Provide ONLY "feedback" (1 sentence) on what to improve.
+                - "suitability_reasoning" should be null.
+
+                Return JSON: { "feedback": "...", "suitability_reasoning": "..." }`
             },
             {
                 role: "user",
@@ -199,18 +210,24 @@ export async function submitAssessment(id: string, answers: number[]) {
 
     const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
     const feedback = aiResponse.feedback || 'Assessment completed.'
+    const suitabilityReasoning = aiResponse.suitability_reasoning
 
-    const passed = score >= 70
     const newStatus = passed ? 'INTERVIEW' : 'REJECTED'
 
     console.log(`🔄 Updating Application ${applicationId}: TEST_PENDING → ${newStatus}`)
+
+    let finalAiReasoning = `**Previous Analysis:** ${aiReasoning || 'N/A'}\n\n**Test Score: ${score}%**\n**Feedback:** ${feedback}`
+
+    if (passed && suitabilityReasoning) {
+        finalAiReasoning += `\n\n**Why they fit:** ${suitabilityReasoning}`
+    }
 
     const { error: updateError } = await supabase
         .from('applications')
         .update({
             test_score: score,
             candidate_answers: answers,
-            ai_reasoning: `**Previous Analysis:** ${aiReasoning || 'N/A'}\n\n**Test Score: ${score}%**\n**Feedback:** ${feedback}`,
+            ai_reasoning: finalAiReasoning,
             status: newStatus
         })
         .eq('id', applicationId)

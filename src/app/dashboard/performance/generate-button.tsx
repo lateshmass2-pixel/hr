@@ -34,7 +34,7 @@ export function GenerateReviewButton({ employeeId, employeeName }: { employeeId:
             <Button
                 onClick={handleGenerate}
                 disabled={loading}
-                className="bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-500 hover:to-purple-400 text-white"
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg shadow-orange-500/20"
             >
                 {loading ? (
                     <>

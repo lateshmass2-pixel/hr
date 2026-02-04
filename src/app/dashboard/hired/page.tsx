@@ -34,12 +34,7 @@ export default async function HiredPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* Help Bubble */}
-                    <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-[#e8e4e0]">
-                        <Sparkles className="w-4 h-4 text-[#e07850]" />
-                        <span className="text-[#1a1a1a] text-sm font-medium">Need help?</span>
-                        <span className="text-lg">👋</span>
-                    </div>
+
                     <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e8e4e0] text-[#6b6b6b] hover:bg-[#faf8f5] hover:border-[#d9d5d0] rounded-full font-medium text-sm transition-colors shadow-sm">
                         <Download className="h-4 w-4" />
                         Export CSV

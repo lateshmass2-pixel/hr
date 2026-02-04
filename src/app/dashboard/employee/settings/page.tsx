@@ -18,12 +18,7 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* Quick Action Bubble */}
-                <div className="hidden md:flex items-center gap-3 bg-white rounded-full px-5 py-3 shadow-md border border-[#e8e4e0]">
-                    <Sparkles className="w-5 h-5 text-[#e07850]" />
-                    <span className="text-[#1a1a1a] font-medium">Hey, Need help?</span>
-                    <span className="text-2xl">👋</span>
-                </div>
+
             </div>
 
             {/* Main Content Grid */}

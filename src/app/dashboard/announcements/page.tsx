@@ -23,12 +23,7 @@ export default async function AnnouncementsPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* Help Bubble */}
-                    <div className="hidden md:flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-[#e8e4e0]">
-                        <Sparkles className="w-4 h-4 text-[#e07850]" />
-                        <span className="text-[#1a1a1a] text-sm font-medium">Need help?</span>
-                        <span className="text-lg">👋</span>
-                    </div>
+
                     <NewAnnouncementDialog />
                 </div>
             </div>

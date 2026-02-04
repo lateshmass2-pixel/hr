@@ -105,13 +105,14 @@ export async function processApplication(formData: FormData) {
     const jobId = formData.get('jobId') as string | null
     const candidateName = formData.get('name') as string
     const candidateEmail = formData.get('email') as string
+    const expectedSkillsInput = formData.get('expectedSkills') as string | null
 
     if (!file) {
         return { message: 'Missing file' }
     }
 
     try {
-        // 1. Fetch job required skills if jobId is provided
+        // 1. Fetch job required skills if jobId is provided, allow override/addition via input
         let requiredSkills: string[] = []
         let jobTitle = 'General Position'
 
@@ -126,6 +127,12 @@ export async function processApplication(formData: FormData) {
                 requiredSkills = job.required_skills || []
                 jobTitle = job.title
             }
+        }
+
+        // Add manually entered skills
+        if (expectedSkillsInput) {
+            const manualSkills = expectedSkillsInput.split(',').map(s => s.trim()).filter(Boolean)
+            requiredSkills = [...new Set([...requiredSkills, ...manualSkills])]
         }
 
         // 2. Upload Resume to Supabase Storage
@@ -202,14 +209,28 @@ export async function processApplication(formData: FormData) {
         const finalName = candidateName || candidate_name || 'Unknown Candidate'
         const finalEmail = candidateEmail || candidate_email || 'unknown@example.com'
 
-        // 5. All uploaded resumes go directly to Screening (TEST_PENDING)
-        // They will be filtered based on quiz performance later
-        const status = 'TEST_PENDING'
+        // 5. DETERMINE STATUS BASED ON SKILLS
+        // If critical skills are missing (score < 50 implied by prompt), we do NOT send assessment.
+        let status = 'TEST_PENDING'
+        let sendInvite = true
+
+        // If we had required skills, enforce the cutoff
+        if (requiredSkills.length > 0) {
+            // Using score as proxy for skill match because the prompt instructed to lower score if missing skills
+            if (score < 50) {
+                status = 'REJECTED' // Or a specific 'SKILL_MISMATCH' status, but REJECTED is safer for Kanban
+                sendInvite = false
+            }
+        }
 
         // Build AI reasoning with skill info
-        const aiReasoning = missing_skills && missing_skills.length > 0
+        let aiReasoning = missing_skills && missing_skills.length > 0
             ? `${summary}\n\n⚠️ **Missing Required Skills:** ${missing_skills.join(', ')}`
             : summary
+
+        if (!sendInvite) {
+            aiReasoning = `**AUTO-REJECTED (Skill Mismatch):** Candidate score (${score}) below threshold for required skills.\n\n` + aiReasoning
+        }
 
         // 6. Insert into Database
         const { data: insertedApplication, error: dbError } = await supabase
@@ -230,8 +251,8 @@ export async function processApplication(formData: FormData) {
 
         if (dbError) throw new Error('DB Insert failed: ' + dbError.message)
 
-        // 6. AUTOMATED EMAIL TRIGGER - Send assessment invite
-        if (insertedApplication) {
+        // 6. AUTOMATED EMAIL TRIGGER - Send assessment invite IF ELIGIBLE
+        if (insertedApplication && sendInvite) {
             console.log(`📧 Sending assessment invite to ${finalEmail}...`)
             const emailResult = await sendAssessmentInvite(
                 finalEmail,
@@ -243,9 +264,16 @@ export async function processApplication(formData: FormData) {
             } else {
                 console.error('❌ Failed to send assessment invite:', emailResult.error)
             }
+        } else {
+            console.log(`⛔ Assessment invite SKIPPED for ${finalName} (Score: ${score}). Status: ${status}`)
         }
 
         revalidatePath('/dashboard/hiring')
+
+        if (!sendInvite) {
+            return { message: 'Uploaded, but skills did not match required criteria.', status, score }
+        }
+
         return { message: 'Success', status, score }
 
     } catch (error: any) {

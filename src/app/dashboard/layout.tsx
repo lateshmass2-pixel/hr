@@ -81,7 +81,7 @@ export default async function DashboardLayout({
                                     Admin
                                 </span>
                             </div>
-                            <NavLinkClient href="/dashboard/payroll" icon={<Wallet size={18} />} label="Payroll" />
+
                             <NavLinkClient href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" />
                         </>
                     ) : (
@@ -112,7 +112,7 @@ export default async function DashboardLayout({
                 <div className="p-4 border-t border-gray-100">
                     <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm">
-                            {userInitials}
+                            <Users className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
@@ -120,6 +120,7 @@ export default async function DashboardLayout({
                         </div>
                     </div>
                 </div>
+
             </aside>
 
             {/* ═══════════════════════════════════════════════════════════

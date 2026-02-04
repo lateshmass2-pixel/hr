@@ -34,23 +34,15 @@ export function UploadDialog() {
     const [uploading, setUploading] = useState(false)
     const [results, setResults] = useState<any[]>([])
     const [currentFileIndex, setCurrentFileIndex] = useState(0)
-    const [jobs, setJobs] = useState<Job[]>([])
-    const [selectedJobId, setSelectedJobId] = useState<string>("general")
-    const [loadingJobs, setLoadingJobs] = useState(false)
+    const [expectedSkills, setExpectedSkills] = useState("")
 
     useEffect(() => {
         if (isOpen) {
             // Reset state when dialog opens
             setFiles([])
             setResults([])
+            setExpectedSkills("")
             setCurrentFileIndex(0)
-            setSelectedJobId("general")
-
-            setLoadingJobs(true)
-            getJobs().then((data) => {
-                setJobs(data)
-                setLoadingJobs(false)
-            })
         }
     }, [isOpen])
 
@@ -72,9 +64,9 @@ export function UploadDialog() {
             const file = files[i]
             const formData = new FormData()
             formData.append('resume', file)
-            // Only send jobId if a specific job is selected (not "general")
-            if (selectedJobId && selectedJobId !== "general") {
-                formData.append('jobId', selectedJobId)
+
+            if (expectedSkills.trim()) {
+                formData.append('expectedSkills', expectedSkills)
             }
             // We don't send name/email here, relying on AI extraction
 
@@ -99,33 +91,23 @@ export function UploadDialog() {
                 <DialogHeader>
                     <DialogTitle>Bulk Resume Upload</DialogTitle>
                     <DialogDescription>
-                        Upload one or more PDF resumes. The AI will analyze them automatically.
+                        Upload resumes and define required skills. Candidates missing these skills will be automatically rejected.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="job">Job Posting (Optional)</Label>
-                        {loadingJobs ? (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Loading jobs...
-                            </div>
-                        ) : (
-                            <Select value={selectedJobId} onValueChange={setSelectedJobId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a job (optional)" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="general">General Application</SelectItem>
-                                    {jobs.map((job) => (
-                                        <SelectItem key={job.id} value={job.id}>
-                                            {job.title}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
+                        <Label htmlFor="skills">Required Skills</Label>
+                        <Input
+                            id="skills"
+                            placeholder="e.g. React, Node.js, Python (comma separated)"
+                            value={expectedSkills}
+                            onChange={(e) => setExpectedSkills(e.target.value)}
+                            disabled={uploading}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Candidates scored below 50% on these skills will be auto-rejected.
+                        </p>
                     </div>
 
                     <div className="grid gap-2">

@@ -207,6 +207,32 @@ export async function getEmployeeReview(employeeId: string) {
     return data as PerformanceReview | null
 }
 
+export async function getAllReviews(employeeIds: string[]) {
+    if (employeeIds.length === 0) return []
+
+    const supabase = await createClient()
+    const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+    const { data, error } = await supabase
+        .from('performance_reviews')
+        .select('*')
+        .in('employee_id', employeeIds)
+        .eq('review_period', currentMonth)
+
+    if (error) {
+        console.error('Error fetching batch reviews:', error)
+        return []
+    }
+
+    // Deduplicate: get only the latest review per employee
+    // Since we can't easily do "DISTINCT ON" with simple PostgREST js client without raw sql sometimes,
+    // we will fetch all matching and filter in JS if there are duplicates (unlikely if logic holds).
+    // Actually, let's just return all and filter in the component or map them.
+    // Better: Sort by created_at desc in query if possible, but .in() makes it tricky to sort per group.
+
+    return data as PerformanceReview[]
+}
+
 export async function getAllEmployees() {
     const supabase = await createClient()
 

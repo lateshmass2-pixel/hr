@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { UploadDialog } from "./upload-dialog"
-import { CreateJobDialog } from "./create-job-dialog"
 import { HiringInbox } from "./hiring-inbox"
 import { KanbanBoard } from "./kanban-board"
 import { KBUploadDialog } from "./kb-upload-dialog"
@@ -52,7 +51,6 @@ export default async function HiringDashboard() {
                     </div>
 
                     <KBUploadDialog />
-                    <CreateJobDialog />
                     <UploadDialog />
                 </div>
             </div>

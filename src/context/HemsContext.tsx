@@ -246,8 +246,8 @@ export function HemsProvider({ children }: { children: ReactNode }) {
         const project = projects.find(p => p.id === projectId)
         if (!project) return 'VIEWER'
 
-        // HR_ADMIN can view all but doesn't have leader/member role
-        if (currentUser.globalRole === 'HR_ADMIN') return 'VIEWER'
+        // HR_ADMIN should have full access to manage the project
+        if (currentUser.globalRole === 'HR_ADMIN') return 'LEADER'
 
         if (project.teamLeadId === currentUser.id) return 'LEADER'
         if (project.memberIds?.includes(currentUser.id)) return 'MEMBER'
@@ -291,8 +291,18 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 }
             }
 
-            const { data: profiles } = await supabase.from('profiles').select('*')
-            const { data: leaveRequests } = await supabase.from('leave_requests').select('*')
+            // Fetch all data in parallel
+            const [
+                { data: profiles },
+                { data: leaveRequests },
+                { data: dbProjects },
+                { data: dbTasks }
+            ] = await Promise.all([
+                supabase.from('profiles').select('*'),
+                supabase.from('leave_requests').select('*'),
+                supabase.from('projects').select('*'),
+                supabase.from('tasks').select('*')
+            ])
 
             if (profiles) {
                 const mappedEmployees: Employee[] = profiles
@@ -333,8 +343,6 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 setLeaves(mappedLeaves)
             }
 
-            // Fetch projects from database
-            const { data: dbProjects } = await supabase.from('projects').select('*')
             if (dbProjects) {
                 const mappedProjects: Project[] = dbProjects.map((p: any) => ({
                     id: p.id,
@@ -350,8 +358,6 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 setProjects(mappedProjects)
             }
 
-            // Fetch tasks
-            const { data: dbTasks } = await supabase.from('tasks').select('*')
             if (dbTasks) {
                 const mappedTasks: Task[] = dbTasks.map((t: any) => ({
                     id: t.id,
