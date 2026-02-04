@@ -227,24 +227,29 @@ export default function LeavePage() {
                         <Filter size={16} />
                         Filter
                     </button>
-                    <button
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-lg shadow-black/10"
-                        onClick={() => {
-                            // Demo add leave
-                            const randomEmployee = employees[Math.floor(Math.random() * employees.length)]
-                            const date = new Date(2026, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0]
-                            addLeave({
-                                user_id: randomEmployee.id,
-                                type: Math.random() > 0.5 ? 'Sick' : 'Annual',
-                                start_date: date,
-                                end_date: date,
-                                status: 'approved'
-                            })
-                        }}
-                    >
-                        <Plus size={18} />
-                        Request Leave
-                    </button>
+                    {currentUser?.role !== 'HR_ADMIN' && (
+                        <button
+                            className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-lg shadow-black/10"
+                            onClick={() => {
+                                // Demo add leave
+                                const randomEmployee = employees[Math.floor(Math.random() * employees.length)]
+                                // Ensure randomEmployee exists before accessing properties
+                                if (randomEmployee) {
+                                    const date = new Date(2026, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0]
+                                    addLeave({
+                                        user_id: randomEmployee.id,
+                                        type: Math.random() > 0.5 ? 'Sick' : 'Annual',
+                                        start_date: date,
+                                        end_date: date,
+                                        status: 'approved'
+                                    })
+                                }
+                            }}
+                        >
+                            <Plus size={18} />
+                            Request Leave
+                        </button>
+                    )}
                 </div>
             </div>
 

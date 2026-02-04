@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
-    Users, TrendingUp, Calendar, ArrowRight, Plus,
+    Users, TrendingUp, Calendar, ArrowRight,
     GraduationCap, Video, UserCheck, AlertCircle, FileText,
-    ChevronDown, Megaphone, Bell, ClipboardList, Sun, Sunset,
-    CheckCircle, Briefcase, FolderKanban
+    Megaphone, Bell, Sun, Sunset,
+    CheckCircle, FolderKanban
 } from 'lucide-react'
 import { format, subDays, isAfter, startOfMonth } from 'date-fns'
 import { ApprovalActions } from './leave/approval-actions'
@@ -18,12 +18,10 @@ import { DonutChartCard } from '@/components/ui/dashboard-charts'
 import { cn } from '@/lib/utils'
 
 interface DashboardClientProps {
-    pendingTasks: number
     teamMembers: number
     employees: any[]
     applicationsData: any[]
     pendingLeaveRequests: any[]
-    userName: string
 }
 
 const containerVariants = {
@@ -43,30 +41,23 @@ const itemVariants = {
     }
 }
 
-function getTimeBasedGreeting(): { greeting: string; icon: React.ReactNode } {
-    const hour = new Date().getHours()
-    if (hour < 12) return { greeting: 'Good Morning', icon: <Sun className="w-5 h-5" /> }
-    if (hour < 17) return { greeting: 'Good Afternoon', icon: <Sun className="w-5 h-5" /> }
-    return { greeting: 'Good Evening', icon: <Sunset className="w-5 h-5" /> }
-}
+
 
 const avatarColors = [
     '#FB923C', '#14B8A6', '#F59E0B', '#EC4899', '#8B5CF6', '#10B981'
 ]
 
 export default function DashboardClient({
-    pendingTasks,
     teamMembers,
     employees,
     applicationsData,
     pendingLeaveRequests,
-    userName
 }: DashboardClientProps) {
     const router = useRouter()
     const { announcements, projects } = useHems()
-    const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false)
 
-    const { greeting, icon: greetingIcon } = getTimeBasedGreeting()
+
+
 
     // Derived Data - Using REAL data only
     const funnelCounts = {
@@ -121,51 +112,16 @@ export default function DashboardClient({
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-                        {greeting}, {userName} 👋
+                        Dashboard
                     </h1>
-                    <p className="text-gray-500 mt-1">
-                        You have <span className="text-orange-600 font-semibold">{pendingTasks} pending tasks</span> to review
+                    <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                        <span className="font-medium text-gray-900">{format(new Date(), 'EEEE, MMMM d')}</span>
+                        <span className="w-1 h-1 rounded-full bg-gray-300" />
+                        <span>Overview</span>
                     </p>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="relative">
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
-                        className="pill-button-primary flex items-center gap-2"
-                    >
-                        <Plus size={16} />
-                        Quick Actions
-                        <ChevronDown size={14} className={`transition-transform ${isQuickActionsOpen ? 'rotate-180' : ''}`} />
-                    </motion.button>
 
-                    <AnimatePresence>
-                        {isQuickActionsOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 8 }}
-                                className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-hover py-2 z-50"
-                            >
-                                {[
-                                    { icon: Briefcase, label: 'Post Job', href: '/dashboard/hiring' },
-                                    { icon: Users, label: 'Add Employee', href: '/dashboard/team' },
-                                    { icon: ClipboardList, label: 'New Project', href: '/dashboard/projects' },
-                                ].map(({ icon: Icon, label, href }) => (
-                                    <button
-                                        key={label}
-                                        onClick={() => { router.push(href); setIsQuickActionsOpen(false) }}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors flex items-center gap-3"
-                                    >
-                                        <Icon size={16} /> {label}
-                                    </button>
-                                ))}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
             </motion.div>
 
             {/* ═══════════════════════════════════════════════════════════

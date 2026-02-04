@@ -295,16 +295,18 @@ export function HemsProvider({ children }: { children: ReactNode }) {
             const { data: leaveRequests } = await supabase.from('leave_requests').select('*')
 
             if (profiles) {
-                const mappedEmployees: Employee[] = profiles.map((p: any) => ({
-                    id: p.id,
-                    full_name: p.full_name || 'Unknown',
-                    email: p.email || '',
-                    position: p.position || 'Employee',
-                    department: p.department || 'General',
-                    status: 'Active',
-                    created_at: p.created_at,
-                    avatar_url: p.avatar_url
-                }))
+                const mappedEmployees: Employee[] = profiles
+                    .filter((p: any) => p.role !== 'HR_ADMIN')
+                    .map((p: any) => ({
+                        id: p.id,
+                        full_name: p.full_name || 'Unknown',
+                        email: p.email || '',
+                        position: p.position || 'Employee',
+                        department: p.department || 'General',
+                        status: 'Active',
+                        created_at: p.created_at,
+                        avatar_url: p.avatar_url
+                    }))
                 setEmployees(mappedEmployees)
 
                 // Also set users from profiles
