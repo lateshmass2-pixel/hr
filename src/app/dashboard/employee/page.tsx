@@ -54,7 +54,7 @@ export default async function EmployeeDashboard() {
     })) || []
 
     return (
-        <div className="min-h-screen space-y-8 animate-fade-in-up pb-10">
+        <div className="space-y-8 animate-fade-in-up pb-10">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-[2rem] bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20">

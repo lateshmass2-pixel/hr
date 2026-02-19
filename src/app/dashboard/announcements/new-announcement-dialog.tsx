@@ -93,7 +93,7 @@ export function NewAnnouncementDialog() {
                         <Button
                             type="submit"
                             disabled={isPending}
-                            className="bg-orange-500 hover:bg-orange-600 text-white"
+                            className="bg-[#14532d] hover:bg-[#166534] text-white"
                         >
                             {isPending ? 'Creating...' : 'Publish Announcement'}
                         </Button>

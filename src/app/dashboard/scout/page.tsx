@@ -421,7 +421,6 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                                                 </div>
                                                 <h4 className="font-bold text-[#1a1a1a]">{exp.role}</h4>
                                                 <p className="text-sm text-[#6b6b6b]">at {exp.company}</p>
-                                                <p className="text-sm text-[#a0a0a0] mt-2">{exp.description}</p>
                                             </div>
                                         </div>
                                     ))}

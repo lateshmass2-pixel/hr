@@ -152,8 +152,8 @@ export function UploadDialog() {
                 </div>
 
                 <div className="flex justify-end">
-                    <Button onClick={handleUpload} disabled={uploading || files.length === 0}>
-                        {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Start Processing"}
+                    <Button onClick={handleUpload} disabled={uploading || files.length === 0} className="bg-[#14532d] hover:bg-[#166534]">
+                        {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Upload & Parse Candidates'}
                     </Button>
                 </div>
             </DialogContent>

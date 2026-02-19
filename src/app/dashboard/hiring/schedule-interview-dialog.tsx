@@ -317,7 +317,7 @@ The HEMS HR Team`
                             <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
                             <span><strong>{formattedDate}</strong> at <strong>{formattedTime}</strong></span>
                         </div>
-                        <Button onClick={handleClose} className="mt-4">
+                        <Button onClick={handleClose} className="mt-4 bg-[#14532d] hover:bg-[#166534]">
                             Done
                         </Button>
                     </div>

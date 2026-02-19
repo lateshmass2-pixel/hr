@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { deleteProject as deleteProjectAction } from "@/app/dashboard/projects/actions"
 
 // ============================================================================
 // TYPES - Global & Project Roles
@@ -534,14 +535,15 @@ export function HemsProvider({ children }: { children: ReactNode }) {
 
     // Delete Project
     const deleteProject = async (projectId: string) => {
-        // Delete from Supabase
-        const { error } = await supabase.from('projects').delete().eq('id', projectId)
+        // Call Server Action
+        const result = await deleteProjectAction(projectId)
 
-        if (error) {
-            console.error("Failed to delete project:", error)
+        if ('error' in result) {
+            console.error("Failed to delete project:", result.error)
+            return
         }
 
-        // Always update local state
+        // Update local state on success
         setProjects(prev => prev.filter(p => p.id !== projectId))
         setTasks(prev => prev.filter(t => t.projectId !== projectId))
         setTeams(prev => prev.filter(t => t.projectId !== projectId))

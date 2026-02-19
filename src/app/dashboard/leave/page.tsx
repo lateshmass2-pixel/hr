@@ -33,6 +33,10 @@ import {
     isToday,
     areIntervalsOverlapping
 } from "date-fns"
+import { PageContainer } from "@/components/layout/PageContainer"
+import { PageHero } from "@/components/layout/PageHero"
+import { Card } from "@/components/ui/card"
+import { theme } from "@/lib/theme"
 
 export default function LeavePage() {
     const { leaves, employees, addLeave } = useHems()
@@ -82,28 +86,28 @@ export default function LeavePage() {
 
     // Components
     const CalendarView = () => (
-        <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-sm overflow-hidden flex flex-col h-full animate-in fade-in zoom-in-95 duration-300">
+        <Card noPadding className="h-full flex flex-col animate-in fade-in zoom-in-95 duration-300">
             {/* Calendar Header */}
-            <div className="p-6 border-b border-[#e8e4e0] flex items-center justify-between">
+            <div className="p-6 border-b border-green-100 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <h2 className="text-xl font-bold text-[#1a1a1a]">
+                    <h2 className="text-xl font-bold text-[#14532d]">
                         {format(currentDate, "MMMM yyyy")}
                     </h2>
-                    <div className="flex items-center gap-1 bg-[#faf8f5] rounded-lg p-1 border border-[#e8e4e0]">
-                        <button onClick={prevMonth} className="p-1 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#6b6b6b]">
+                    <div className="flex items-center gap-1 bg-[#f8faf6] rounded-lg p-1 border border-green-100">
+                        <button onClick={prevMonth} className="p-1 hover:bg-white hover:text-[#14532d] hover:shadow-sm rounded-md transition-all text-slate-500">
                             <ChevronLeft size={16} />
                         </button>
-                        <button onClick={nextMonth} className="p-1 hover:bg-white hover:shadow-sm rounded-md transition-all text-[#6b6b6b]">
+                        <button onClick={nextMonth} className="p-1 hover:bg-white hover:text-[#14532d] hover:shadow-sm rounded-md transition-all text-slate-500">
                             <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-[#6b6b6b] bg-[#faf8f5] px-3 py-1.5 rounded-full border border-[#e8e4e0]">
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-[#f8faf6] px-3 py-1.5 rounded-full border border-green-100">
                         <span className="w-2 h-2 rounded-full bg-amber-400"></span>
                         Sick Leave
                     </span>
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-[#6b6b6b] bg-[#faf8f5] px-3 py-1.5 rounded-full border border-[#e8e4e0]">
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-[#f8faf6] px-3 py-1.5 rounded-full border border-green-100">
                         <span className="w-2 h-2 rounded-full bg-orange-500"></span>
                         Annual Leave
                     </span>
@@ -111,9 +115,9 @@ export default function LeavePage() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 border-b border-[#e8e4e0] bg-[#faf8f5]">
+            <div className="grid grid-cols-7 border-b border-green-100 bg-[#f8faf6]/50">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="py-3 text-center text-xs font-semibold text-[#a0a0a0] uppercase tracking-wider">
+                    <div key={day} className="py-3 text-center text-xs font-semibold text-[#15803d] uppercase tracking-wider">
                         {day}
                     </div>
                 ))}
@@ -122,7 +126,7 @@ export default function LeavePage() {
             <div className="grid grid-cols-7 flex-1 overflow-y-auto bg-white">
                 {/* Empty cells for start of month */}
                 {Array.from({ length: startDayOfWeek }).map((_, i) => (
-                    <div key={`empty-${i}`} className="min-h-[120px] p-2 border-b border-r border-[#f5f3f0]" />
+                    <div key={`empty-${i}`} className="min-h-[120px] p-2 border-b border-r border-green-50" />
                 ))}
 
                 {/* Days */}
@@ -130,8 +134,6 @@ export default function LeavePage() {
                     const activeLeaves = currentMonthLeaves.filter(leave => {
                         const start = new Date(leave.start_date)
                         const end = new Date(leave.end_date)
-                        // Check if 'day' is within start and end inclusive
-                        // Normalize dates to ignore time for comparison if needed, or rely on date objects
                         return (day >= start && day <= end) || isSameDay(day, start) || isSameDay(day, end)
                     })
                     const isTodayDate = isToday(day)
@@ -140,13 +142,13 @@ export default function LeavePage() {
                         <div
                             key={day.toISOString()}
                             className={cn(
-                                "min-h-[120px] p-3 border-b border-r border-[#f5f3f0] hover:bg-[#faf8f5]/50 transition-colors group relative",
-                                isTodayDate && "bg-[#faf8f5]"
+                                "min-h-[120px] p-3 border-b border-r border-green-50 hover:bg-[#f8faf6]/50 transition-colors group relative",
+                                isTodayDate && "bg-[#f8faf6]"
                             )}
                         >
                             <span className={cn(
                                 "text-sm font-medium inline-flex w-7 h-7 items-center justify-center rounded-full mb-2",
-                                isTodayDate ? "bg-[#1a1a1a] text-white" : "text-[#6b6b6b] group-hover:text-[#1a1a1a]"
+                                isTodayDate ? "bg-[#14532d] text-white" : "text-slate-400 group-hover:text-[#14532d]"
                             )}>
                                 {format(day, "d")}
                             </span>
@@ -166,8 +168,8 @@ export default function LeavePage() {
                                             className={cn(
                                                 "px-2 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform",
                                                 isSick
-                                                    ? "bg-amber-50 text-gray-600 border-amber-100" // Yellow Emoji + Gray Text
-                                                    : "bg-orange-50 text-orange-700 border-orange-100" // Orange Emoji + Orange Text
+                                                    ? "bg-amber-50 text-amber-700 border-amber-100"
+                                                    : "bg-orange-50 text-orange-700 border-orange-100"
                                             )}
                                         >
                                             {isSick ? <Thermometer className="w-3 h-3 text-amber-500" /> : <PartyPopper className="w-3 h-3 text-orange-500" />}
@@ -180,81 +182,84 @@ export default function LeavePage() {
                     )
                 })}
             </div>
-        </div>
+        </Card>
     )
 
     const PlaceholderView = ({ title, icon: Icon }: any) => (
-        <div className="bg-white rounded-3xl border border-[#e8e4e0] p-12 text-center shadow-sm min-h-[500px] flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 bg-[#faf8f5] rounded-2xl flex items-center justify-center mb-4">
-                <Icon size={32} className="text-[#a0a0a0]" />
+        <Card className="p-12 text-center flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300 min-h-[500px]">
+            <div className="w-16 h-16 bg-[#f8faf6] rounded-2xl flex items-center justify-center mb-4 border border-green-100">
+                <Icon size={32} className="text-green-300" />
             </div>
-            <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">{title}</h3>
-            <p className="text-[#6b6b6b] max-w-sm mx-auto">
+            <h3 className="text-xl font-bold text-[#14532d] mb-2">{title}</h3>
+            <p className="text-slate-500 max-w-sm mx-auto">
                 This module is currently under development. Please check back later for full functionality.
             </p>
-        </div>
+        </Card>
     )
 
     return (
-        <div className="space-y-6 h-[calc(100vh-140px)] flex flex-col">
-            {/* Header & Tabs */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
-                <div className="flex bg-[#faf8f5] p-1 rounded-xl border border-[#e8e4e0]">
-                    {(currentUser?.role === 'HR_ADMIN' ? [
-                        { id: 'requested', label: 'Requested' },
-                        { id: 'balances', label: 'Balances' },
-                        { id: 'calendar', label: 'Calendar' },
-                    ] : [
-                        { id: 'calendar', label: 'Calendar' }
-                    ]).map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={cn(
-                                "px-6 py-2.5 rounded-lg text-sm font-medium transition-all",
-                                activeTab === tab.id
-                                    ? "bg-white text-[#1a1a1a] shadow-sm border border-[#e8e4e0]/50"
-                                    : "text-[#6b6b6b] hover:text-[#1a1a1a]"
-                            )}
-                        >
-                            {tab.label}
+        <PageContainer>
+            <PageHero
+                title="Leave Management"
+                subtitle="Track employee leave, approve requests, and manage workforce availability."
+                action={
+                    <div className="flex items-center gap-3">
+                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-green-100 rounded-xl text-sm font-medium text-slate-600 hover:bg-[#f8faf6] hover:text-[#14532d] transition-colors">
+                            <Filter size={16} />
+                            Filter
                         </button>
-                    ))}
-                </div>
+                        {currentUser?.role !== 'HR_ADMIN' && (
+                            <button
+                                className={cn(theme.primaryButton, "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-green-900/10")}
+                                onClick={() => {
+                                    // Demo add leave
+                                    const randomEmployee = employees[Math.floor(Math.random() * employees.length)]
+                                    if (randomEmployee) {
+                                        const date = new Date(2026, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0]
+                                        addLeave({
+                                            user_id: randomEmployee.id,
+                                            type: Math.random() > 0.5 ? 'Sick' : 'Annual',
+                                            start_date: date,
+                                            end_date: date,
+                                            status: 'approved'
+                                        })
+                                    }
+                                }}
+                            >
+                                <Plus size={18} />
+                                Request Leave
+                            </button>
+                        )}
+                    </div>
+                }
+            />
 
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#faf8f5] transition-colors">
-                        <Filter size={16} />
-                        Filter
+            {/* Tabs */}
+            <div className="flex bg-[#f8faf6] p-1 rounded-xl border border-green-100 w-fit">
+                {(currentUser?.role === 'HR_ADMIN' ? [
+                    { id: 'requested', label: 'Requested' },
+                    { id: 'balances', label: 'Balances' },
+                    { id: 'calendar', label: 'Calendar' },
+                ] : [
+                    { id: 'calendar', label: 'Calendar' }
+                ]).map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={cn(
+                            "px-6 py-2.5 rounded-lg text-sm font-medium transition-all",
+                            activeTab === tab.id
+                                ? "bg-white text-[#14532d] shadow-sm border border-green-100/50 font-semibold"
+                                : "text-slate-500 hover:text-[#14532d]"
+                        )}
+                    >
+                        {tab.label}
                     </button>
-                    {currentUser?.role !== 'HR_ADMIN' && (
-                        <button
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-lg shadow-black/10"
-                            onClick={() => {
-                                // Demo add leave
-                                const randomEmployee = employees[Math.floor(Math.random() * employees.length)]
-                                // Ensure randomEmployee exists before accessing properties
-                                if (randomEmployee) {
-                                    const date = new Date(2026, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0]
-                                    addLeave({
-                                        user_id: randomEmployee.id,
-                                        type: Math.random() > 0.5 ? 'Sick' : 'Annual',
-                                        start_date: date,
-                                        end_date: date,
-                                        status: 'approved'
-                                    })
-                                }
-                            }}
-                        >
-                            <Plus size={18} />
-                            Request Leave
-                        </button>
-                    )}
-                </div>
+                ))}
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 pt-4">
                 <AnimatePresence mode="wait">
                     {activeTab === 'calendar' && (
                         <CalendarView key="calendar" />
@@ -267,6 +272,6 @@ export default function LeavePage() {
                     )}
                 </AnimatePresence>
             </div>
-        </div>
+        </PageContainer>
     )
 }

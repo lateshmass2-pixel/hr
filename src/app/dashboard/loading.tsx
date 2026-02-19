@@ -1,6 +1,6 @@
 export default function Loading() {
     return (
-        <div className="p-8 space-y-8 bg-[#F8F9FC] min-h-screen">
+        <div className="p-8 space-y-8">
             {/* Header Skeleton */}
             <div className="flex justify-between items-center mb-6">
                 <div className="space-y-2">

@@ -37,12 +37,12 @@ export function NavLinkClient({ href, icon, label }: NavLinkClientProps) {
                 href={href}
                 className={cn(
                     "sidebar-link",
-                    isActive && "sidebar-link-active"
+                    isActive && "bg-green-100 text-green-900 border-l-4 border-[#14532d]"
                 )}
             >
                 <span className={cn(
                     "transition-colors duration-200",
-                    isActive ? "text-blue-600" : "text-gray-400"
+                    isActive ? "text-[#14532d]" : "text-gray-400"
                 )}>
                     {icon}
                 </span>

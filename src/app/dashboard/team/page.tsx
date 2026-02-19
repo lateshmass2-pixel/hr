@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
 import {
     Search,
     Filter,
@@ -19,6 +18,10 @@ import {
 } from "lucide-react"
 import { useHems } from "@/context/HemsContext"
 import { cn } from "@/lib/utils"
+import { PageContainer } from "@/components/layout/PageContainer"
+import { PageHero } from "@/components/layout/PageHero"
+import { Card } from "@/components/ui/card"
+import { theme } from "@/lib/theme"
 
 export default function TeamPage() {
     const { employees, addEmployee } = useHems()
@@ -46,7 +49,7 @@ export default function TeamPage() {
     const currentEmployees = filteredEmployees.slice(startIndex, startIndex + itemsPerPage)
 
     const StatCard = ({ title, value, trend, trendUp, icon: Icon, colorClass }: any) => (
-        <div className="bg-white rounded-2xl p-5 border border-[#e8e4e0] shadow-sm hover:shadow-md transition-shadow">
+        <Card className="flex flex-col justify-between h-full">
             <div className="flex justify-between items-start mb-4">
                 <div className={cn("p-3 rounded-xl", colorClass)}>
                     <Icon size={20} className="text-current" />
@@ -62,14 +65,19 @@ export default function TeamPage() {
                 )}
             </div>
             <div className="space-y-1">
-                <h3 className="text-2xl font-bold text-[#1a1a1a]">{value}</h3>
-                <p className="text-[#6b6b6b] text-sm font-medium">{title}</p>
+                <h3 className="text-2xl font-bold text-[#14532d]">{value}</h3>
+                <p className="text-[#3f6212] text-sm font-medium">{title}</p>
             </div>
-        </div>
+        </Card>
     )
 
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <PageContainer>
+            <PageHero
+                title="Team"
+                subtitle="Manage your workforce, track performance, and oversee employee details."
+            />
+
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
@@ -78,7 +86,7 @@ export default function TeamPage() {
                     trend="+12%"
                     trendUp={true}
                     icon={Users}
-                    colorClass="bg-orange-50 text-orange-600"
+                    colorClass="bg-green-50 text-[#14532d]"
                 />
                 <StatCard
                     title="Active"
@@ -107,29 +115,29 @@ export default function TeamPage() {
             </div>
 
             {/* Main Content Card */}
-            <div className="bg-white border border-[#e8e4e0] rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[600px]">
+            <Card noPadding className="flex flex-col min-h-[600px] overflow-hidden">
                 {/* Toolbar */}
-                <div className="p-5 border-b border-[#e8e4e0] flex flex-col md:flex-row justify-between gap-4 items-center bg-white sticky top-0 z-10">
+                <div className="p-5 border-b border-green-100 flex flex-col md:flex-row justify-between gap-4 items-center bg-white sticky top-0 z-10">
                     {/* Search */}
                     <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0a0a0]" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input
                             type="text"
                             placeholder="Search employees..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-slate-700"
                         />
                     </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-3 w-full md:w-auto">
-                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#faf8f5] transition-colors">
+                        <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-green-100 rounded-xl text-sm font-medium text-slate-600 hover:bg-[#f8faf6] hover:text-[#14532d] transition-colors">
                             <Filter size={16} />
                             Filter
                         </button>
                         <button
-                            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8e4e0] rounded-xl text-sm font-medium text-[#6b6b6b] hover:bg-[#faf8f5] transition-colors"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-green-100 rounded-xl text-sm font-medium text-slate-600 hover:bg-[#f8faf6] hover:text-[#14532d] transition-colors"
                             onClick={() => {
                                 // Create CSV content
                                 const headers = ['Name', 'Email', 'ID', 'Position', 'Department', 'Created At', 'Status']
@@ -160,7 +168,7 @@ export default function TeamPage() {
                             Export
                         </button>
                         <button
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-lg shadow-black/10 ml-auto md:ml-0"
+                            className={cn(theme.primaryButton, "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium ml-auto md:ml-0 shadow-lg shadow-green-900/10")}
                             onClick={() => {
                                 // Add mock employee for demo
                                 addEmployee({
@@ -183,45 +191,45 @@ export default function TeamPage() {
                 <div className="overflow-x-auto flex-1">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-[#faf8f5] border-b border-[#e8e4e0]">
+                            <tr className="bg-[#f8faf6] border-b border-green-100">
                                 <th className="p-4 pl-6 w-10">
-                                    <input type="checkbox" className="rounded border-gray-300 text-[#e07850] focus:ring-[#e07850]" />
+                                    <input type="checkbox" className="rounded border-green-300 text-[#14532d] focus:ring-[#14532d]" />
                                 </th>
-                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Name</th>
-                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">ID</th>
-                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Position</th>
-                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Department</th>
-                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Created At</th>
-                                <th className="p-4 text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider">Status</th>
+                                <th className="p-4 text-xs font-semibold text-[#15803d] uppercase tracking-wider">Name</th>
+                                <th className="p-4 text-xs font-semibold text-[#15803d] uppercase tracking-wider">ID</th>
+                                <th className="p-4 text-xs font-semibold text-[#15803d] uppercase tracking-wider">Position</th>
+                                <th className="p-4 text-xs font-semibold text-[#15803d] uppercase tracking-wider">Department</th>
+                                <th className="p-4 text-xs font-semibold text-[#15803d] uppercase tracking-wider">Created At</th>
+                                <th className="p-4 text-xs font-semibold text-[#15803d] uppercase tracking-wider">Status</th>
                                 <th className="p-4 w-10"></th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#e8e4e0]">
+                        <tbody className="divide-y divide-green-50">
                             {currentEmployees.length > 0 ? (
                                 currentEmployees.map((employee) => (
-                                    <tr key={employee.id} className="group hover:bg-[#faf8f5] transition-colors">
+                                    <tr key={employee.id} className="group hover:bg-[#f8faf6] transition-colors">
                                         <td className="p-4 pl-6">
-                                            <input type="checkbox" className="rounded border-gray-300 text-[#e07850] focus:ring-[#e07850]" />
+                                            <input type="checkbox" className="rounded border-green-300 text-[#14532d] focus:ring-[#14532d]" />
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#14532d] to-[#166534] flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
                                                     {employee.full_name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-semibold text-[#1a1a1a] text-sm">{employee.full_name}</div>
-                                                    <div className="text-xs text-[#6b6b6b]">{employee.email}</div>
+                                                    <div className="font-semibold text-[#14532d] text-sm">{employee.full_name}</div>
+                                                    <div className="text-xs text-slate-500">{employee.email}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="p-4 text-sm font-medium text-[#6b6b6b] font-mono">{employee.id.substring(0, 8)}...</td>
-                                        <td className="p-4 text-sm font-medium text-[#1a1a1a]">{employee.position}</td>
+                                        <td className="p-4 text-sm font-medium text-slate-500 font-mono">{employee.id.substring(0, 8)}...</td>
+                                        <td className="p-4 text-sm font-medium text-[#14532d]">{employee.position}</td>
                                         <td className="p-4">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-[#6b6b6b] text-xs font-medium border border-gray-200">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#f8faf6] text-slate-600 text-xs font-medium border border-green-100">
                                                 {employee.department}
                                             </span>
                                         </td>
-                                        <td className="p-4 text-sm text-[#6b6b6b]">{new Date(employee.created_at).toLocaleDateString()}</td>
+                                        <td className="p-4 text-sm text-slate-500">{new Date(employee.created_at).toLocaleDateString()}</td>
                                         <td className="p-4">
                                             <span className={cn(
                                                 "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border",
@@ -233,7 +241,7 @@ export default function TeamPage() {
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <button className="p-2 text-[#a0a0a0] hover:text-[#1a1a1a] hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                                            <button className="p-2 text-slate-400 hover:text-[#14532d] hover:bg-green-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
                                                 <MoreHorizontal size={18} />
                                             </button>
                                         </td>
@@ -241,13 +249,13 @@ export default function TeamPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={8} className="p-12 text-center">
+                                    <td colSpan={8} className="p-12 text-center bg-[#f8faf6]/50">
                                         <div className="flex flex-col items-center gap-3">
-                                            <div className="w-16 h-16 bg-[#faf8f5] rounded-full flex items-center justify-center">
-                                                <Search className="text-[#a0a0a0]" size={32} />
+                                            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-dashed border-green-200">
+                                                <Search className="text-green-300" size={32} />
                                             </div>
-                                            <h3 className="text-[#1a1a1a] font-semibold">No employees found</h3>
-                                            <p className="text-[#6b6b6b] text-sm">Try adjusting your search or filters</p>
+                                            <h3 className="text-[#14532d] font-semibold">No employees found</h3>
+                                            <p className="text-slate-500 text-sm">Try adjusting your search or filters</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -257,13 +265,13 @@ export default function TeamPage() {
                 </div>
 
                 {/* Pagination */}
-                <div className="p-4 border-t border-[#e8e4e0] flex items-center justify-between">
-                    <div className="text-sm text-[#6b6b6b]">
-                        Showing <span className="font-semibold text-[#1a1a1a]">{startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredEmployees.length)}</span> of <span className="font-semibold text-[#1a1a1a]">{filteredEmployees.length}</span>
+                <div className="p-4 border-t border-green-100 flex items-center justify-between bg-white">
+                    <div className="text-sm text-slate-500">
+                        Showing <span className="font-semibold text-[#14532d]">{startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredEmployees.length)}</span> of <span className="font-semibold text-[#14532d]">{filteredEmployees.length}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
-                            className="p-2 border border-[#e8e4e0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#faf8f5] text-[#1a1a1a] transition-colors"
+                            className="p-2 border border-green-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#f8faf6] text-[#14532d] transition-colors"
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
                         >
@@ -277,8 +285,8 @@ export default function TeamPage() {
                                     className={cn(
                                         "w-8 h-8 rounded-lg text-sm font-medium transition-colors",
                                         currentPage === page
-                                            ? "bg-[#1a1a1a] text-white"
-                                            : "text-[#6b6b6b] hover:bg-[#faf8f5]"
+                                            ? "bg-[#14532d] text-white"
+                                            : "text-slate-500 hover:bg-[#f8faf6]"
                                     )}
                                 >
                                     {page}
@@ -286,7 +294,7 @@ export default function TeamPage() {
                             ))}
                         </div>
                         <button
-                            className="p-2 border border-[#e8e4e0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#faf8f5] text-[#1a1a1a] transition-colors"
+                            className="p-2 border border-green-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#f8faf6] text-[#14532d] transition-colors"
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
                         >
@@ -294,7 +302,7 @@ export default function TeamPage() {
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </Card>
+        </PageContainer>
     )
 }

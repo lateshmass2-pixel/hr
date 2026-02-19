@@ -132,8 +132,8 @@ export function LaunchAssessmentDialog({ candidateId, candidateName, jobId }: La
 
                 {!sessionId && (
                     <DialogFooter>
-                        <Button onClick={handleLaunch} disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600">
-                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Generate & Launch"}
+                        <Button onClick={handleLaunch} disabled={loading} className="w-full bg-[#14532d] hover:bg-[#166534]">
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Assessment Invites?"}
                         </Button>
                     </DialogFooter>
                 )}

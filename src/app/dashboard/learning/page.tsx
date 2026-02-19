@@ -223,9 +223,9 @@ export default function LearningPage() {
                                                         </div>
 
                                                         {/* Action */}
-                                                        <button className="text-sm text-orange-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                                        <div className="flex items-center gap-1 text-sm font-medium text-[#14532d]">
                                                             Continue <ChevronRight size={14} />
-                                                        </button>
+                                                        </div>
                                                     </div>
                                                 </motion.div>
                                             ))}

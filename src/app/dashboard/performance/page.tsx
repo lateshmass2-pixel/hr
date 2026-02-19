@@ -1,6 +1,10 @@
 import { getAllEmployees, getAllReviews } from '@/app/actions/performance'
 import { PerformanceReviewPanel } from './review-panel'
-import { Users, Sparkles, FileText } from 'lucide-react'
+import { Users, FileText } from 'lucide-react'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { PageHero } from '@/components/layout/PageHero'
+import { Card } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,58 +16,52 @@ export default async function PerformancePage() {
     const reviewsMap = new Map(reviews.map(r => [r.employee_id, r]))
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                        <FileText className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Performance Reviews</h2>
-                        <p className="text-gray-500 text-sm mt-1">Generate and view AI-powered performance reviews for employees</p>
-                    </div>
-                </div>
-            </div>
+        <PageContainer>
+            <PageHero
+                title="Performance Reviews"
+                subtitle="Generate and view AI-powered performance reviews for employees"
+            />
 
             {employees.length === 0 ? (
-                <div className="rounded-3xl bg-white border border-gray-100 p-12 text-center shadow-sm">
-                    <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">No employees found.</p>
-                </div>
+                <Card className="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+                    <div className="w-16 h-16 bg-[#f8faf6] rounded-2xl flex items-center justify-center mb-4 border border-green-100">
+                        <Users className="h-8 w-8 text-green-300 mx-auto" />
+                    </div>
+                    <p className="text-slate-500">No employees found.</p>
+                </Card>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left Side: Employee List */}
                     <div className="lg:col-span-1">
-                        <div className="rounded-3xl bg-white border border-gray-100 shadow-sm overflow-hidden sticky top-6">
-                            <div className="p-5 border-b border-gray-100 bg-gray-50/50">
-                                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                                    <Users className="h-5 w-5 text-orange-500" />
-                                    Employees <span className="text-gray-400 font-normal">({employees.length})</span>
+                        <Card noPadding className="sticky top-6 overflow-hidden">
+                            <div className="p-5 border-b border-green-100 bg-[#f8faf6]">
+                                <h3 className="font-semibold text-[#14532d] flex items-center gap-2">
+                                    <Users className="h-5 w-5 text-green-600" />
+                                    Employees <span className="text-slate-400 font-normal">({employees.length})</span>
                                 </h3>
                             </div>
-                            <div className="divide-y divide-gray-100 max-h-[calc(100vh-200px)] overflow-y-auto">
+                            <div className="divide-y divide-green-50 max-h-[calc(100vh-200px)] overflow-y-auto">
                                 {employees.map((employee) => (
                                     <a
                                         key={employee.id}
                                         href={`#employee-${employee.id}`}
-                                        className="block p-4 hover:bg-orange-50/50 transition-colors group"
+                                        className="block p-4 hover:bg-green-50/50 transition-colors group"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 text-sm font-bold shrink-0 shadow-sm group-hover:from-orange-500 group-hover:to-amber-500 group-hover:text-white transition-all">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#14532d] to-[#166534] flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-sm transition-all group-hover:scale-105">
                                                 {(employee.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                                             </div>
                                             <div className="min-w-0">
-                                                <div className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors truncate">
+                                                <div className="font-semibold text-[#14532d] group-hover:text-green-700 transition-colors truncate">
                                                     {employee.full_name}
                                                 </div>
-                                                <div className="text-xs text-gray-500 truncate font-medium">{employee.position || 'Employee'}</div>
+                                                <div className="text-xs text-slate-500 truncate font-medium">{employee.position || 'Employee'}</div>
                                             </div>
                                         </div>
                                     </a>
                                 ))}
                             </div>
-                        </div>
+                        </Card>
                     </div>
 
                     {/* Right Side: Performance Reports */}
@@ -79,6 +77,6 @@ export default async function PerformancePage() {
                     </div>
                 </div>
             )}
-        </div>
+        </PageContainer>
     )
 }

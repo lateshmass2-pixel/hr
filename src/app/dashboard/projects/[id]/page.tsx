@@ -225,7 +225,7 @@ export default function ProjectDetailsPage() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-140px)] -m-6 sm:-m-8 bg-[#faf8f5]">
+        <div className="flex flex-col h-[calc(100vh-140px)] -m-6 sm:-m-8">
             {/* Command Header */}
             <div className="bg-white border-b border-[#e8e4e0] px-8 py-5 shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-4">

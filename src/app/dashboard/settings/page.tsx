@@ -7,6 +7,11 @@ import {
     Smartphone, Download, Check, Eye, EyeOff, Sparkles
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { PageContainer } from '@/components/layout/PageContainer'
+import { PageHero } from '@/components/layout/PageHero'
+import { Card } from '@/components/ui/card'
+import { theme } from '@/lib/theme'
+import { cn } from '@/lib/utils'
 
 type TabType = 'profile' | 'notifications' | 'security' | 'billing'
 
@@ -15,13 +20,15 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (val: boole
     return (
         <button
             onClick={() => onChange(!enabled)}
-            className={`relative w-11 h-6 rounded-full transition-colors ${enabled ? 'bg-gradient-to-r from-[#e07850] to-[#d45a3a]' : 'bg-[#e8e4e0]'
-                }`}
+            className={cn(
+                "relative w-11 h-6 rounded-full transition-colors",
+                enabled ? "bg-[#14532d]" : "bg-slate-200"
+            )}
         >
             <motion.div
-                animate={{ x: enabled ? 22 : 2 }}
+                animate={{ x: enabled ? 20 : 2 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"
+                className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
             />
         </button>
     )
@@ -69,40 +76,32 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-lg">
-                        <User className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-[#1a1a1a]">Account Settings</h1>
-                        <p className="text-[#6b6b6b] text-sm mt-1">Manage your profile, preferences, and security</p>
-                    </div>
-                </div>
-
-
-            </div>
+        <PageContainer>
+            <PageHero
+                title="Account Settings"
+                subtitle="Manage your profile, preferences, and security settings."
+            />
 
             {/* Tabs */}
-            <div className="border-b border-[#e8e4e0] mb-6">
-                <div className="flex gap-1">
+            <div className="border-b border-green-100 mb-6 px-1">
+                <div className="flex gap-4">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === tab.id
-                                ? 'text-[#e07850]'
-                                : 'text-[#a0a0a0] hover:text-[#1a1a1a]'
-                                }`}
+                            className={cn(
+                                "flex items-center gap-2 px-1 py-3 text-sm font-medium transition-colors relative",
+                                activeTab === tab.id
+                                    ? "text-[#14532d]"
+                                    : "text-slate-500 hover:text-[#14532d]"
+                            )}
                         >
                             <tab.icon size={16} />
                             {tab.label}
                             {activeTab === tab.id && (
                                 <motion.div
                                     layoutId="settings-tab-indicator"
-                                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#e07850]"
+                                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#14532d]"
                                 />
                             )}
                         </button>
@@ -121,64 +120,66 @@ export default function SettingsPage() {
                 >
                     {/* Profile Tab */}
                     {activeTab === 'profile' && (
-                        <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md overflow-hidden">
+                        <Card noPadding className="overflow-hidden">
                             {/* Cover + Avatar */}
-                            <div className="h-24 bg-gradient-to-r from-[#e07850] to-[#d45a3a] relative">
-                                <div className="absolute -bottom-12 left-6">
+                            <div className="h-32 bg-gradient-to-r from-[#14532d] to-[#166534] relative">
+                                <div className="absolute -bottom-12 left-8">
                                     <div className="relative">
-                                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#e07850] to-[#d45a3a] border-4 border-white flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#14532d] to-[#166534] border-4 border-white flex items-center justify-center text-white text-3xl font-bold shadow-lg ring-1 ring-slate-100">
                                             {getInitials(profile.fullName)}
                                         </div>
-                                        <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-white border border-[#e8e4e0] shadow flex items-center justify-center hover:bg-[#faf8f5] transition-colors">
-                                            <Camera size={14} className="text-[#6b6b6b]" />
+                                        <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-[#f8faf6] transition-colors">
+                                            <Camera size={14} className="text-slate-600" />
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="pt-16 p-6">
-                                <button className="text-sm text-[#e07850] font-medium hover:text-[#d45a3a] mb-6">
-                                    Change Photo
-                                </button>
+                            <div className="pt-16 p-8">
+                                <div className="flex justify-end mb-6">
+                                    <button className="text-sm text-[#14532d] font-semibold hover:text-[#166534] hover:underline">
+                                        Change Photo
+                                    </button>
+                                </div>
 
                                 {/* Form Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">Full Name</label>
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">Full Name</label>
                                         <input
                                             type="text"
                                             value={profile.fullName}
                                             onChange={(e) => setProfile(p => ({ ...p, fullName: e.target.value }))}
-                                            className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850]"
+                                            className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all outline-none"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">
                                             Work Email
-                                            <span className="text-xs text-[#a0a0a0] ml-2">(Managed by IT)</span>
+                                            <span className="text-xs text-slate-400 ml-2">(Managed by IT)</span>
                                         </label>
                                         <input
                                             type="email"
                                             value={profile.email}
                                             disabled
-                                            className="w-full px-4 py-2.5 bg-[#f5f3f0] border border-[#e8e4e0] rounded-xl text-[#a0a0a0] cursor-not-allowed"
+                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-400 cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">Job Title</label>
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">Job Title</label>
                                         <input
                                             type="text"
                                             value={profile.role}
                                             onChange={(e) => setProfile(p => ({ ...p, role: e.target.value }))}
-                                            className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850]"
+                                            className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all outline-none"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">Department</label>
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">Department</label>
                                         <select
                                             value={profile.department}
                                             onChange={(e) => setProfile(p => ({ ...p, department: e.target.value }))}
-                                            className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850]"
+                                            className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all outline-none"
                                         >
                                             <option value="HR">Human Resources</option>
                                             <option value="Engineering">Engineering</option>
@@ -190,20 +191,20 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
 
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium text-[#1a1a1a] mb-2">Bio</label>
+                                <div className="mb-8">
+                                    <label className="block text-sm font-medium text-[#14532d] mb-2">Bio</label>
                                     <textarea
                                         value={profile.bio}
                                         onChange={(e) => setProfile(p => ({ ...p, bio: e.target.value }))}
                                         rows={3}
-                                        className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] resize-none"
+                                        className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all outline-none resize-none"
                                     />
                                 </div>
 
                                 <button
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="px-6 py-2.5 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium hover:from-[#d45a3a] hover:to-[#c04a2a] transition-colors disabled:opacity-50 flex items-center gap-2 shadow-md"
+                                    className={cn(theme.primaryButton, "px-8 py-2.5 rounded-full font-medium transition-transform active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-green-900/10")}
                                 >
                                     {saving ? (
                                         <>
@@ -215,19 +216,19 @@ export default function SettingsPage() {
                                     )}
                                 </button>
                             </div>
-                        </div>
+                        </Card>
                     )}
 
                     {/* Notifications Tab */}
                     {activeTab === 'notifications' && (
-                        <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                            <h2 className="text-lg font-semibold text-[#1a1a1a] mb-6">Notification Preferences</h2>
+                        <Card className="p-8">
+                            <h2 className="text-xl font-bold text-[#14532d] mb-6">Notification Preferences</h2>
 
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-medium text-[#1a1a1a]">Email Alerts</h3>
-                                        <p className="text-sm text-[#6b6b6b]">Receive daily summaries of activity</p>
+                                        <h3 className="font-medium text-slate-800">Email Alerts</h3>
+                                        <p className="text-sm text-slate-500">Receive daily summaries of activity</p>
                                     </div>
                                     <Toggle
                                         enabled={notifications.emailAlerts}
@@ -235,10 +236,10 @@ export default function SettingsPage() {
                                     />
                                 </div>
 
-                                <div className="border-t border-[#e8e4e0] pt-6 flex items-center justify-between">
+                                <div className="border-t border-green-50 pt-6 flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-medium text-[#1a1a1a]">Candidate Updates</h3>
-                                        <p className="text-sm text-[#6b6b6b]">When a candidate accepts an offer</p>
+                                        <h3 className="font-medium text-slate-800">Candidate Updates</h3>
+                                        <p className="text-sm text-slate-500">When a candidate accepts an offer</p>
                                     </div>
                                     <Toggle
                                         enabled={notifications.candidateUpdates}
@@ -246,10 +247,10 @@ export default function SettingsPage() {
                                     />
                                 </div>
 
-                                <div className="border-t border-[#e8e4e0] pt-6 flex items-center justify-between">
+                                <div className="border-t border-green-50 pt-6 flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-medium text-[#1a1a1a]">Mentions</h3>
-                                        <p className="text-sm text-[#6b6b6b]">When someone mentions me in a comment</p>
+                                        <h3 className="font-medium text-slate-800">Mentions</h3>
+                                        <p className="text-sm text-slate-500">When someone mentions me in a comment</p>
                                     </div>
                                     <Toggle
                                         enabled={notifications.mentions}
@@ -257,10 +258,10 @@ export default function SettingsPage() {
                                     />
                                 </div>
 
-                                <div className="border-t border-[#e8e4e0] pt-6 flex items-center justify-between">
+                                <div className="border-t border-green-50 pt-6 flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-medium text-[#1a1a1a]">Weekly Digest</h3>
-                                        <p className="text-sm text-[#6b6b6b]">Summary of hiring activity every Monday</p>
+                                        <h3 className="font-medium text-slate-800">Weekly Digest</h3>
+                                        <p className="text-sm text-slate-500">Summary of hiring activity every Monday</p>
                                     </div>
                                     <Toggle
                                         enabled={notifications.weeklyDigest}
@@ -272,79 +273,79 @@ export default function SettingsPage() {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="mt-8 px-6 py-2.5 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium hover:from-[#d45a3a] hover:to-[#c04a2a] transition-colors disabled:opacity-50 shadow-md"
+                                className={cn(theme.primaryButton, "mt-10 px-8 py-2.5 rounded-full font-medium shadow-lg shadow-green-900/10 transition-transform active:scale-95 disabled:opacity-50")}
                             >
                                 {saving ? 'Saving...' : 'Save Preferences'}
                             </button>
-                        </div>
+                        </Card>
                     )}
 
                     {/* Security Tab */}
                     {activeTab === 'security' && (
                         <div className="space-y-6">
                             {/* Change Password */}
-                            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                                <h2 className="text-lg font-semibold text-[#1a1a1a] mb-6 flex items-center gap-2">
-                                    <Lock size={18} className="text-[#e07850]" />
+                            <Card className="p-8">
+                                <h2 className="text-xl font-bold text-[#14532d] mb-6 flex items-center gap-2">
+                                    <Lock size={20} className="text-green-600" />
                                     Change Password
                                 </h2>
 
-                                <div className="space-y-4 max-w-md">
+                                <div className="space-y-5 max-w-md">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">Current Password</label>
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">Current Password</label>
                                         <div className="relative">
                                             <input
                                                 type={showPassword ? 'text' : 'password'}
                                                 placeholder="••••••••"
-                                                className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] pr-10 placeholder-[#a0a0a0]"
+                                                className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 pr-10 outline-none"
                                             />
                                             <button
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a0a0] hover:text-[#1a1a1a]"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#14532d]"
                                             >
                                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </button>
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">New Password</label>
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">New Password</label>
                                         <input
                                             type="password"
                                             placeholder="••••••••"
-                                            className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] placeholder-[#a0a0a0]"
+                                            className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1a1a1a] mb-2">Confirm New Password</label>
+                                        <label className="block text-sm font-medium text-[#14532d] mb-2">Confirm New Password</label>
                                         <input
                                             type="password"
                                             placeholder="••••••••"
-                                            className="w-full px-4 py-2.5 bg-[#faf8f5] border border-[#e8e4e0] rounded-xl text-[#1a1a1a] focus:ring-2 focus:ring-[#e07850]/20 focus:border-[#e07850] placeholder-[#a0a0a0]"
+                                            className="w-full px-4 py-2.5 bg-[#f8faf6] border border-green-100 rounded-xl text-slate-800 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
                                         />
                                     </div>
-                                    <button className="px-6 py-2.5 bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white rounded-full font-medium hover:from-[#d45a3a] hover:to-[#c04a2a] transition-colors shadow-md">
+                                    <button className={cn(theme.primaryButton, "px-8 py-2.5 rounded-full font-medium shadow-lg shadow-green-900/10 transition-transform active:scale-95")}>
                                         Update Password
                                     </button>
                                 </div>
-                            </div>
+                            </Card>
 
                             {/* 2FA */}
-                            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                                <h2 className="text-lg font-semibold text-[#1a1a1a] mb-4 flex items-center gap-2">
-                                    <Smartphone size={18} className="text-[#e07850]" />
+                            <Card className="p-8">
+                                <h2 className="text-xl font-bold text-[#14532d] mb-4 flex items-center gap-2">
+                                    <Smartphone size={20} className="text-green-600" />
                                     Two-Factor Authentication
                                 </h2>
 
-                                <div className="flex items-center justify-between p-4 bg-[#faf8f5] rounded-2xl border border-[#e8e4e0]">
+                                <div className="flex items-center justify-between p-5 bg-[#f8faf6] rounded-2xl border border-green-100">
                                     <div>
-                                        <p className="font-medium text-[#1a1a1a]">2FA is currently OFF</p>
-                                        <p className="text-sm text-[#6b6b6b]">Add extra security to your account</p>
+                                        <p className="font-semibold text-[#14532d]">2FA is currently OFF</p>
+                                        <p className="text-sm text-slate-500">Add extra security to your account</p>
                                     </div>
-                                    <button className="px-4 py-2 border border-[#e07850]/50 text-[#e07850] rounded-full font-medium hover:bg-[#e07850]/10 transition-colors">
+                                    <button className="px-5 py-2 border border-green-200 text-green-700 rounded-full font-medium hover:bg-green-50 transition-colors bg-white shadow-sm">
                                         Enable 2FA
                                     </button>
                                 </div>
-                            </div>
+                            </Card>
                         </div>
                     )}
 
@@ -352,92 +353,79 @@ export default function SettingsPage() {
                     {activeTab === 'billing' && (
                         <div className="space-y-6">
                             {/* Current Plan */}
-                            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                                <h2 className="text-lg font-semibold text-[#1a1a1a] mb-4">Current Plan</h2>
+                            <Card className="p-8">
+                                <h2 className="text-xl font-bold text-[#14532d] mb-4">Current Plan</h2>
 
-                                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#e07850]/10 to-[#d45a3a]/10 rounded-2xl border border-[#e07850]/20">
+                                <div className="flex items-center justify-between p-5 bg-gradient-to-r from-[#f0fdf4] to-white rounded-2xl border border-green-100">
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-bold text-[#1a1a1a] text-lg">Pro Plan</h3>
-                                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">Active</span>
+                                            <h3 className="font-bold text-[#14532d] text-lg">Pro Plan</h3>
+                                            <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">Active</span>
                                         </div>
-                                        <p className="text-[#6b6b6b]">$19/user/month • 10 users</p>
+                                        <p className="text-slate-600">$19/user/month • 10 users</p>
                                     </div>
-                                    <button className="px-4 py-2 border border-[#e8e4e0] text-[#6b6b6b] rounded-full font-medium hover:bg-[#faf8f5] transition-colors">
+                                    <button className="px-5 py-2 border border-green-200 text-slate-600 rounded-full font-medium hover:bg-white transition-colors bg-[#f8faf6]">
                                         Upgrade Plan
                                     </button>
                                 </div>
-                            </div>
+                            </Card>
 
                             {/* Payment Method */}
-                            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                                <h2 className="text-lg font-semibold text-[#1a1a1a] mb-4">Payment Method</h2>
+                            <Card className="p-8">
+                                <h2 className="text-xl font-bold text-[#14532d] mb-4">Payment Method</h2>
 
-                                <div className="flex items-center justify-between p-4 border border-[#e8e4e0] rounded-2xl bg-[#faf8f5]">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-8 bg-gradient-to-r from-orange-600 to-orange-800 rounded flex items-center justify-center text-white text-xs font-bold">
+                                <div className="flex items-center justify-between p-5 border border-green-100 rounded-2xl bg-[#f8faf6]">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-8 bg-[#14532d] rounded flex items-center justify-center text-white text-xs font-bold shadow-sm">
                                             VISA
                                         </div>
                                         <div>
-                                            <p className="font-medium text-[#1a1a1a]">•••• •••• •••• 4242</p>
-                                            <p className="text-sm text-[#a0a0a0]">Expires 12/2027</p>
+                                            <p className="font-semibold text-[#14532d]">•••• •••• •••• 4242</p>
+                                            <p className="text-sm text-slate-500">Expires 12/2027</p>
                                         </div>
                                     </div>
-                                    <button className="text-sm text-[#e07850] font-medium hover:text-[#d45a3a]">
+                                    <button className="text-sm text-green-700 font-semibold hover:text-green-800 hover:underline">
                                         Edit
                                     </button>
                                 </div>
-                            </div>
+                            </Card>
 
                             {/* Invoice History */}
-                            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                                <h2 className="text-lg font-semibold text-[#1a1a1a] mb-4">Invoice History</h2>
+                            <Card className="p-8">
+                                <h2 className="text-xl font-bold text-[#14532d] mb-4">Invoice History</h2>
 
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
                                         <thead>
-                                            <tr className="border-b border-[#e8e4e0]">
-                                                <th className="text-left py-3 font-medium text-[#6b6b6b]">Date</th>
-                                                <th className="text-left py-3 font-medium text-[#6b6b6b]">Amount</th>
-                                                <th className="text-left py-3 font-medium text-[#6b6b6b]">Status</th>
-                                                <th className="text-right py-3 font-medium text-[#6b6b6b]">Invoice</th>
+                                            <tr className="border-b border-green-100">
+                                                <th className="text-left py-3 font-semibold text-green-800">Date</th>
+                                                <th className="text-left py-3 font-semibold text-green-800">Amount</th>
+                                                <th className="text-left py-3 font-semibold text-green-800">Status</th>
+                                                <th className="text-right py-3 font-semibold text-green-800">Invoice</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-[#e8e4e0]">
-                                            <tr className="hover:bg-[#faf8f5] transition-colors">
-                                                <td className="py-3 text-[#1a1a1a]">Jan 01, 2026</td>
-                                                <td className="py-3 text-[#1a1a1a] font-medium">$190.00</td>
+                                        <tbody className="divide-y divide-green-50">
+                                            <tr className="hover:bg-[#f8faf6] transition-colors">
+                                                <td className="py-3 text-slate-700">Jan 01, 2026</td>
+                                                <td className="py-3 text-[#14532d] font-semibold">$190.00</td>
                                                 <td className="py-3">
-                                                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">Paid</span>
+                                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">Paid</span>
                                                 </td>
                                                 <td className="py-3 text-right">
-                                                    <button className="text-[#e07850] hover:text-[#d45a3a] flex items-center gap-1 ml-auto">
+                                                    <button className="text-green-700 hover:text-green-800 flex items-center gap-1 ml-auto font-medium">
                                                         <Download size={14} />
                                                         PDF
                                                     </button>
                                                 </td>
                                             </tr>
-                                            <tr className="hover:bg-[#faf8f5] transition-colors">
-                                                <td className="py-3 text-[#1a1a1a]">Dec 01, 2025</td>
-                                                <td className="py-3 text-[#1a1a1a] font-medium">$190.00</td>
+                                            <tr className="hover:bg-[#f8faf6] transition-colors">
+                                                <td className="py-3 text-slate-700">Dec 01, 2025</td>
+                                                <td className="py-3 text-[#14532d] font-semibold">$190.00</td>
                                                 <td className="py-3">
-                                                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">Paid</span>
+                                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">Paid</span>
                                                 </td>
                                                 <td className="py-3 text-right">
-                                                    <button className="text-[#e07850] hover:text-[#d45a3a] flex items-center gap-1 ml-auto">
-                                                        <Download size={14} />
-                                                        PDF
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr className="hover:bg-[#faf8f5] transition-colors">
-                                                <td className="py-3 text-[#1a1a1a]">Nov 01, 2025</td>
-                                                <td className="py-3 text-[#1a1a1a] font-medium">$190.00</td>
-                                                <td className="py-3">
-                                                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">Paid</span>
-                                                </td>
-                                                <td className="py-3 text-right">
-                                                    <button className="text-[#e07850] hover:text-[#d45a3a] flex items-center gap-1 ml-auto">
+                                                    <button className="text-green-700 hover:text-green-800 flex items-center gap-1 ml-auto font-medium">
                                                         <Download size={14} />
                                                         PDF
                                                     </button>
@@ -446,11 +434,11 @@ export default function SettingsPage() {
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
+                            </Card>
                         </div>
                     )}
                 </motion.div>
             </AnimatePresence>
-        </div>
+        </PageContainer>
     )
 }

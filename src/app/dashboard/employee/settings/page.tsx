@@ -1,25 +1,16 @@
 import { SettingsForm } from "./settings-form"
-import { Settings, Sparkles } from "lucide-react"
+import { Settings, Sparkles, Shield, Clock, AlertTriangle } from "lucide-react"
+import { PageContainer } from "@/components/layout/PageContainer"
+import { PageHero } from "@/components/layout/PageHero"
+import { Card } from "@/components/ui/card"
 
 export default function SettingsPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#faf8f5] via-[#f5f3f0] to-[#faf8f5] p-8">
-            {/* Header Section */}
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-lg">
-                        <Settings className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">Settings</h2>
-                        <p className="text-[#6b6b6b] text-sm">
-                            Manage your account settings and preferences
-                        </p>
-                    </div>
-                </div>
-
-
-            </div>
+        <PageContainer>
+            <PageHero
+                title="Settings"
+                subtitle="Manage your account settings and preferences"
+            />
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -31,12 +22,10 @@ export default function SettingsPage() {
                 {/* Quick Info Sidebar */}
                 <div className="space-y-6">
                     {/* Security Status Card */}
-                    <div className="bg-white rounded-3xl p-6 shadow-md border border-[#e8e4e0] hover:shadow-lg transition-shadow">
+                    <Card className="hover:shadow-lg transition-shadow">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center">
-                                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                </svg>
+                                <Shield className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-sm text-[#6b6b6b]">System Lock</span>
                         </div>
@@ -51,24 +40,30 @@ export default function SettingsPage() {
                                 <span className="text-xs text-[#6b6b6b]">Growth rate</span>
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Time Tracking Card */}
-                    <div className="bg-white rounded-3xl p-6 shadow-md border border-[#e8e4e0] hover:shadow-lg transition-shadow">
+                    <Card className="hover:shadow-lg transition-shadow">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm text-[#6b6b6b]">Account Age</span>
                             <span className="text-xs text-[#e07850] font-medium bg-[#e07850]/10 px-2 py-1 rounded-full">Active</span>
                         </div>
-                        <p className="text-2xl font-bold text-[#1a1a1a]">13 Days</p>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Clock className="w-5 h-5 text-[#14532d]" />
+                            <p className="text-2xl font-bold text-[#1a1a1a]">-</p>
+                        </div>
                         <p className="text-sm text-[#6b6b6b]">108 hours, 23 minutes</p>
                         <div className="mt-4 h-1 bg-[#e8e4e0] rounded-full overflow-hidden">
                             <div className="h-full w-2/3 bg-gradient-to-r from-[#e07850] to-[#d45a3a] rounded-full" />
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Quick Tips */}
-                    <div className="bg-[#1a1a1a] rounded-3xl p-6 shadow-lg">
-                        <h4 className="text-white font-semibold mb-3">Security Tips</h4>
+                    <Card className="bg-[#1a1a1a] border-none shadow-lg text-white">
+                        <h4 className="font-semibold mb-3 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-[#e07850]" />
+                            Security Tips
+                        </h4>
                         <ul className="space-y-2 text-sm text-zinc-400">
                             <li className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#e07850]" />
@@ -83,9 +78,9 @@ export default function SettingsPage() {
                                 Change password regularly
                             </li>
                         </ul>
-                    </div>
+                    </Card>
                 </div>
             </div>
-        </div>
+        </PageContainer>
     )
 }
