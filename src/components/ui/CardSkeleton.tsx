@@ -11,7 +11,7 @@ export function CardSkeleton({ count = 1, className }: CardSkeletonProps) {
             {Array.from({ length: count }).map((_, index) => (
                 <div
                     key={index}
-                    className="bg-white rounded-3xl border border-[#e8e4e0] p-5 shadow-md"
+                    className="bg-white rounded-3xl border border-[#E2E8F0] p-5 shadow-md"
                 >
                     {/* Top Row - Icon and Badge */}
                     <div className="flex justify-between items-start mb-4">

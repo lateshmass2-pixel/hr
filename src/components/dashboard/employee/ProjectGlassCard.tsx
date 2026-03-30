@@ -17,7 +17,7 @@ interface Project {
 }
 
 const gradientCovers = [
-    'from-orange-500 to-amber-500',
+    'from-emerald-800 to-teal-800',
     'from-blue-500 to-indigo-500',
     'from-emerald-500 to-teal-500',
 ]
@@ -51,7 +51,7 @@ export function ProjectGlassCard({ projects }: { projects: Project[] }) {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="group relative bg-gray-50/50 hover:bg-white border border-transparent hover:border-orange-100 rounded-3xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/5 cursor-pointer"
+                        className="group relative bg-gray-50/50 hover:bg-white border border-transparent hover:border-emerald-100 rounded-3xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-800/5 cursor-pointer"
                     >
                         <Link href={`/dashboard/projects/${project.id}`} className="block">
                             <div className="flex flex-col md:flex-row gap-6 items-center">
@@ -66,7 +66,7 @@ export function ProjectGlassCard({ projects }: { projects: Project[] }) {
                                 <div className="flex-1 w-full space-y-3">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="font-bold text-lg text-gray-900 group-hover:text-orange-600 transition-colors">
+                                            <h4 className="font-bold text-lg text-gray-900 group-hover:text-emerald-900 transition-colors">
                                                 {project.title}
                                             </h4>
                                             <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
@@ -81,7 +81,7 @@ export function ProjectGlassCard({ projects }: { projects: Project[] }) {
                                                 </span>
                                             </div>
                                         </div>
-                                        <ArrowUpRight className="text-gray-300 group-hover:text-orange-500 transition-colors" />
+                                        <ArrowUpRight className="text-gray-300 group-hover:text-emerald-800 transition-colors" />
                                     </div>
 
                                     {/* Progress Bar */}

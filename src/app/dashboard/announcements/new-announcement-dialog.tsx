@@ -28,7 +28,7 @@ export function NewAnnouncementDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Button className="bg-emerald-800 hover:bg-emerald-900 text-white">
                     <Plus className="mr-2 h-4 w-4" />
                     New Announcement
                 </Button>
@@ -36,7 +36,7 @@ export function NewAnnouncementDialog() {
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Megaphone className="h-5 w-5 text-orange-500" />
+                        <Megaphone className="h-5 w-5 text-emerald-800" />
                         Create Announcement
                     </DialogTitle>
                 </DialogHeader>
@@ -51,7 +51,7 @@ export function NewAnnouncementDialog() {
                             type="text"
                             required
                             placeholder="e.g., New Policy Update"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                         />
                     </div>
                     <div>
@@ -64,7 +64,7 @@ export function NewAnnouncementDialog() {
                             required
                             rows={4}
                             placeholder="Write your announcement here..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800 resize-none"
                         />
                     </div>
                     <div>
@@ -75,7 +75,7 @@ export function NewAnnouncementDialog() {
                             id="priority"
                             name="priority"
                             defaultValue="NORMAL"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800 bg-white"
                         >
                             <option value="LOW">Low</option>
                             <option value="NORMAL">Normal</option>

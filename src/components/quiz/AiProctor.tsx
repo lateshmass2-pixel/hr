@@ -164,7 +164,7 @@ export function AiProctor({ onDisqualify, isActive }: AiProctorProps) {
                             <Shield className="w-3 h-3 text-white" />
                             <span className={`text-[10px] font-bold ${strikes === 0 ? 'text-green-400' :
                                 strikes === 1 ? 'text-yellow-400' :
-                                    'text-red-400'
+                                    'text-teal-700'
                                 }`}>
                                 {strikes}/3
                             </span>

@@ -13,6 +13,8 @@ import { TaskVelocityChart } from './TaskVelocityChart'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { PageHero } from '@/components/layout/PageHero'
 import { Card } from '@/components/ui/card'
+import { KpiCard } from '@/components/dashboard/new/KpiCard'
+import { Wallet, CalendarDays, BriefcaseMedical } from 'lucide-react'
 
 export function EmployeeWorkplace() {
     const {
@@ -51,7 +53,7 @@ export function EmployeeWorkplace() {
                 subtitle={`${currentUser.jobTitle} • ${pendingTasks} tasks pending`}
                 action={
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium border border-emerald-200">
+                        <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium border-none">
                             <CheckCircle2 size={16} />
                             {completedTasks} Completed
                         </div>
@@ -66,9 +68,41 @@ export function EmployeeWorkplace() {
             />
 
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* Employee KPI Cards - Stitch Theme */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <KpiCard
+                        title="Remaining LeaveDays"
+                        value={14}
+                        icon={<BriefcaseMedical size={20} />}
+                        trend="-2 approved"
+                        trendDirection="up"
+                    />
+                    <KpiCard
+                        title="Active Projects"
+                        value={projectsAsMember.length + projectsAsLeader.length}
+                        icon={<Wrench size={20} />}
+                        trend="On track"
+                        trendDirection="up"
+                    />
+                    <KpiCard
+                        title="Upcoming Holidays"
+                        value={3}
+                        icon={<CalendarDays size={20} />}
+                        trend="Next: Christmas"
+                        trendDirection="up"
+                    />
+                    <KpiCard
+                        title="Next Payday"
+                        value="Dec 15"
+                        icon={<Wallet size={20} />}
+                        trend="Processing"
+                        trendDirection="up"
+                    />
+                </div>
+
                 {/* Task Velocity Chart */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-3">
                         <TaskVelocityChart completedTasks={completedTasks} pendingTasks={pendingTasks} />
                     </div>
                 </div>
@@ -77,8 +111,8 @@ export function EmployeeWorkplace() {
                 {projectsAsLeader.length > 0 && (
                     <section className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <Crown className="w-5 h-5 text-amber-500" />
-                            <h2 className="text-lg font-bold text-[#14532d]">Projects I Lead</h2>
+                            <Crown className="w-5 h-5 text-teal-800" />
+                            <h2 className="text-lg font-bold text-[#0a3b2a]">Projects I Lead</h2>
                             <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs font-medium border border-amber-200">
                                 {projectsAsLeader.length}
                             </span>
@@ -95,9 +129,9 @@ export function EmployeeWorkplace() {
                 {projectsAsMember.length > 0 && (
                     <section className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <Wrench className="w-5 h-5 text-[#14532d]" />
-                            <h2 className="text-lg font-bold text-[#14532d]">Projects Assigned to Me</h2>
-                            <span className="bg-green-50 text-[#14532d] px-2 py-0.5 rounded-full text-xs font-medium border border-green-200">
+                            <Wrench className="w-5 h-5 text-[#0a3b2a]" />
+                            <h2 className="text-lg font-bold text-[#0a3b2a]">Projects Assigned to Me</h2>
+                            <span className="bg-green-50 text-[#0a3b2a] px-2 py-0.5 rounded-full text-xs font-medium border-none">
                                 {projectsAsMember.length}
                             </span>
                         </div>
@@ -112,9 +146,9 @@ export function EmployeeWorkplace() {
                 {/* My Tasks Due Soon Section */}
                 <section className="space-y-4">
                     <div className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-[#14532d]" />
-                        <h2 className="text-lg font-bold text-[#14532d]">My Tasks Due Soon</h2>
-                        <span className="bg-green-50 text-[#14532d] px-2 py-0.5 rounded-full text-xs font-medium border border-green-200">
+                        <Clock className="w-5 h-5 text-[#0a3b2a]" />
+                        <h2 className="text-lg font-bold text-[#0a3b2a]">My Tasks Due Soon</h2>
+                        <span className="bg-green-50 text-[#0a3b2a] px-2 py-0.5 rounded-full text-xs font-medium border-none">
                             {tasksDueSoon.length}
                         </span>
                     </div>
@@ -142,7 +176,7 @@ export function EmployeeWorkplace() {
 
                                             {/* Task Info */}
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-semibold text-[#14532d] text-sm truncate group-hover:text-[#166534] transition-colors">
+                                                <h4 className="font-semibold text-[#0a3b2a] text-sm truncate group-hover:text-[#002115] transition-colors">
                                                     {task.title}
                                                 </h4>
                                                 <p className="text-xs text-[#3f6212] mt-0.5">
@@ -155,23 +189,23 @@ export function EmployeeWorkplace() {
                                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium",
                                                 isOverdue ? "bg-red-50 text-red-700 border border-red-200" :
                                                     isDueToday ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                                                        "bg-green-50 text-[#14532d] border border-green-200"
+                                                        "bg-green-50 text-[#0a3b2a] border-none"
                                             )}>
                                                 <Calendar size={12} />
                                                 {task.dueDate && format(new Date(task.dueDate), "MMM d")}
                                             </div>
 
-                                            <ArrowRight className="w-4 h-4 text-[#14532d] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <ArrowRight className="w-4 h-4 text-[#0a3b2a] opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </Link>
                                     )
                                 })}
                             </div>
                         ) : (
                             <div className="p-8 text-center bg-[#f8faf6]">
-                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-green-100">
+                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border-none">
                                     <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                                 </div>
-                                <h3 className="font-semibold text-[#14532d]">All caught up!</h3>
+                                <h3 className="font-semibold text-[#0a3b2a]">All caught up!</h3>
                                 <p className="text-sm text-[#3f6212]">No urgent tasks due soon</p>
                             </div>
                         )}
@@ -191,7 +225,7 @@ function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }
 
     return (
         <Link href={`/dashboard/projects/${project.id}`}>
-            <Card className="hover:border-green-300 group p-5">
+            <Card className="border-none shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] bg-white hover:shadow-[0_12px_40px_rgba(10,59,42,0.1),0_4px_16px_rgba(0,0,0,0.05)] group p-5">
                 <div className="flex items-start justify-between mb-3">
                     <div className={cn(
                         "px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border",
@@ -209,7 +243,7 @@ function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }
                     )}
                 </div>
 
-                <h3 className="font-bold text-[#14532d] group-hover:text-[#166534] transition-colors mb-1">
+                <h3 className="font-bold text-[#0a3b2a] group-hover:text-[#002115] transition-colors mb-1">
                     {project.title}
                 </h3>
                 <p className="text-xs text-[#3f6212] line-clamp-2 mb-4">
@@ -220,11 +254,11 @@ function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }
                 <div className="space-y-1.5 mb-4">
                     <div className="flex justify-between text-xs">
                         <span className="text-[#3f6212]">Progress</span>
-                        <span className="font-semibold text-[#14532d]">{completedTasks}/{projectTasks.length} tasks</span>
+                        <span className="font-semibold text-[#0a3b2a]">{completedTasks}/{projectTasks.length} tasks</span>
                     </div>
                     <div className="h-1.5 bg-[#f0fdf4] rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-[#14532d] rounded-full transition-all"
+                            className="h-full bg-[#0a3b2a] rounded-full transition-all"
                             style={{ width: `${projectTasks.length > 0 ? (completedTasks / projectTasks.length) * 100 : 0}%` }}
                         />
                     </div>
@@ -236,7 +270,7 @@ function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }
                         {lead?.avatar ? (
                             <img src={lead.avatar} className="w-6 h-6 rounded-full object-cover" alt="" />
                         ) : (
-                            <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-[10px] font-bold text-[#14532d]">
+                            <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-[10px] font-bold text-[#0a3b2a]">
                                 {lead?.name.substring(0, 2)}
                             </div>
                         )}

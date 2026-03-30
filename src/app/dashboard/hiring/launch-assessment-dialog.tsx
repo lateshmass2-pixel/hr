@@ -73,7 +73,7 @@ export function LaunchAssessmentDialog({ candidateId, candidateName, jobId }: La
     return (
         <Dialog open={isOpen} onOpenChange={resetState}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300">
+                <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 border-emerald-200 text-emerald-950 hover:bg-emerald-50 hover:border-emerald-500">
                     <BrainCircuit size={14} />
                     Generate Test
                 </Button>

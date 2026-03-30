@@ -69,7 +69,7 @@ export function LeaveBalanceChart() {
             </div>
 
             <div className="w-full md:w-auto flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-gray-100 pt-6 md:pt-0 md:pl-8">
-                <Button className="h-14 px-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/20 text-white font-semibold text-lg transition-all hover:scale-105 active:scale-95">
+                <Button className="h-14 px-8 rounded-full bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-900 hover:to-teal-900 shadow-lg shadow-emerald-800/20 text-white font-semibold text-lg transition-all hover:scale-105 active:scale-95">
                     <Plus className="mr-2 h-5 w-5" />
                     Apply for Leave
                 </Button>

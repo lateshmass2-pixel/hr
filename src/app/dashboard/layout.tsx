@@ -134,7 +134,7 @@ export default async function DashboardLayout({
                     {/* User Profile Footer with Role Badge */}
                     <div className="p-4 border-t border-gray-100">
                         <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-800 to-emerald-900 flex items-center justify-center text-white font-semibold text-sm">
                                 {userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
                             </div>
                             <div className="flex-1 min-w-0">

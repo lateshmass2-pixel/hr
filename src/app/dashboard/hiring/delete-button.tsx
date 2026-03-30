@@ -45,7 +45,7 @@ export function DeleteApplicationButton({ applicationId, candidateName }: { appl
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                    className="h-6 w-6 text-muted-foreground hover:text-teal-800 hover:bg-red-500/10"
                 >
                     <Trash2 className="h-3 w-3" />
                 </Button>

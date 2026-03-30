@@ -79,7 +79,7 @@ export function calculateMatchScore(
     if (finalScore > 75) {
         color = "text-green-600 bg-green-50 border-green-200"; // High (75+)
     } else if (finalScore > 40) {
-        color = "text-orange-600 bg-orange-50 border-orange-200"; // Medium (41-75)
+        color = "text-emerald-900 bg-emerald-50 border-emerald-200"; // Medium (41-75)
     }
 
     return {

@@ -55,15 +55,15 @@ const config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
-                // HEMS Clean Enterprise Theme (White/Orange/Gray)
+                // Premium Stripe-like Theme (Milk White/Dark Green)
                 hems: {
-                    bg: '#F3F4F6',        // Cool Gray 100 - App Background
+                    bg: '#FAFCF8',        // Milk White - App Background
                     surface: '#FFFFFF',   // Pure White - Sidebar/Cards
-                    primary: '#F97316',   // Orange-500 - Primary Accent
+                    primary: '#0A3B2A',   // Dark Green - Primary Accent
                     success: '#10B981',   // Emerald-500 - Success States
-                    text: '#111827',      // Gray-900 - Main Text
-                    muted: '#6B7280',     // Gray-500 - Muted Text
-                    border: '#E5E7EB',    // Gray-200 - Borders
+                    text: '#0F172A',      // Slate-900 - Main Text
+                    muted: '#64748B',     // Slate-500 - Muted Text
+                    border: '#E2E8F0',    // Slate-200 - Borders
                 },
             },
             borderRadius: {
@@ -103,10 +103,10 @@ const config = {
                 },
                 "pulse-glow": {
                     "0%, 100%": {
-                        boxShadow: "0 0 20px -5px rgba(249, 115, 22, 0.3)",
+                        boxShadow: "0 0 20px -5px rgba(10, 59, 42, 0.3)",
                     },
                     "50%": {
-                        boxShadow: "0 0 40px -5px rgba(249, 115, 22, 0.5)",
+                        boxShadow: "0 0 40px -5px rgba(10, 59, 42, 0.5)",
                     },
                 },
                 "scroll-up": {

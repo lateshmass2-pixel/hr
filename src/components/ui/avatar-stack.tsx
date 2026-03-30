@@ -42,7 +42,7 @@ function getAvatarColor(name: string): string {
         'bg-rose-100 text-rose-700',
         'bg-cyan-100 text-cyan-700',
         'bg-purple-100 text-purple-700',
-        'bg-orange-100 text-orange-700',
+        'bg-emerald-100 text-emerald-950',
     ]
     const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length
     return colors[index]

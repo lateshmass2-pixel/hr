@@ -51,7 +51,7 @@ export default function LoginPage() {
                     {/* Logo & Header */}
                     <div>
                         <div className="flex items-center gap-2 mb-8">
-                            <div className="h-8 w-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                            <div className="h-8 w-8 bg-emerald-800 rounded-lg flex items-center justify-center">
                                 <span className="text-white font-bold">H</span>
                             </div>
                             <span className="text-xl font-bold text-gray-900">HEMS</span>
@@ -70,14 +70,14 @@ export default function LoginPage() {
                                 type="email"
                                 placeholder="name@company.com"
                                 required
-                                className="h-11 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
+                                className="h-11 bg-white border-gray-300 focus:border-emerald-800 focus:ring-emerald-800/20"
                             />
                         </div>
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
-                                <Link href="#" className="text-sm text-orange-600 hover:text-orange-700 font-medium">
+                                <Link href="#" className="text-sm text-emerald-900 hover:text-emerald-950 font-medium">
                                     Forgot password?
                                 </Link>
                             </div>
@@ -87,7 +87,7 @@ export default function LoginPage() {
                                 type="password"
                                 placeholder="••••••••"
                                 required
-                                className="h-11 bg-white border-gray-300 focus:border-orange-500 focus:ring-orange-500/20"
+                                className="h-11 bg-white border-gray-300 focus:border-emerald-800 focus:ring-emerald-800/20"
                             />
                         </div>
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
                         )}
 
                         <Button
-                            className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-sm transition-all"
+                            className="w-full h-11 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold shadow-sm transition-all"
                             disabled={loading}
                         >
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
@@ -138,7 +138,7 @@ export default function LoginPage() {
                     {/* Footer */}
                     <div className="text-center text-sm text-gray-500">
                         Don't have an account?{' '}
-                        <Link href="/signup" className="font-semibold text-orange-600 hover:text-orange-700">
+                        <Link href="/signup" className="font-semibold text-emerald-900 hover:text-emerald-950">
                             Sign up
                         </Link>
                     </div>
@@ -146,7 +146,7 @@ export default function LoginPage() {
             </div>
 
             {/* Right Side: The Visual */}
-            <div className="hidden lg:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-orange-400 to-red-500 relative overflow-hidden">
+            <div className="hidden lg:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-emerald-600 to-teal-800 relative overflow-hidden">
                 {/* Abstract Background Pattern */}
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />

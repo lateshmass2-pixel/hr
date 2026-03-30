@@ -108,7 +108,7 @@ export default function LeavePage() {
                         Sick Leave
                     </span>
                     <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-[#f8faf6] px-3 py-1.5 rounded-full border border-green-100">
-                        <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-800"></span>
                         Annual Leave
                     </span>
                 </div>
@@ -169,10 +169,10 @@ export default function LeavePage() {
                                                 "px-2 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform",
                                                 isSick
                                                     ? "bg-amber-50 text-amber-700 border-amber-100"
-                                                    : "bg-orange-50 text-orange-700 border-orange-100"
+                                                    : "bg-emerald-50 text-emerald-950 border-emerald-100"
                                             )}
                                         >
-                                            {isSick ? <Thermometer className="w-3 h-3 text-amber-500" /> : <PartyPopper className="w-3 h-3 text-orange-500" />}
+                                            {isSick ? <Thermometer className="w-3 h-3 text-teal-800" /> : <PartyPopper className="w-3 h-3 text-emerald-800" />}
                                             <span className="truncate max-w-[80px]">{employee.full_name.split(' ')[0]}</span>
                                         </motion.div>
                                     )

@@ -34,7 +34,7 @@ export function GenerateReviewButton({ employeeId, employeeName }: { employeeId:
             <Button
                 onClick={handleGenerate}
                 disabled={loading}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg shadow-orange-500/20"
+                className="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-900 hover:to-red-600 text-white shadow-lg shadow-emerald-800/20"
             >
                 {loading ? (
                     <>
@@ -49,7 +49,7 @@ export function GenerateReviewButton({ employeeId, employeeName }: { employeeId:
                 )}
             </Button>
             {error && (
-                <p className="text-xs text-red-400">{error}</p>
+                <p className="text-xs text-teal-700">{error}</p>
             )}
         </div>
     )

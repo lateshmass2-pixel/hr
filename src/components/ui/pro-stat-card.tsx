@@ -27,7 +27,7 @@ const badgeColors = {
     blue: 'bg-blue-50 text-blue-700 border-blue-200',
     purple: 'bg-purple-50 text-purple-700 border-purple-200',
     amber: 'bg-amber-50 text-amber-700 border-amber-200',
-    coral: 'bg-[#e07850]/10 text-[#e07850] border-[#e07850]/20'
+    coral: 'bg-[#0A3B2A]/10 text-[#0A3B2A] border-[#0A3B2A]/20'
 }
 
 export function ProStatCard({
@@ -36,7 +36,7 @@ export function ProStatCard({
     trend,
     sparklineData,
     icon,
-    iconGradient = 'from-[#e07850] to-[#d45a3a]',
+    iconGradient = 'from-[#0A3B2A] to-[#064e3b]',
     href,
     badge,
     badgeColor = 'emerald'
@@ -49,7 +49,7 @@ export function ProStatCard({
             whileHover={{ y: -4, scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             className={cn(
-                "relative overflow-hidden bg-white p-5 rounded-3xl border border-[#e8e4e0]",
+                "relative overflow-hidden bg-white p-5 rounded-3xl border border-[#E2E8F0]",
                 "shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group h-full"
             )}
         >
@@ -60,14 +60,14 @@ export function ProStatCard({
                         <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#e07850" stopOpacity={0.4} />
-                                    <stop offset="100%" stopColor="#e07850" stopOpacity={0} />
+                                    <stop offset="0%" stopColor="#0A3B2A" stopOpacity={0.4} />
+                                    <stop offset="100%" stopColor="#0A3B2A" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <Area
                                 type="monotone"
                                 dataKey="value"
-                                stroke="#e07850"
+                                stroke="#0A3B2A"
                                 strokeWidth={2}
                                 fill="url(#sparkGradient)"
                             />
@@ -115,12 +115,12 @@ export function ProStatCard({
             </div>
 
             {/* Value */}
-            <div className="text-3xl font-bold text-[#1a1a1a] mt-3 relative z-10">
+            <div className="text-3xl font-bold text-[#0F172A] mt-3 relative z-10">
                 {value}
             </div>
 
             {/* Title */}
-            <div className="text-sm text-[#6b6b6b] relative z-10">
+            <div className="text-sm text-[#475569] relative z-10">
                 {title}
             </div>
         </motion.div>

@@ -20,7 +20,7 @@ const TIME_SLOTS = [
 ]
 
 const INTERVIEWERS = [
-    { id: 1, name: 'You', initials: 'YO', color: 'from-orange-400 to-red-400' },
+    { id: 1, name: 'You', initials: 'YO', color: 'from-emerald-600 to-teal-700' },
     { id: 2, name: 'Tech Lead', initials: 'TL', color: 'from-blue-400 to-indigo-400' },
     { id: 3, name: 'CTO', initials: 'CT', color: 'from-purple-400 to-pink-400' },
 ]
@@ -116,15 +116,15 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                                 key={option.type}
                                                 onClick={() => setInterviewType(option.type)}
                                                 className={`p-4 rounded-xl border-2 transition-all ${interviewType === option.type
-                                                    ? 'border-orange-500 bg-orange-50'
+                                                    ? 'border-emerald-800 bg-emerald-50'
                                                     : 'border-gray-200 hover:border-gray-300 bg-white'
                                                     }`}
                                             >
                                                 <option.icon
                                                     size={24}
-                                                    className={interviewType === option.type ? 'text-orange-600 mx-auto' : 'text-gray-400 mx-auto'}
+                                                    className={interviewType === option.type ? 'text-emerald-900 mx-auto' : 'text-gray-400 mx-auto'}
                                                 />
-                                                <p className={`text-sm font-medium mt-2 ${interviewType === option.type ? 'text-orange-600' : 'text-gray-700'
+                                                <p className={`text-sm font-medium mt-2 ${interviewType === option.type ? 'text-emerald-900' : 'text-gray-700'
                                                     }`}>
                                                     {option.label}
                                                 </p>
@@ -177,7 +177,7 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                             value={selectedDate}
                                             onChange={(e) => setSelectedDate(e.target.value)}
                                             min={new Date().toISOString().split('T')[0]}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                         />
                                     </div>
                                     <div>
@@ -188,7 +188,7 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                         <select
                                             value={selectedTime}
                                             onChange={(e) => setSelectedTime(e.target.value)}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                         >
                                             {TIME_SLOTS.map(slot => (
                                                 <option key={slot} value={slot}>{slot}</option>
@@ -209,7 +209,7 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                                 key={interviewer.id}
                                                 onClick={() => toggleInterviewer(interviewer.id)}
                                                 className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${selectedInterviewers.includes(interviewer.id)
-                                                    ? 'border-orange-500 bg-orange-50'
+                                                    ? 'border-emerald-800 bg-emerald-50'
                                                     : 'border-gray-200 hover:border-gray-300'
                                                     }`}
                                             >
@@ -241,7 +241,7 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                             {interviewType === 'video' && (
                                                 <>
                                                     <br /><br />
-                                                    You can join using this link: <span className="text-orange-600 font-medium">{meetLink}</span>
+                                                    You can join using this link: <span className="text-emerald-900 font-medium">{meetLink}</span>
                                                 </>
                                             )}
                                             <br /><br />
@@ -263,7 +263,7 @@ export default function ScheduleModal({ isOpen, onClose, candidateName }: Schedu
                                 <button
                                     onClick={handleSendInvites}
                                     disabled={!selectedDate || sending}
-                                    className="px-6 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    className="px-6 py-2.5 bg-emerald-800 text-white rounded-lg font-medium text-sm hover:bg-emerald-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                     {sending ? (
                                         <>

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface KpiCardProps {
     title: string;
-    value: number;
+    value: number | string;
     icon: React.ReactNode;
     trend?: string;
     trendDirection?: 'up' | 'down' | 'neutral';
@@ -26,18 +26,18 @@ export function KpiCard({ title, value, icon, trend, trendDirection = 'neutral',
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
-            className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-lg border border-green-100/50 hover:shadow-xl hover:border-green-200 transition-all duration-300"
+            className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] border-none hover:shadow-[0_12px_40px_rgba(10,59,42,0.1),0_4px_16px_rgba(0,0,0,0.05)] hover:border-green-200 transition-all duration-300"
         >
             <div className="flex items-start justify-between">
                 <div>
                     <p className="text-sm font-medium text-slate-500">{title}</p>
                     <div className="mt-2 flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-[#14532d] tracking-tight">
-                            <KineticCounter to={value} />
+                        <span className="text-3xl font-bold text-[#0a3b2a] tracking-tight">
+                            {typeof value === 'number' ? <KineticCounter to={value} /> : value}
                         </span>
                     </div>
                 </div>
-                <div className="rounded-xl p-3 bg-green-50 text-[#15803d] ring-1 ring-green-100/50 group-hover:bg-green-100 transition-colors">
+                <div className="rounded-xl p-3 bg-green-50 text-[#002417] ring-1 ring-green-100/50 group-hover:bg-green-100 transition-colors">
                     {icon}
                 </div>
             </div>

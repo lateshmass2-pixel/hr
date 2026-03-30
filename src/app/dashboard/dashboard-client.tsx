@@ -46,7 +46,7 @@ const itemVariants = {
 
 // Updated Avatar Colors to Green/Earth Tones palette
 const avatarColors = [
-    '#15803d', '#047857', '#0f766e', '#1e40af', '#b45309', '#be123c'
+    '#002417', '#047857', '#0f766e', '#1e40af', '#b45309', '#be123c'
 ]
 
 export default function DashboardClient({
@@ -189,16 +189,16 @@ export default function DashboardClient({
 
                         {/* Interview Candidates List - Green Accents */}
                         <motion.div variants={itemVariants}>
-                            <div className="rounded-3xl bg-white p-8 shadow-lg border border-green-100/50 hover:shadow-xl transition-all duration-300">
+                            <div className="rounded-3xl bg-white p-8 shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] border-none hover:shadow-[0_12px_40px_rgba(10,59,42,0.1),0_4px_16px_rgba(0,0,0,0.05)] transition-all duration-300">
                                 <div className="flex items-center justify-between mb-6">
                                     <div>
-                                        <h3 className="text-lg font-bold text-[#14532d] flex items-center gap-2">
-                                            <Video size={18} className="text-[#15803d]" />
+                                        <h3 className="text-lg font-bold text-[#0a3b2a] flex items-center gap-2">
+                                            <Video size={18} className="text-[#002417]" />
                                             Interview Candidates
                                         </h3>
                                         <p className="text-sm text-slate-500">Upcoming interviews this week</p>
                                     </div>
-                                    <Button variant="ghost" size="sm" className="text-[#15803d] hover:text-[#14532d] hover:bg-green-50">
+                                    <Button variant="ghost" size="sm" className="text-[#002417] hover:text-[#0a3b2a] hover:bg-green-50">
                                         View Schedule <ArrowRight size={14} className="ml-1" />
                                     </Button>
                                 </div>
@@ -206,18 +206,18 @@ export default function DashboardClient({
                                 {interviewCandidates.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {interviewCandidates.map((candidate, i) => (
-                                            <div key={candidate.id} className="flex items-center gap-4 p-4 rounded-2xl bg-[#f8faf6] border border-green-100 transition-all hover:bg-white hover:shadow-md hover:border-green-200 cursor-pointer group">
+                                            <div key={candidate.id} className="flex items-center gap-4 p-4 rounded-2xl bg-[#f8faf6] border-none transition-all hover:bg-white hover:shadow-sm hover:border-green-200 cursor-pointer group">
                                                 <div
-                                                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 transition-transform"
+                                                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:scale-105 transition-transform"
                                                     style={{ background: candidate.color }}
                                                 >
                                                     {candidate.initials}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="font-bold text-[#14532d] truncate">{candidate.name}</p>
+                                                    <p className="font-bold text-[#0a3b2a] truncate">{candidate.name}</p>
                                                     <p className="text-xs text-slate-500 font-medium truncate">{candidate.role}</p>
                                                     <div className="mt-1.5 flex items-center gap-2">
-                                                        <span className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 border border-green-100">
+                                                        <span className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 border-none">
                                                             <Clock size={10} className="mr-1" /> 2:00 PM
                                                         </span>
                                                         <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-800">
@@ -235,7 +235,7 @@ export default function DashboardClient({
                                     <div className="text-center py-12 bg-green-50/30 rounded-2xl border border-dashed border-green-200">
                                         <Video className="w-12 h-12 text-green-300 mx-auto mb-3" />
                                         <p className="text-slate-500 font-medium">No candidates in interview stage</p>
-                                        <Button variant="link" className="text-[#15803d] mt-2">Schedule Interview</Button>
+                                        <Button variant="link" className="text-[#002417] mt-2">Schedule Interview</Button>
                                     </div>
                                 )}
                             </div>
@@ -256,30 +256,30 @@ export default function DashboardClient({
 
                         {/* Pending Actions List - Green/Amber Theme */}
                         <motion.div variants={itemVariants}>
-                            <div className="rounded-3xl bg-white p-6 shadow-lg border border-green-100/50 hover:shadow-xl transition-all duration-300 h-full">
-                                <h3 className="text-lg font-bold text-[#14532d] flex items-center gap-2 mb-6">
-                                    <Zap size={18} className="text-amber-500" />
+                            <div className="rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] border-none hover:shadow-[0_12px_40px_rgba(10,59,42,0.1),0_4px_16px_rgba(0,0,0,0.05)] transition-all duration-300 h-full">
+                                <h3 className="text-lg font-bold text-[#0a3b2a] flex items-center gap-2 mb-6">
+                                    <Zap size={18} className="text-teal-800" />
                                     Action Center
                                 </h3>
 
                                 <div className="space-y-4">
                                     {/* Real Pending Offer */}
                                     {pendingOffer && (
-                                        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 border border-amber-100 transition-all hover:shadow-md">
+                                        <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-emerald-50 p-4 border border-amber-100 transition-all hover:shadow-sm">
                                             <div className="flex items-start gap-3">
-                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-600 shadow-sm ring-1 ring-amber-100">
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-teal-900 shadow-sm ring-1 ring-amber-100">
                                                     <FileText size={20} />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-semibold text-[#14532d]">Sign Offer: {pendingOffer.candidate_name}</p>
+                                                    <p className="text-sm font-semibold text-[#0a3b2a]">Sign Offer: {pendingOffer.candidate_name}</p>
                                                     <p className="text-xs text-slate-500 mt-0.5">Expires in 2 days</p>
                                                 </div>
                                             </div>
                                             <div className="mt-3 flex gap-2">
-                                                <Button size="sm" className="w-full bg-[#14532d] hover:bg-[#166534] text-white shadow-none h-8 text-xs rounded-lg">
+                                                <Button size="sm" className="w-full bg-[#0a3b2a] hover:bg-[#002115] text-white shadow-none h-8 text-xs rounded-lg">
                                                     Review
                                                 </Button>
-                                                <Button size="sm" variant="outline" className="w-full bg-white border-[#14532d] text-[#14532d] hover:bg-green-50 h-8 text-xs rounded-lg">
+                                                <Button size="sm" variant="outline" className="w-full bg-white border-[#0a3b2a] text-[#0a3b2a] hover:bg-green-50 h-8 text-xs rounded-lg">
                                                     Remind
                                                 </Button>
                                             </div>
@@ -289,12 +289,12 @@ export default function DashboardClient({
                                     {/* Real Leave Requests */}
                                     {pendingLeaveRequests.length > 0 ? (
                                         pendingLeaveRequests.slice(0, 3).map((request: any) => (
-                                            <div key={request.id} className="group relative flex items-center gap-3 p-3 rounded-2xl bg-[#f8faf6] border border-green-100 hover:bg-white hover:shadow-sm hover:border-green-200 transition-all">
+                                            <div key={request.id} className="group relative flex items-center gap-3 p-3 rounded-2xl bg-[#f8faf6] border-none hover:bg-white hover:shadow-sm hover:border-green-200 transition-all">
                                                 <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-800 shrink-0">
                                                     {(request.profile?.full_name || 'U').charAt(0)}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-semibold text-[#14532d] truncate">
+                                                    <p className="text-sm font-semibold text-[#0a3b2a] truncate">
                                                         {request.profile?.full_name}
                                                     </p>
                                                     <p className="text-xs text-slate-500 truncate">
@@ -318,7 +318,7 @@ export default function DashboardClient({
 
                         {/* Recent Announcements - Green Theme */}
                         <motion.div variants={itemVariants}>
-                            <div className="rounded-3xl bg-gradient-to-br from-[#0f3d2e] via-[#134e4a] to-[#14532d] p-6 shadow-xl shadow-green-900/20 text-white relative overflow-hidden">
+                            <div className="rounded-3xl bg-gradient-to-br from-[#002417] via-[#0a3b2a] to-[#0a3b2a] p-6 shadow-xl shadow-green-900/20 text-white relative overflow-hidden">
                                 {/* Decorative circles */}
                                 <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none" />
                                 <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
@@ -337,7 +337,7 @@ export default function DashboardClient({
                                     {announcements.slice(0, 2).map((announcement) => (
                                         <div key={announcement.id} className="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/5 hover:bg-white/15 transition-colors cursor-pointer">
                                             <div className="flex justify-between items-start mb-1">
-                                                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-100 px-1.5 py-0.5 rounded uppercase tracking-wide border border-emerald-500/30">
+                                                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-100 px-1.5 py-0.5 rounded uppercase tracking-wide border-none">
                                                     {announcement.priority}
                                                 </span>
                                                 <span className="text-[10px] text-emerald-200/70">
@@ -368,10 +368,10 @@ function Button({ className, variant = 'default', size = 'default', ...props }: 
         <button
             className={cn(
                 "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
-                variant === 'default' && "bg-[#14532d] text-white hover:bg-[#166534] shadow-md hover:shadow-lg hover:scale-[1.02]",
-                variant === 'outline' && "border border-[#14532d] bg-transparent text-[#14532d] hover:bg-green-50",
-                variant === 'ghost' && "hover:bg-green-50 hover:text-[#14532d] text-slate-600",
-                variant === 'link' && "text-[#14532d] underline-offset-4 hover:underline",
+                variant === 'default' && "bg-[#0a3b2a] text-white hover:bg-[#002115] shadow-sm hover:shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] hover:scale-[1.02]",
+                variant === 'outline' && "border border-[#0a3b2a] bg-transparent text-[#0a3b2a] hover:bg-green-50",
+                variant === 'ghost' && "hover:bg-green-50 hover:text-[#0a3b2a] text-slate-600",
+                variant === 'link' && "text-[#0a3b2a] underline-offset-4 hover:underline",
                 size === 'default' && "h-10 px-4 py-2",
                 size === 'sm' && "h-9 rounded-lg px-3 text-xs",
                 size === 'icon' && "h-10 w-10",

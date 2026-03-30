@@ -26,13 +26,13 @@ const variantStyles: Record<GradientVariant, { gradient: string; iconBg: string;
     },
     peach: {
         gradient: 'gradient-peach',
-        iconBg: 'bg-orange-100/80',
-        iconColor: 'text-orange-600',
+        iconBg: 'bg-emerald-100/80',
+        iconColor: 'text-emerald-900',
     },
     blue: {
         gradient: 'gradient-peach',
-        iconBg: 'bg-orange-100/80',
-        iconColor: 'text-orange-600',
+        iconBg: 'bg-emerald-100/80',
+        iconColor: 'text-emerald-900',
     },
     mint: {
         gradient: 'gradient-mint',

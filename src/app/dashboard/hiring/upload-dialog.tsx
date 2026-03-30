@@ -83,7 +83,7 @@ export function UploadDialog() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Button className="bg-emerald-800 hover:bg-emerald-900 text-white">
                     <Upload className="mr-2 h-4 w-4" /> Upload Resumes
                 </Button>
             </DialogTrigger>

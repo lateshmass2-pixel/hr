@@ -298,7 +298,7 @@ export async function sendInterviewScheduleEmail(
 </head>
 <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <div style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 16px 16px 0 0; padding: 40px 30px; text-align: center;">
+        <div style="background: linear-gradient(135deg, #0A3B2A 0%, #ea580c 100%); border-radius: 16px 16px 0 0; padding: 40px 30px; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">📅 Interview Scheduled!</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">You're one step closer to joining our team</p>
         </div>

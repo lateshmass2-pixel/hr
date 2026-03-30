@@ -92,8 +92,8 @@ export default function OnboardingPage() {
                     />
                     <defs>
                         <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#f97316" />
-                            <stop offset="100%" stopColor="#ef4444" />
+                            <stop offset="0%" stopColor="#0A3B2A" />
+                            <stop offset="100%" stopColor="#10B981" />
                         </linearGradient>
                     </defs>
                 </svg>
@@ -126,12 +126,12 @@ export default function OnboardingPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             className={`flex-shrink-0 w-56 bg-white rounded-xl p-5 text-left transition-all ${selectedEmployee.id === employee.id
-                                ? 'border-2 border-orange-400 shadow-md'
+                                ? 'border-2 border-emerald-600 shadow-md'
                                 : 'border border-gray-200 shadow-sm hover:shadow-md'
                                 }`}
                         >
                             {/* Avatar */}
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white text-lg font-bold mx-auto mb-3">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white text-lg font-bold mx-auto mb-3">
                                 {employee.avatar}
                             </div>
 
@@ -149,7 +149,7 @@ export default function OnboardingPage() {
                             <div className="mt-3">
                                 <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-gradient-to-r from-orange-400 to-red-400 rounded-full transition-all"
+                                        className="h-full bg-gradient-to-r from-emerald-600 to-teal-700 rounded-full transition-all"
                                         style={{ width: `${employee.progress}%` }}
                                     />
                                 </div>
@@ -165,7 +165,7 @@ export default function OnboardingPage() {
                 {/* Left Column - Checklist */}
                 <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                     <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <User size={18} className="text-orange-500" />
+                        <User size={18} className="text-emerald-800" />
                         Onboarding Checklist - {selectedEmployee.name}
                     </h3>
 
@@ -194,12 +194,12 @@ export default function OnboardingPage() {
 
                             {/* Background Check */}
                             <div className={`flex items-center gap-3 p-3 rounded-lg ${tasks.backgroundCheck === true ? 'bg-green-50' :
-                                tasks.backgroundCheck === 'pending' ? 'bg-orange-50' : 'bg-gray-50'
+                                tasks.backgroundCheck === 'pending' ? 'bg-emerald-50' : 'bg-gray-50'
                                 }`}>
                                 {tasks.backgroundCheck === true ? (
                                     <CheckCircle size={20} className="text-green-600" />
                                 ) : tasks.backgroundCheck === 'pending' ? (
-                                    <Loader2 size={20} className="text-orange-500 animate-spin" />
+                                    <Loader2 size={20} className="text-emerald-800 animate-spin" />
                                 ) : (
                                     <Clock size={20} className="text-gray-400" />
                                 )}
@@ -207,7 +207,7 @@ export default function OnboardingPage() {
                                     Background Check
                                 </span>
                                 {tasks.backgroundCheck === 'pending' && (
-                                    <span className="text-xs text-orange-600 font-medium">In Progress</span>
+                                    <span className="text-xs text-emerald-900 font-medium">In Progress</span>
                                 )}
                             </div>
                         </div>
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
                                 {!tasks.companyEmail && (
                                     <button
                                         onClick={() => handleToggleTask('companyEmail')}
-                                        className="px-3 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors"
+                                        className="px-3 py-1.5 bg-emerald-800 text-white text-xs font-medium rounded-lg hover:bg-emerald-900 transition-colors"
                                     >
                                         Auto-Generate
                                     </button>
@@ -240,12 +240,12 @@ export default function OnboardingPage() {
 
                             {/* Equipment */}
                             <div className={`flex items-center gap-3 p-3 rounded-lg ${tasks.equipmentShipped === true ? 'bg-green-50' :
-                                tasks.equipmentShipped === 'shipping' ? 'bg-orange-50' : 'bg-gray-50'
+                                tasks.equipmentShipped === 'shipping' ? 'bg-emerald-50' : 'bg-gray-50'
                                 }`}>
                                 {tasks.equipmentShipped === true ? (
                                     <CheckCircle size={20} className="text-green-600" />
                                 ) : tasks.equipmentShipped === 'shipping' ? (
-                                    <Truck size={20} className="text-orange-500" />
+                                    <Truck size={20} className="text-emerald-800" />
                                 ) : (
                                     <Laptop size={20} className="text-gray-400" />
                                 )}
@@ -259,7 +259,7 @@ export default function OnboardingPage() {
                                                 setTasks(prev => ({ ...prev, equipmentShipped: 'shipping' }))
                                             }
                                         }}
-                                        className="px-3 py-1.5 border border-gray-300 text-xs rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                        className="px-3 py-1.5 border border-gray-300 text-xs rounded-lg focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                     >
                                         <option value="">Select Device</option>
                                         <option value="mbp14">MacBook Pro 14" M3</option>
@@ -268,7 +268,7 @@ export default function OnboardingPage() {
                                     </select>
                                 )}
                                 {tasks.equipmentShipped === 'shipping' && (
-                                    <span className="text-xs text-orange-600 font-medium">Shipping</span>
+                                    <span className="text-xs text-emerald-900 font-medium">Shipping</span>
                                 )}
                             </div>
                         </div>
@@ -304,7 +304,7 @@ export default function OnboardingPage() {
                     {/* Device Status Card */}
                     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <Laptop size={16} className="text-orange-500" />
+                            <Laptop size={16} className="text-emerald-800" />
                             Device Status
                         </h4>
                         <div className="bg-gray-50 rounded-xl p-4 text-center">
@@ -315,7 +315,7 @@ export default function OnboardingPage() {
                                 <>
                                     <p className="font-medium text-gray-900">Shipping Label Created</p>
                                     <p className="text-xs text-gray-500 mt-1">Tracking #12345678</p>
-                                    <div className="flex items-center justify-center gap-1 mt-2 text-orange-600 text-xs">
+                                    <div className="flex items-center justify-center gap-1 mt-2 text-emerald-900 text-xs">
                                         <Truck size={12} />
                                         In Transit
                                     </div>
@@ -337,11 +337,11 @@ export default function OnboardingPage() {
                     {/* Welcome Kit Card */}
                     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <Package size={16} className="text-orange-500" />
+                            <Package size={16} className="text-emerald-800" />
                             Welcome Kit
                         </h4>
-                        <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 text-center">
-                            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-400 to-red-400 rounded-xl flex items-center justify-center mb-3 shadow-lg">
+                        <div className="bg-gradient-to-br from-emerald-50 to-red-50 rounded-xl p-4 text-center">
+                            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl flex items-center justify-center mb-3 shadow-lg">
                                 <Gift size={40} className="text-white" />
                             </div>
                             <p className="font-medium text-gray-900">Company Swag Box</p>
@@ -349,7 +349,7 @@ export default function OnboardingPage() {
                             {!tasks.swagSent ? (
                                 <button
                                     onClick={() => handleToggleTask('swagSent')}
-                                    className="mt-3 w-full px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                                    className="mt-3 w-full px-4 py-2 bg-emerald-800 text-white text-sm font-medium rounded-lg hover:bg-emerald-900 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Gift size={16} />
                                     Send Swag
@@ -379,7 +379,7 @@ export default function OnboardingPage() {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">Preparation</span>
-                                <span className="font-medium text-orange-600">{progress}%</span>
+                                <span className="font-medium text-emerald-900">{progress}%</span>
                             </div>
                         </div>
                     </div>

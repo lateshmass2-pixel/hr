@@ -81,7 +81,7 @@ export function HiringInbox({ applications }: HiringInboxProps) {
                         <span className={cn(
                             'ml-2 px-2 py-0.5 rounded-full text-xs font-bold',
                             activeTab === tab.id
-                                ? 'bg-orange-100 text-orange-600'
+                                ? 'bg-emerald-100 text-emerald-900'
                                 : 'bg-gray-200 text-gray-500'
                         )}>
                             {counts[tab.id]}
@@ -100,7 +100,7 @@ export function HiringInbox({ applications }: HiringInboxProps) {
                             exit={{ opacity: 0, y: -20 }}
                         >
                             <SoftCard className="text-center py-12">
-                                <Sparkles className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+                                <Sparkles className="w-12 h-12 text-emerald-800 mx-auto mb-4" />
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No Candidates</h3>
                                 <p className="text-gray-500">No candidates in this category yet.</p>
                             </SoftCard>
@@ -164,7 +164,7 @@ function CandidateRow({
         'from-pink-500 to-rose-500',
         'from-cyan-500 to-teal-500',
         'from-emerald-500 to-teal-500',
-        'from-orange-500 to-amber-500',
+        'from-emerald-800 to-teal-800',
         'from-purple-500 to-violet-500',
     ]
 
@@ -180,7 +180,7 @@ function CandidateRow({
                 padding="sm"
                 className={cn(
                     'overflow-hidden transition-all duration-300',
-                    isExpanded && 'ring-2 ring-orange-200'
+                    isExpanded && 'ring-2 ring-emerald-200'
                 )}
             >
                 {/* Main Row */}
@@ -259,7 +259,7 @@ function CandidateRow({
                                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Skills</p>
                                         <div className="flex flex-wrap gap-2">
                                             {skills.map((skill, i) => (
-                                                <span key={i} className="bg-orange-50 text-orange-600 text-xs px-3 py-1.5 rounded-full font-medium">
+                                                <span key={i} className="bg-emerald-50 text-emerald-900 text-xs px-3 py-1.5 rounded-full font-medium">
                                                     {skill}
                                                 </span>
                                             ))}
@@ -272,7 +272,7 @@ function CandidateRow({
                                     <div>
                                         <div className="flex justify-between items-center mb-2">
                                             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Match Score</p>
-                                            <span className={cn('text-sm font-bold', isHighScore ? 'text-emerald-600' : 'text-amber-600')}>
+                                            <span className={cn('text-sm font-bold', isHighScore ? 'text-emerald-600' : 'text-teal-900')}>
                                                 {score}%
                                             </span>
                                         </div>

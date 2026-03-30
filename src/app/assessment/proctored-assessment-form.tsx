@@ -131,20 +131,20 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
     // --------------------------------------------------------------------------
     if (phase === 'consent') {
         return (
-            <Card className="max-w-lg mx-auto border-2 border-orange-200 shadow-xl">
-                <CardHeader className="text-center pb-2 bg-gradient-to-b from-orange-50 to-white pt-8">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center border-4 border-white shadow-sm">
-                        <Camera className="w-8 h-8 text-orange-600" />
+            <Card className="max-w-lg mx-auto border-2 border-emerald-200 shadow-xl">
+                <CardHeader className="text-center pb-2 bg-gradient-to-b from-emerald-50 to-white pt-8">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm">
+                        <Camera className="w-8 h-8 text-emerald-900" />
                     </div>
                     <CardTitle className="text-2xl font-bold text-gray-900">Proctored Assessment</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
-                    <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                         <h4 className="font-semibold text-orange-800 mb-2 flex items-center gap-2">
                             <ShieldAlert className="w-4 h-4" />
                             AI Proctoring Active
                         </h4>
-                        <ul className="text-sm text-orange-700 space-y-2">
+                        <ul className="text-sm text-emerald-950 space-y-2">
                             <li className="flex items-start gap-2">
                                 <span className="mt-1">•</span>
                                 <span>Webcam will be monitored throughout</span>
@@ -182,7 +182,7 @@ export function ProctoredAssessmentForm({ aptitude = [], technical = [], applica
                     </div>
 
                     <Button
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold h-11"
+                        className="w-full bg-emerald-900 hover:bg-emerald-950 text-white font-semibold h-11"
                         onClick={handleStart}
                     >
                         Start Assessment

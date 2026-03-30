@@ -30,7 +30,7 @@ export default function LearningPage() {
 
     function getThumbnailIcon(type: string) {
         switch (type) {
-            case 'code': return <Code size={40} className="text-orange-400" />
+            case 'code': return <Code size={40} className="text-emerald-600" />
             case 'design': return <Palette size={40} className="text-purple-400" />
             case 'leadership': return <Users size={40} className="text-emerald-400" />
             default: return <BookOpen size={40} className="text-gray-400" />
@@ -39,7 +39,7 @@ export default function LearningPage() {
 
     function getCategoryColor(category: string) {
         switch (category) {
-            case 'Engineering': return 'bg-orange-100 text-orange-700'
+            case 'Engineering': return 'bg-emerald-100 text-emerald-950'
             case 'Design': return 'bg-purple-100 text-purple-700'
             case 'Soft Skills': return 'bg-emerald-100 text-emerald-700'
             default: return 'bg-gray-100 text-gray-700'
@@ -69,7 +69,7 @@ export default function LearningPage() {
         <div className="space-y-8">
             {/* Hero Section - Continue Watching (only show if enrolled courses exist) */}
             {currentCourse && (
-                <div className="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-8 text-white relative overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-8 text-white relative overflow-hidden">
                     {/* Decorative Elements */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
                     <div className="absolute bottom-0 left-1/2 w-32 h-32 bg-white/5 rounded-full translate-y-1/2" />
@@ -98,7 +98,7 @@ export default function LearningPage() {
                                 <p className="text-xs text-white/70 mt-1">{currentCourse.progress}% Complete</p>
                             </div>
 
-                            <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-colors">
+                            <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-900 rounded-xl font-semibold hover:bg-emerald-50 transition-colors">
                                 <Play size={18} fill="currentColor" />
                                 Resume Course
                             </button>
@@ -111,7 +111,7 @@ export default function LearningPage() {
                             </div>
                             <button className="absolute inset-0 flex items-center justify-center">
                                 <div className="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
-                                    <Play size={24} className="text-orange-500 ml-1" fill="currentColor" />
+                                    <Play size={24} className="text-emerald-800 ml-1" fill="currentColor" />
                                 </div>
                             </button>
                         </div>
@@ -124,7 +124,7 @@ export default function LearningPage() {
                 <button
                     onClick={() => setActiveTab('my-learning')}
                     className={`pb-3 px-1 font-medium text-sm transition-colors relative ${activeTab === 'my-learning'
-                        ? 'text-orange-600'
+                        ? 'text-emerald-900'
                         : 'text-gray-500 hover:text-gray-700'
                         }`}
                 >
@@ -132,14 +132,14 @@ export default function LearningPage() {
                     {activeTab === 'my-learning' && (
                         <motion.div
                             layoutId="activeTab"
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500"
+                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-800"
                         />
                     )}
                 </button>
                 <button
                     onClick={() => setActiveTab('catalog')}
                     className={`pb-3 px-1 font-medium text-sm transition-colors relative ${activeTab === 'catalog'
-                        ? 'text-orange-600'
+                        ? 'text-emerald-900'
                         : 'text-gray-500 hover:text-gray-700'
                         }`}
                 >
@@ -147,7 +147,7 @@ export default function LearningPage() {
                     {activeTab === 'catalog' && (
                         <motion.div
                             layoutId="activeTab"
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500"
+                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-800"
                         />
                     )}
                 </button>
@@ -170,7 +170,7 @@ export default function LearningPage() {
                                     <>
                                         <div className="flex items-center justify-between mb-4">
                                             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                                                <TrendingUp size={18} className="text-orange-500" />
+                                                <TrendingUp size={18} className="text-emerald-800" />
                                                 In Progress
                                             </h2>
                                         </div>
@@ -194,7 +194,7 @@ export default function LearningPage() {
 
                                                         {/* Progress Overlay */}
                                                         {course.progress > 0 && (
-                                                            <div className="absolute top-2 left-2 px-2 py-1 bg-orange-500 text-white text-xs rounded font-medium">
+                                                            <div className="absolute top-2 left-2 px-2 py-1 bg-emerald-800 text-white text-xs rounded font-medium">
                                                                 {course.progress}% done
                                                             </div>
                                                         )}
@@ -217,7 +217,7 @@ export default function LearningPage() {
                                                                     initial={{ width: 0 }}
                                                                     animate={{ width: `${course.progress}%` }}
                                                                     transition={{ duration: 0.5 }}
-                                                                    className="h-full bg-orange-500 rounded-full"
+                                                                    className="h-full bg-emerald-800 rounded-full"
                                                                 />
                                                             </div>
                                                         </div>
@@ -238,7 +238,7 @@ export default function LearningPage() {
                                         <p className="text-gray-500 mb-4">Browse the catalog and enroll in courses to start learning</p>
                                         <button
                                             onClick={() => setActiveTab('catalog')}
-                                            className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                                            className="px-6 py-2 bg-emerald-800 text-white rounded-lg font-medium hover:bg-emerald-900 transition-colors"
                                         >
                                             Browse Catalog
                                         </button>
@@ -255,7 +255,7 @@ export default function LearningPage() {
                             >
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                                        <Sparkles size={18} className="text-orange-500" />
+                                        <Sparkles size={18} className="text-emerald-800" />
                                         Available Courses
                                     </h2>
                                 </div>
@@ -301,7 +301,7 @@ export default function LearningPage() {
                                                     {/* Enroll Button */}
                                                     <button
                                                         onClick={() => handleEnrollCourse(course.id)}
-                                                        className="w-full py-2 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                                                        className="w-full py-2 bg-emerald-800 text-white rounded-lg font-medium text-sm hover:bg-emerald-900 transition-colors flex items-center justify-center gap-2"
                                                     >
                                                         <Check size={16} />
                                                         Enroll Now
@@ -327,7 +327,7 @@ export default function LearningPage() {
                     {/* Skills Card */}
                     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <Target size={18} className="text-orange-500" />
+                            <Target size={18} className="text-emerald-800" />
                             Skill Matrix
                         </h3>
 
@@ -337,7 +337,7 @@ export default function LearningPage() {
                                     <div className="flex justify-between items-center mb-1">
                                         <span className="text-sm font-medium text-gray-700">{skill.name}</span>
                                         <span className={`text-xs px-2 py-0.5 rounded ${skill.level >= 70 ? 'bg-green-100 text-green-700' :
-                                            skill.level >= 40 ? 'bg-orange-100 text-orange-700' :
+                                            skill.level >= 40 ? 'bg-emerald-100 text-emerald-950' :
                                                 'bg-gray-100 text-gray-600'
                                             }`}>
                                             {skill.status}
@@ -349,7 +349,7 @@ export default function LearningPage() {
                                             animate={{ width: `${skill.level}%` }}
                                             transition={{ duration: 0.8, delay: 0.1 }}
                                             className={`h-full rounded-full ${skill.level >= 70 ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
-                                                skill.level >= 40 ? 'bg-gradient-to-r from-orange-400 to-amber-500' :
+                                                skill.level >= 40 ? 'bg-gradient-to-r from-emerald-600 to-teal-800' :
                                                     'bg-gradient-to-r from-gray-300 to-gray-400'
                                                 }`}
                                         />
@@ -360,7 +360,7 @@ export default function LearningPage() {
                     </div>
 
                     {/* AI Learning Path Generator */}
-                    <div className="bg-gradient-to-br from-purple-50 to-orange-50 rounded-xl border border-purple-100 p-5">
+                    <div className="bg-gradient-to-br from-purple-50 to-emerald-50 rounded-xl border border-purple-100 p-5">
                         <div className="flex items-center gap-2 mb-3">
                             <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
                                 <Sparkles size={16} className="text-purple-600" />
@@ -434,7 +434,7 @@ export default function LearningPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
                                     🔥
                                 </div>
                                 <div>

@@ -89,7 +89,7 @@ export default function PayrollPage() {
                                                 <div className="flex items-center gap-3">
                                                     <div
                                                         className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                                                        style={{ background: ['#F97316', '#14B8A6', '#F59E0B', '#EC4899'][i % 4] }}
+                                                        style={{ background: ['#0A3B2A', '#14B8A6', '#F59E0B', '#EC4899'][i % 4] }}
                                                     >
                                                         {emp.full_name?.substring(0, 2).toUpperCase()}
                                                     </div>
@@ -136,7 +136,7 @@ export default function PayrollPage() {
                             </div>
                         </button>
                         <button className="w-full flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left group">
-                            <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <div className="w-10 h-10 bg-emerald-50 text-emerald-900 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
                                 <BarChart3 size={20} />
                             </div>
                             <div>

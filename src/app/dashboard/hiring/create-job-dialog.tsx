@@ -139,7 +139,7 @@ export function CreateJobDialog() {
                                         <button
                                             type="button"
                                             onClick={() => handleRemoveSkill(skill)}
-                                            className="ml-1 hover:text-red-500 transition-colors"
+                                            className="ml-1 hover:text-teal-800 transition-colors"
                                         >
                                             <X className="h-3 w-3" />
                                         </button>

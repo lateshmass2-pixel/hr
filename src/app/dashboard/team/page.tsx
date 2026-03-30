@@ -110,7 +110,7 @@ export default function TeamPage() {
                     trend="+8%"
                     trendUp={true}
                     icon={UserPlus}
-                    colorClass="bg-amber-50 text-amber-600"
+                    colorClass="bg-amber-50 text-teal-900"
                 />
             </div>
 

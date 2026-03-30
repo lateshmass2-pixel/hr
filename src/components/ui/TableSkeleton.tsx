@@ -8,9 +8,9 @@ interface TableSkeletonProps {
 
 export function TableSkeleton({ rows = 5, columns = 4, className }: TableSkeletonProps) {
     return (
-        <div className={cn("bg-white rounded-2xl border border-[#e8e4e0] overflow-hidden", className)}>
+        <div className={cn("bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden", className)}>
             {/* Header */}
-            <div className="flex gap-4 p-4 border-b border-[#e8e4e0] bg-[#faf8f5]">
+            <div className="flex gap-4 p-4 border-b border-[#E2E8F0] bg-[#FAFCF8]">
                 {Array.from({ length: columns }).map((_, i) => (
                     <div
                         key={`header-${i}`}
@@ -24,7 +24,7 @@ export function TableSkeleton({ rows = 5, columns = 4, className }: TableSkeleto
             {Array.from({ length: rows }).map((_, rowIndex) => (
                 <div
                     key={`row-${rowIndex}`}
-                    className="flex gap-4 p-4 border-b border-[#e8e4e0] last:border-b-0"
+                    className="flex gap-4 p-4 border-b border-[#E2E8F0] last:border-b-0"
                 >
                     {Array.from({ length: columns }).map((_, colIndex) => (
                         <div

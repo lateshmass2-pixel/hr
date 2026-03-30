@@ -33,7 +33,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
             {/* Stats Grid Skeleton */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[...Array(4)].map((_, i) => (
-                    <div key={i} className="bg-white p-5 rounded-3xl border border-[#e8e4e0] shadow-md">
+                    <div key={i} className="bg-white p-5 rounded-3xl border border-[#E2E8F0] shadow-md">
                         <div className="flex justify-between items-start mb-4">
                             <ShimmerBlock className="w-12 h-12 rounded-2xl" />
                             <ShimmerBlock className="w-20 h-6 rounded-full" />
@@ -49,7 +49,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
                 <div className="lg:col-span-2 space-y-4">
                     <ShimmerBlock className="h-5 w-36" />
                     {[...Array(3)].map((_, i) => (
-                        <div key={i} className="bg-white p-4 rounded-2xl border border-[#e8e4e0] flex items-center gap-4">
+                        <div key={i} className="bg-white p-4 rounded-2xl border border-[#E2E8F0] flex items-center gap-4">
                             <ShimmerBlock className="w-12 h-12 rounded-full" />
                             <div className="flex-1 space-y-2">
                                 <ShimmerBlock className="h-5 w-48" />
@@ -59,7 +59,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
                         </div>
                     ))}
                 </div>
-                <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
+                <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-md p-6">
                     <ShimmerBlock className="h-5 w-32 mb-6" />
                     <ShimmerBlock className="h-[200px] w-full rounded-xl" />
                 </div>
@@ -77,9 +77,9 @@ export function ProjectBoardSkeleton() {
                         <ShimmerBlock className="h-5 w-20" />
                         <ShimmerBlock className="h-5 w-8 rounded-full" />
                     </div>
-                    <div className="flex-1 bg-gray-50/50 rounded-2xl border border-dashed border-[#e8e4e0] p-3 space-y-3">
+                    <div className="flex-1 bg-gray-50/50 rounded-2xl border border-dashed border-[#E2E8F0] p-3 space-y-3">
                         {[...Array(3 - i)].map((_, j) => (
-                            <div key={j} className="bg-white p-4 rounded-xl border border-[#e8e4e0]">
+                            <div key={j} className="bg-white p-4 rounded-xl border border-[#E2E8F0]">
                                 <ShimmerBlock className="h-4 w-16 mb-3 rounded-full" />
                                 <ShimmerBlock className="h-5 w-full mb-4" />
                                 <div className="flex items-center gap-2">

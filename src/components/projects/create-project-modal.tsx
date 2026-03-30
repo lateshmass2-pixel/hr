@@ -192,7 +192,7 @@ export default function CreateProjectModal() {
                                             {member.avatar ? <img src={member.avatar} className="w-full h-full rounded-full" /> : getInitials(member.name)}
                                         </div>
                                         <span className="text-xs font-medium text-gray-700">{member.name}</span>
-                                        <button onClick={() => toggleMember(memberId)} className="text-gray-400 hover:text-red-500">
+                                        <button onClick={() => toggleMember(memberId)} className="text-gray-400 hover:text-teal-800">
                                             <X size={14} />
                                         </button>
                                     </div>
@@ -216,7 +216,7 @@ export default function CreateProjectModal() {
                                 <div key={idx} className="flex items-center gap-3 group">
                                     <GripVertical size={16} className="text-gray-300 cursor-move" />
                                     <span className="text-sm text-gray-700 flex-1">{task}</span>
-                                    <button onClick={() => removeTask(idx)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500">
+                                    <button onClick={() => removeTask(idx)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-teal-800">
                                         <X size={14} />
                                     </button>
                                 </div>

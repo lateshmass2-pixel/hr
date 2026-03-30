@@ -159,14 +159,14 @@ The HEMS HR Team`
     return (
         <Dialog open={isOpen} onOpenChange={(open) => open ? setIsOpen(true) : handleClose()}>
             <DialogTrigger asChild>
-                <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Button size="sm" className="bg-emerald-800 hover:bg-emerald-900 text-white">
                     <Calendar className="h-3 w-3 mr-1" /> Schedule
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5 text-orange-500" />
+                        <Calendar className="h-5 w-5 text-emerald-800" />
                         {step === 'success' ? 'Interview Scheduled!' : `Schedule Interview with ${application.candidate_name}`}
                     </DialogTitle>
                     <DialogDescription>
@@ -191,7 +191,7 @@ The HEMS HR Team`
                                         key={type.value}
                                         onClick={() => setInterviewType(type.value as InterviewType)}
                                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all ${interviewType === type.value
-                                            ? 'bg-orange-500 text-white'
+                                            ? 'bg-emerald-800 text-white'
                                             : 'bg-white text-gray-600 hover:bg-gray-50'
                                             }`}
                                     >
@@ -212,7 +212,7 @@ The HEMS HR Team`
                                     value={date}
                                     onChange={(e) => setDate(e.target.value)}
                                     min={new Date().toISOString().split('T')[0]}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -285,7 +285,7 @@ The HEMS HR Team`
                         <Button
                             onClick={handleSubmit}
                             disabled={!canSubmit || isSending}
-                            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-5 text-base font-semibold"
+                            className="w-full bg-emerald-800 hover:bg-emerald-900 text-white py-5 text-base font-semibold"
                         >
                             {isSending ? (
                                 <>
@@ -313,7 +313,7 @@ The HEMS HR Team`
                             An invitation has been sent to <strong>{application.candidate_email}</strong>.
                             The candidate status has been updated to <span className="text-yellow-600 font-medium">"Interview Scheduled"</span>.
                         </p>
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-800 flex items-start gap-2">
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm text-orange-800 flex items-start gap-2">
                             <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
                             <span><strong>{formattedDate}</strong> at <strong>{formattedTime}</strong></span>
                         </div>

@@ -20,9 +20,9 @@ export function TaskVelocityChart({ completedTasks, pendingTasks }: TaskVelocity
 
     if (total === 0) {
         return (
-            <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
-                <h3 className="font-semibold text-[#1a1a1a] mb-4">Task Velocity</h3>
-                <div className="h-[200px] flex items-center justify-center text-[#a0a0a0]">
+            <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-md p-6">
+                <h3 className="font-semibold text-[#0F172A] mb-4">Task Velocity</h3>
+                <div className="h-[200px] flex items-center justify-center text-[#94A3B8]">
                     No tasks yet
                 </div>
             </div>
@@ -30,9 +30,9 @@ export function TaskVelocityChart({ completedTasks, pendingTasks }: TaskVelocity
     }
 
     return (
-        <div className="bg-white rounded-3xl border border-[#e8e4e0] shadow-md p-6">
+        <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-md p-6">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[#1a1a1a]">Task Velocity</h3>
+                <h3 className="font-semibold text-[#0F172A]">Task Velocity</h3>
                 <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">
                     {completionRate}% Complete
                 </span>
@@ -56,28 +56,28 @@ export function TaskVelocityChart({ completedTasks, pendingTasks }: TaskVelocity
                         <Tooltip
                             contentStyle={{
                                 borderRadius: '12px',
-                                border: '1px solid #e8e4e0',
+                                border: '1px solid #E2E8F0',
                                 backgroundColor: '#ffffff',
-                                color: '#1a1a1a',
+                                color: '#0F172A',
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                             }}
                         />
                         <Legend
                             verticalAlign="bottom"
                             height={36}
-                            formatter={(value) => <span className="text-sm text-[#6b6b6b]">{value}</span>}
+                            formatter={(value) => <span className="text-sm text-[#475569]">{value}</span>}
                         />
                     </PieChart>
                 </ResponsiveContainer>
             </div>
             <div className="flex justify-center gap-6 mt-2 text-sm">
                 <div className="text-center">
-                    <div className="font-bold text-[#1a1a1a]">{completedTasks}</div>
-                    <div className="text-[#6b6b6b] text-xs">Completed</div>
+                    <div className="font-bold text-[#0F172A]">{completedTasks}</div>
+                    <div className="text-[#475569] text-xs">Completed</div>
                 </div>
                 <div className="text-center">
-                    <div className="font-bold text-[#1a1a1a]">{pendingTasks}</div>
-                    <div className="text-[#6b6b6b] text-xs">Pending</div>
+                    <div className="font-bold text-[#0F172A]">{pendingTasks}</div>
+                    <div className="text-[#475569] text-xs">Pending</div>
                 </div>
             </div>
         </div>

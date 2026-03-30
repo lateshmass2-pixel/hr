@@ -23,8 +23,8 @@ export function EmptyState({
     actionLabel,
     onAction,
     className,
-    iconColor = 'text-[#e07850]',
-    iconBgColor = 'bg-[#e07850]/10'
+    iconColor = 'text-[#0A3B2A]',
+    iconBgColor = 'bg-[#0A3B2A]/10'
 }: EmptyStateProps) {
     return (
         <motion.div
@@ -43,7 +43,7 @@ export function EmptyState({
                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
                 className={cn(
                     "w-24 h-24 rounded-full flex items-center justify-center mb-6",
-                    "shadow-lg shadow-[#e07850]/10",
+                    "shadow-lg shadow-[#0A3B2A]/10",
                     iconBgColor
                 )}
             >
@@ -55,7 +55,7 @@ export function EmptyState({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-xl font-bold text-[#1a1a1a] mb-2"
+                className="text-xl font-bold text-[#0F172A] mb-2"
             >
                 {title}
             </motion.h3>
@@ -65,7 +65,7 @@ export function EmptyState({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-[#6b6b6b] max-w-sm mb-6"
+                className="text-[#475569] max-w-sm mb-6"
             >
                 {description}
             </motion.p>
@@ -79,7 +79,7 @@ export function EmptyState({
                 >
                     <Button
                         onClick={onAction}
-                        className="bg-gradient-to-r from-[#e07850] to-[#d45a3a] text-white hover:from-[#d45a3a] hover:to-[#c04a2a] shadow-lg shadow-[#e07850]/20"
+                        className="bg-gradient-to-r from-[#0A3B2A] to-[#064e3b] text-white hover:from-[#064e3b] hover:to-[#022c22] shadow-lg shadow-[#0A3B2A]/20"
                     >
                         {actionLabel}
                     </Button>

@@ -26,7 +26,7 @@ export function TaskFocusWidget({ tasks }: { tasks: Task[] }) {
     return (
         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-6 h-full flex flex-col">
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-orange-500" />
+                <Clock className="w-5 h-5 text-emerald-800" />
                 Today's Focus
             </h3>
 
@@ -92,7 +92,7 @@ function TaskItem({ task, index }: { task: Task; index: number }) {
         >
             <div className={cn(
                 "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-sm z-10 transition-colors duration-300",
-                checked ? "bg-emerald-500 text-white" : "bg-white border-gray-200 text-gray-300 hover:border-orange-300 hover:text-orange-300"
+                checked ? "bg-emerald-500 text-white" : "bg-white border-gray-200 text-gray-300 hover:border-emerald-500 hover:text-emerald-500"
             )}>
                 {checked ? <CheckCircle2 size={18} /> : <Circle size={18} />}
             </div>
@@ -104,7 +104,7 @@ function TaskItem({ task, index }: { task: Task; index: number }) {
                     {task.title}
                 </span>
                 {task.deadline && (
-                    <span className="text-xs text-orange-400/80 mt-0.5 block">Due {new Date(task.deadline).toLocaleDateString()}</span>
+                    <span className="text-xs text-emerald-600/80 mt-0.5 block">Due {new Date(task.deadline).toLocaleDateString()}</span>
                 )}
             </div>
         </motion.div>

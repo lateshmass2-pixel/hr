@@ -77,12 +77,12 @@ export default function EmployeeProjectBoard() {
 
     return (
         <div className="flex h-[calc(100vh-140px)] -m-6 sm:-m-8">
-            <div className="flex-1 flex flex-col min-w-0 bg-[#faf8f5]">
+            <div className="flex-1 flex flex-col min-w-0 bg-[#FAFCF8]">
                 {/* Simplified Header for Employee */}
-                <div className="bg-white border-b border-[#e8e4e0] px-8 py-5 flex items-center justify-between shrink-0">
+                <div className="bg-white border-b border-[#E2E8F0] px-8 py-5 flex items-center justify-between shrink-0">
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold text-[#1a1a1a]">{project.title}</h1>
+                            <h1 className="text-2xl font-bold text-[#0F172A]">{project.title}</h1>
                             <Badge variant="secondary">Worker View</Badge>
                         </div>
                     </div>
@@ -94,10 +94,10 @@ export default function EmployeeProjectBoard() {
                         {['To Do', 'In Progress', 'Review', 'Done'].map(col => {
                             const colTasks = projectTasks.filter(t => t.status === col)
                             return (
-                                <div key={col} className="w-80 shrink-0 flex flex-col h-full rounded-2xl bg-[#f5f3f0]/50 border border-[#e8e4e0]/50">
+                                <div key={col} className="w-80 shrink-0 flex flex-col h-full rounded-2xl bg-[#F1F5F9]/50 border border-[#E2E8F0]/50">
                                     <div className="p-4 flex items-center justify-between">
-                                        <h4 className="font-semibold text-[#6b6b6b] text-sm">{col}</h4>
-                                        <span className="bg-white px-2 py-0.5 rounded-full text-xs font-medium text-[#a0a0a0] shadow-sm">
+                                        <h4 className="font-semibold text-[#475569] text-sm">{col}</h4>
+                                        <span className="bg-white px-2 py-0.5 rounded-full text-xs font-medium text-[#94A3B8] shadow-sm">
                                             {colTasks.length}
                                         </span>
                                     </div>
@@ -112,12 +112,12 @@ export default function EmployeeProjectBoard() {
                                                         layoutId={task.id}
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
-                                                        className="bg-white p-4 rounded-xl border border-[#e8e4e0] shadow-sm group hover:shadow-md transition-shadow"
+                                                        className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-sm group hover:shadow-md transition-shadow"
                                                     >
                                                         <div className="flex justify-between items-start gap-2">
-                                                            <p className="font-medium text-[#1a1a1a] text-sm leading-snug">{task.title}</p>
+                                                            <p className="font-medium text-[#0F172A] text-sm leading-snug">{task.title}</p>
                                                             <DropdownMenu>
-                                                                <DropdownMenuTrigger className="text-[#a0a0a0] hover:text-[#1a1a1a]">
+                                                                <DropdownMenuTrigger className="text-[#94A3B8] hover:text-[#0F172A]">
                                                                     <MoreHorizontal size={14} />
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent align="end">
@@ -151,7 +151,7 @@ export default function EmployeeProjectBoard() {
                                                                 <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[8px] font-bold text-gray-600">
                                                                     {assignee?.full_name.substring(0, 2)}
                                                                 </div>
-                                                                <span className="text-xs text-[#6b6b6b] truncate max-w-[80px]">{assignee?.full_name.split(' ')[0]}</span>
+                                                                <span className="text-xs text-[#475569] truncate max-w-[80px]">{assignee?.full_name.split(' ')[0]}</span>
                                                             </div>
                                                         </div>
                                                     </motion.div>
@@ -159,7 +159,7 @@ export default function EmployeeProjectBoard() {
                                             })}
                                         </AnimatePresence>
 
-                                        <button className="w-full py-2 flex items-center justify-center gap-2 text-sm text-[#a0a0a0] hover:text-[#e07850] hover:bg-[#e07850]/5 rounded-xl border border-dashed border-[#e8e4e0] hover:border-[#e07850]/30 transition-all">
+                                        <button className="w-full py-2 flex items-center justify-center gap-2 text-sm text-[#94A3B8] hover:text-[#0A3B2A] hover:bg-[#0A3B2A]/5 rounded-xl border border-dashed border-[#E2E8F0] hover:border-[#0A3B2A]/30 transition-all">
                                             <Plus size={14} /> Add Task
                                         </button>
                                     </div>
@@ -192,7 +192,7 @@ export default function EmployeeProjectBoard() {
                         <div className="space-y-2">
                             <Label>Artifact Link</Label>
                             <div className="relative">
-                                <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-[#a0a0a0]" />
+                                <ExternalLink className="absolute left-3 top-3 h-4 w-4 text-[#94A3B8]" />
                                 <Input
                                     className="pl-9"
                                     placeholder="https://..."

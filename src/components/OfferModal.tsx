@@ -69,7 +69,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                     particleCount: 150,
                     spread: 70,
                     origin: { y: 0.6 },
-                    colors: ['#F97316', '#FB923C', '#FDBA74', '#FED7AA', '#FFEDD5']
+                    colors: ['#0A3B2A', '#FB923C', '#FDBA74', '#FED7AA', '#FFEDD5']
                 })
             }).catch(() => {
                 // Confetti not available, continue silently
@@ -122,8 +122,8 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                             {/* Header */}
                             <div className="flex items-center justify-between p-6 border-b border-gray-100">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-                                        <FileText size={20} className="text-orange-600" />
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                        <FileText size={20} className="text-emerald-900" />
                                     </div>
                                     <div>
                                         <h2 className="text-lg font-bold text-gray-900">Generate Offer Letter</h2>
@@ -154,7 +154,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                                 value={salary}
                                                 onChange={handleSalaryChange}
                                                 placeholder="120,000"
-                                                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                             />
                                         </div>
                                     </div>
@@ -171,7 +171,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                                 value={stockOptions}
                                                 onChange={(e) => { setStockOptions(e.target.value); setIsGenerated(false); }}
                                                 placeholder="5,000 units"
-                                                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                                className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                             />
                                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">units</span>
                                         </div>
@@ -188,7 +188,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                             value={startDate}
                                             onChange={(e) => { setStartDate(e.target.value); setIsGenerated(false); }}
                                             min={new Date().toISOString().split('T')[0]}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
                                         />
                                     </div>
 
@@ -203,7 +203,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                                     key={option.id}
                                                     onClick={() => toggleBenefit(option.id)}
                                                     className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${selectedBenefits.includes(option.id)
-                                                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                                                        ? 'bg-emerald-100 text-emerald-950 border border-emerald-200'
                                                         : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                                                         }`}
                                                 >
@@ -251,7 +251,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                         {/* Company Header */}
                                         <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold">
+                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-800 to-teal-800 flex items-center justify-center text-white font-bold">
                                                     HR
                                                 </div>
                                                 <span className="font-bold text-gray-900">HR Portal Inc.</span>
@@ -271,7 +271,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                                 After careful consideration, we believe your skills and experience make you an excellent fit for our team.
                                             </p>
 
-                                            <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 my-6">
+                                            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 my-6">
                                                 <h4 className="font-semibold text-gray-900 mb-3">Compensation Package</h4>
                                                 <ul className="space-y-2 text-sm">
                                                     <li className="flex justify-between">
@@ -342,7 +342,7 @@ export default function OfferModal({ isOpen, onClose, candidateName, candidateRo
                                 <button
                                     onClick={handleSendOffer}
                                     disabled={!isGenerated || isSending}
-                                    className="px-6 py-2.5 bg-orange-500 text-white rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    className="px-6 py-2.5 bg-emerald-800 text-white rounded-lg font-medium text-sm hover:bg-emerald-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                     {isSending ? (
                                         <>

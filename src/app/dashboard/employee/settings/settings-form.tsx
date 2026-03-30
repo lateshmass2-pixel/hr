@@ -48,23 +48,23 @@ export function SettingsForm() {
     }
 
     return (
-        <div className="bg-white rounded-3xl shadow-md border border-[#e8e4e0] overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="bg-white rounded-3xl shadow-md border border-[#E2E8F0] overflow-hidden hover:shadow-lg transition-shadow">
             {/* Card Header */}
-            <div className="p-6 border-b border-[#e8e4e0] flex items-center justify-between">
+            <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#e07850] to-[#d45a3a] flex items-center justify-center shadow-md">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0A3B2A] to-[#064e3b] flex items-center justify-center shadow-md">
                         <KeyRound className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-[#1a1a1a]">Change Password</h3>
-                        <p className="text-[#6b6b6b] text-sm">
+                        <h3 className="text-lg font-semibold text-[#0F172A]">Change Password</h3>
+                        <p className="text-[#475569] text-sm">
                             Update your password to keep your account secure
                         </p>
                     </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 bg-[#f5f3f0] rounded-full px-4 py-2">
-                    <Shield className="w-4 h-4 text-[#e07850]" />
-                    <span className="text-sm font-medium text-[#1a1a1a]">Secure</span>
+                <div className="hidden sm:flex items-center gap-2 bg-[#F1F5F9] rounded-full px-4 py-2">
+                    <Shield className="w-4 h-4 text-[#0A3B2A]" />
+                    <span className="text-sm font-medium text-[#0F172A]">Secure</span>
                 </div>
             </div>
 
@@ -75,8 +75,8 @@ export function SettingsForm() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* New Password Field */}
                         <div className="space-y-2">
-                            <Label htmlFor="password" className="text-[#1a1a1a] font-medium flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-[#6b6b6b]" />
+                            <Label htmlFor="password" className="text-[#0F172A] font-medium flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-[#475569]" />
                                 New Password
                             </Label>
                             <div className="relative">
@@ -86,12 +86,12 @@ export function SettingsForm() {
                                     type={showPassword ? "text" : "password"}
                                     required
                                     placeholder="••••••••"
-                                    className="bg-[#faf8f5] border-[#e8e4e0] text-[#1a1a1a] placeholder-[#a0a0a0] focus:ring-[#e07850]/30 focus:border-[#e07850] rounded-xl h-12 pr-12"
+                                    className="bg-[#FAFCF8] border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8] focus:ring-[#0A3B2A]/30 focus:border-[#0A3B2A] rounded-xl h-12 pr-12"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#0F172A] transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -100,8 +100,8 @@ export function SettingsForm() {
 
                         {/* Confirm Password Field */}
                         <div className="space-y-2">
-                            <Label htmlFor="confirmPassword" className="text-[#1a1a1a] font-medium flex items-center gap-2">
-                                <RefreshCw className="w-4 h-4 text-[#6b6b6b]" />
+                            <Label htmlFor="confirmPassword" className="text-[#0F172A] font-medium flex items-center gap-2">
+                                <RefreshCw className="w-4 h-4 text-[#475569]" />
                                 Confirm Password
                             </Label>
                             <div className="relative">
@@ -111,12 +111,12 @@ export function SettingsForm() {
                                     type={showConfirmPassword ? "text" : "password"}
                                     required
                                     placeholder="••••••••"
-                                    className="bg-[#faf8f5] border-[#e8e4e0] text-[#1a1a1a] placeholder-[#a0a0a0] focus:ring-[#e07850]/30 focus:border-[#e07850] rounded-xl h-12 pr-12"
+                                    className="bg-[#FAFCF8] border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8] focus:ring-[#0A3B2A]/30 focus:border-[#0A3B2A] rounded-xl h-12 pr-12"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6b6b6b] hover:text-[#1a1a1a] transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#0F172A] transition-colors"
                                 >
                                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -145,7 +145,7 @@ export function SettingsForm() {
                         <Button
                             type="submit"
                             disabled={loading}
-                            className="bg-gradient-to-r from-[#e07850] to-[#d45a3a] hover:from-[#d45a3a] hover:to-[#c04a2a] text-white rounded-full px-8 py-3 h-12 font-semibold shadow-lg hover:shadow-xl transition-all"
+                            className="bg-gradient-to-r from-[#0A3B2A] to-[#064e3b] hover:from-[#064e3b] hover:to-[#022c22] text-white rounded-full px-8 py-3 h-12 font-semibold shadow-lg hover:shadow-xl transition-all"
                         >
                             {loading ? (
                                 <>
@@ -163,7 +163,7 @@ export function SettingsForm() {
                         <Button
                             type="button"
                             variant="outline"
-                            className="border-[#e8e4e0] text-[#6b6b6b] hover:bg-[#f5f3f0] hover:text-[#1a1a1a] rounded-full px-8 py-3 h-12 font-medium"
+                            className="border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] rounded-full px-8 py-3 h-12 font-medium"
                             onClick={() => {
                                 const form = document.querySelector('form')
                                 form?.reset()
@@ -177,15 +177,15 @@ export function SettingsForm() {
             </div>
 
             {/* Card Footer - Security Info */}
-            <div className="px-6 py-4 bg-[#faf8f5] border-t border-[#e8e4e0]">
-                <div className="flex items-center gap-4 text-sm text-[#6b6b6b]">
+            <div className="px-6 py-4 bg-[#FAFCF8] border-t border-[#E2E8F0]">
+                <div className="flex items-center gap-4 text-sm text-[#475569]">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500" />
                         <span>256-bit encryption</span>
                     </div>
-                    <div className="w-px h-4 bg-[#e8e4e0]" />
+                    <div className="w-px h-4 bg-[#E2E8F0]" />
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[#e07850]" />
+                        <div className="w-2 h-2 rounded-full bg-[#0A3B2A]" />
                         <span>Last updated: Never</span>
                     </div>
                 </div>

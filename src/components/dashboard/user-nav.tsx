@@ -48,7 +48,7 @@ export function UserNav() {
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-gray-100">
                     <Avatar className="h-10 w-10">
                         <AvatarImage src="" alt={userName || userEmail || "User"} />
-                        <AvatarFallback className="bg-gradient-to-br from-orange-500 to-red-500 text-white font-semibold">
+                        <AvatarFallback className="bg-gradient-to-br from-emerald-800 to-teal-800 text-white font-semibold">
                             {initials}
                         </AvatarFallback>
                     </Avatar>

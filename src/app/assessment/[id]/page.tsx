@@ -51,7 +51,7 @@ function AssessmentUnavailable() {
         <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-slate-50">
             <div className="max-w-md">
                 <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
-                    <AlertTriangle className="h-8 w-8 text-amber-600" />
+                    <AlertTriangle className="h-8 w-8 text-teal-900" />
                 </div>
                 <h1 className="text-2xl font-bold mb-2 text-slate-900">Assessment Unavailable</h1>
                 <p className="text-muted-foreground mb-6">

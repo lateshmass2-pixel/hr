@@ -90,8 +90,8 @@ export default function ProjectDetailsPage() {
     if (!project) return (
         <div className="flex items-center justify-center h-[calc(100vh-200px)]">
             <div className="text-center">
-                <h2 className="text-xl font-bold text-[#1a1a1a]">Project not found</h2>
-                <p className="text-[#6b6b6b] mt-2">The project you're looking for doesn't exist.</p>
+                <h2 className="text-xl font-bold text-[#0F172A]">Project not found</h2>
+                <p className="text-[#475569] mt-2">The project you're looking for doesn't exist.</p>
                 <Button onClick={() => router.push('/dashboard/projects')} className="mt-4">
                     <ArrowLeft size={16} className="mr-2" /> Back to Projects
                 </Button>
@@ -173,7 +173,7 @@ export default function ProjectDetailsPage() {
                         onClick={() => projectRole === "LEADER" && isPending && setVerificationTask(task)}
                         className={cn(
                             "bg-white p-3.5 rounded-lg border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] mb-3 group relative overflow-hidden",
-                            "hover:shadow-lg hover:border-orange-300 hover:-translate-y-1 transition-all duration-300",
+                            "hover:shadow-lg hover:border-emerald-500 hover:-translate-y-1 transition-all duration-300",
                             snapshot.isDragging && "shadow-xl rotate-2 scale-105 z-50",
                             isPending ? "border-amber-400 ring-1 ring-amber-400/20" :
                                 isVerified ? "border-emerald-200" : "border-gray-200",
@@ -227,7 +227,7 @@ export default function ProjectDetailsPage() {
     return (
         <div className="flex flex-col h-[calc(100vh-140px)] -m-6 sm:-m-8">
             {/* Command Header */}
-            <div className="bg-white border-b border-[#e8e4e0] px-8 py-5 shrink-0 flex items-center justify-between">
+            <div className="bg-white border-b border-[#E2E8F0] px-8 py-5 shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/projects" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                         <ArrowLeft size={18} className="text-gray-600" />
@@ -236,7 +236,7 @@ export default function ProjectDetailsPage() {
                         <Layout size={20} />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-[#1a1a1a] flex items-center gap-2">
+                        <h1 className="text-xl font-bold text-[#0F172A] flex items-center gap-2">
                             {project.title}
                             <Badge variant="outline" className={cn(
                                 "font-normal text-xs ml-2",
@@ -244,7 +244,7 @@ export default function ProjectDetailsPage() {
                                 project.status === 'COMPLETED' && "border-blue-200 text-blue-700"
                             )}>{project.status}</Badge>
                         </h1>
-                        <p className="text-xs text-[#6b6b6b] mt-0.5 flex items-center gap-2">
+                        <p className="text-xs text-[#475569] mt-0.5 flex items-center gap-2">
                             <span className="flex items-center gap-1"><Clock size={10} /> {project.deadline ? format(new Date(project.deadline), "MMM d, yyyy") : "No deadline"}</span>
                             <span className="w-1 h-1 rounded-full bg-gray-300" />
                             <span>{projectTasks.length} Tasks</span>
@@ -284,7 +284,7 @@ export default function ProjectDetailsPage() {
                                                 {((lead as any).name || (lead as any).full_name).substring(0, 2)}
                                             </div>
                                         )}
-                                        <Crown size={10} className="absolute -top-1 -right-1 text-amber-600 fill-amber-600" />
+                                        <Crown size={10} className="absolute -top-1 -right-1 text-teal-900 fill-amber-600" />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider leading-none">Lead</span>
@@ -313,7 +313,7 @@ export default function ProjectDetailsPage() {
                     {projectRole === 'LEADER' && (
                         <Button
                             onClick={() => setCreateTaskOpen(true)}
-                            className="bg-[#1a1a1a] text-white hover:bg-black gap-2 rounded-xl shadow-lg shadow-black/10"
+                            className="bg-[#0F172A] text-white hover:bg-black gap-2 rounded-xl shadow-lg shadow-black/10"
                         >
                             <Plus size={16} /> Create Task
                         </Button>
@@ -351,7 +351,7 @@ export default function ProjectDetailsPage() {
                                                 ref={provided.innerRef}
                                                 className={cn(
                                                     "flex-1 bg-gray-50/80 rounded-xl border-r border-dashed border-gray-200 p-2 min-h-[500px] transition-colors",
-                                                    snapshot.isDraggingOver && "bg-orange-50/30 border-orange-200 ring-1 ring-orange-200"
+                                                    snapshot.isDraggingOver && "bg-emerald-50/30 border-emerald-200 ring-1 ring-emerald-200"
                                                 )}
                                             >
                                                 {/* Sticky Header with Pill Counter */}
@@ -432,7 +432,7 @@ export default function ProjectDetailsPage() {
                     <div className="py-4 space-y-4">
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <Label className="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Task</Label>
-                            <p className="font-semibold text-[#1a1a1a]">{verificationTask?.title}</p>
+                            <p className="font-semibold text-[#0F172A]">{verificationTask?.title}</p>
                         </div>
                         <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                             <Label className="text-xs text-gray-500 uppercase tracking-wider mb-1 block">Submitted Proof</Label>
@@ -464,7 +464,7 @@ export default function ProjectDetailsPage() {
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <Plus className="text-[#e07850]" />
+                            <Plus className="text-[#0A3B2A]" />
                             Create New Task
                         </DialogTitle>
                         <DialogDescription>
@@ -512,7 +512,7 @@ export default function ProjectDetailsPage() {
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setCreateTaskOpen(false)}>Cancel</Button>
                         <Button
-                            className="bg-[#e07850] hover:bg-[#d45a3a] text-white"
+                            className="bg-[#0A3B2A] hover:bg-[#064e3b] text-white"
                             onClick={handleCreateTask}
                             disabled={!newTask.title || !newTask.assigneeId}
                         >
