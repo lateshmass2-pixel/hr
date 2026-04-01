@@ -61,6 +61,7 @@ export default function ProjectDetailsPage() {
         verifyTask,
         addTask,
         currentUser,
+        userRole,
         users,
         getProjectRole
     } = useHems()
@@ -72,6 +73,7 @@ export default function ProjectDetailsPage() {
 
     // Get role for this project
     const projectRole = project ? getProjectRole(project.id) : 'VIEWER'
+    const canManageTasks = projectRole === 'LEADER' || userRole === 'HR'
 
     // Modal States
     const [proofModalOpen, setProofModalOpen] = useState(false)
@@ -160,8 +162,8 @@ export default function ProjectDetailsPage() {
         const isPending = task.verificationStatus === "Pending"
         const isRejected = task.verificationStatus === "Rejected"
 
-        // Can drag if LEADER or MEMBER, not VIEWER
-        const canDrag = projectRole !== 'VIEWER'
+        // Can drag if LEADER or MEMBER, or HR Admin override
+        const canDrag = projectRole !== 'VIEWER' || userRole === 'HR'
 
         return (
             <Draggable draggableId={task.id} index={index} isDragDisabled={!canDrag}>
@@ -170,14 +172,14 @@ export default function ProjectDetailsPage() {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        onClick={() => projectRole === "LEADER" && isPending && setVerificationTask(task)}
+                        onClick={() => canManageTasks && isPending && setVerificationTask(task)}
                         className={cn(
                             "bg-white p-3.5 rounded-lg border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] mb-3 group relative overflow-hidden",
                             "hover:shadow-lg hover:border-emerald-500 hover:-translate-y-1 transition-all duration-300",
                             snapshot.isDragging && "shadow-xl rotate-2 scale-105 z-50",
                             isPending ? "border-amber-400 ring-1 ring-amber-400/20" :
                                 isVerified ? "border-emerald-200" : "border-gray-200",
-                            projectRole === "LEADER" && isPending ? "cursor-pointer" :
+                            canManageTasks && isPending ? "cursor-pointer" :
                                 canDrag ? "cursor-grab" : "cursor-default"
                         )}
                         style={provided.draggableProps.style}
@@ -225,18 +227,18 @@ export default function ProjectDetailsPage() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-140px)] -m-6 sm:-m-8">
+        <div className="flex flex-col h-[calc(100vh-140px)]">
             {/* Command Header */}
-            <div className="bg-white border-b border-[#E2E8F0] px-8 py-5 shrink-0 flex items-center justify-between">
+            <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(10,59,42,0.04)] px-8 py-6 shrink-0 flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                    <Link href="/dashboard/projects" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <ArrowLeft size={18} className="text-gray-600" />
+                    <Link href="/dashboard/projects" className="p-2 hover:bg-green-50 rounded-xl transition-colors text-green-700">
+                        <ArrowLeft size={18} />
                     </Link>
-                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <div className="w-12 h-12 bg-[#0A3B2A] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-900/20">
                         <Layout size={20} />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-[#0F172A] flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-[#0A3B2A] flex items-center gap-3 tracking-tight">
                             {project.title}
                             <Badge variant="outline" className={cn(
                                 "font-normal text-xs ml-2",
@@ -300,17 +302,17 @@ export default function ProjectDetailsPage() {
                                 const m = users.find(u => u.id === mid) || employees.find(e => e.id === mid)
                                 return {
                                     id: mid,
-                                    name: (m as any)?.name || (m as any)?.full_name || 'Unknown',
+                                    name: (m as any)?.name || (m as any)?.full_name || mid.slice(0, 8),
                                     avatar: (m as any)?.avatar || (m as any)?.avatar_url
                                 }
-                            }).filter(a => a.name !== 'Unknown')}
+                            })}
                             maxVisible={4}
                             size="md"
                         />
                     </div>
 
-                    {/* Create Task Button - LEADER ONLY */}
-                    {projectRole === 'LEADER' && (
+                    {/* Create Task Button - LEADER and HR ONLY */}
+                    {canManageTasks && (
                         <Button
                             onClick={() => setCreateTaskOpen(true)}
                             className="bg-[#0F172A] text-white hover:bg-black gap-2 rounded-xl shadow-lg shadow-black/10"
@@ -322,42 +324,35 @@ export default function ProjectDetailsPage() {
             </div>
 
             {/* Kanban Board */}
-            <div className="flex-1 overflow-x-auto p-8">
+            <div className="flex-1 pb-8">
                 <DragDropContext onDragEnd={onDragEnd}>
-                    <div className="flex gap-6 h-full min-w-max">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-full">
                         {COLUMN_ORDER.map(colId => {
                             const colTasks = projectTasks.filter(t => t.status === colId)
                             const pendingCount = colId === "Done" ? colTasks.filter(t => t.verificationStatus === "Pending").length : 0
                             return (
-                                <div key={colId} className="w-80 flex flex-col h-full">
-                                    <div className="flex items-center justify-between mb-4 px-1">
-                                        <h3 className="font-semibold text-gray-700">{colId}</h3>
-                                        <div className="flex items-center gap-2">
-                                            {pendingCount > 0 && (
-                                                <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs font-medium">
-                                                    {pendingCount} pending
-                                                </span>
-                                            )}
-                                            <span className="bg-gray-200/50 text-gray-600 px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                                {colTasks.length}
-                                            </span>
-                                        </div>
-                                    </div>
-
+                                <div key={colId} className="flex flex-col h-full">
                                     <Droppable droppableId={colId}>
                                         {(provided, snapshot) => (
                                             <div
                                                 {...provided.droppableProps}
                                                 ref={provided.innerRef}
                                                 className={cn(
-                                                    "flex-1 bg-gray-50/80 rounded-xl border-r border-dashed border-gray-200 p-2 min-h-[500px] transition-colors",
-                                                    snapshot.isDraggingOver && "bg-emerald-50/30 border-emerald-200 ring-1 ring-emerald-200"
+                                                    "flex-1 bg-white rounded-3xl border border-dashed border-green-200 p-3 min-h-[500px] transition-all duration-300 shadow-[0_8px_30px_rgba(10,59,42,0.03)]",
+                                                    snapshot.isDraggingOver && "bg-green-50/50 border-green-400 ring-4 ring-green-50"
                                                 )}
                                             >
                                                 {/* Sticky Header with Pill Counter */}
-                                                <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100 p-2 mb-3 rounded-t-lg shadow-sm flex items-center justify-between">
-                                                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider pl-1">{colId}</span>
-                                                    <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-gray-200">
+                                                <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md pb-3 mb-3 border-b border-green-100/50 flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-bold text-[#0A3B2A] uppercase tracking-wider pl-1">{colId}</span>
+                                                        {pendingCount > 0 && (
+                                                            <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm">
+                                                                {pendingCount} pending
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="bg-green-50 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-green-200/50 shadow-sm">
                                                         {colTasks.length}
                                                     </span>
                                                 </div>

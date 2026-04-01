@@ -36,7 +36,7 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer"
 import { PageHero } from "@/components/layout/PageHero"
 import { Card } from "@/components/ui/card"
-import { theme } from "@/lib/theme"
+import { theme } from "@/lib/config/theme"
 
 export default function LeavePage() {
     const { leaves, employees, addLeave } = useHems()

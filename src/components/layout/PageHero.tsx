@@ -1,6 +1,6 @@
 'use client';
 
-import { theme } from "@/lib/theme";
+import { theme } from "@/lib/config/theme";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 

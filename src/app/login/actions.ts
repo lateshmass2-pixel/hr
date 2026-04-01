@@ -28,7 +28,7 @@ export async function login(formData: FormData) {
 
         if (profile?.role === 'HR_ADMIN') {
             redirect("/admin/dashboard");
-        } else if (profile?.role === 'EMPLOYEE') {
+        } else if (profile?.role === 'STANDARD_USER') {
             redirect("/employee/dashboard");
         } else {
             redirect("/onboarding");

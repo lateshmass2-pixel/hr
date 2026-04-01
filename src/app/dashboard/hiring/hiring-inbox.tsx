@@ -12,7 +12,7 @@ import { ScheduleInterviewDialog } from './schedule-interview-dialog'
 import { LaunchAssessmentDialog } from './launch-assessment-dialog'
 import { DecisionFooter } from './decision-footer'
 import { DeleteApplicationButton } from './delete-button'
-import { extractSkills } from '@/utils/skill-extractor'
+import { extractSkills } from '@/lib/ai/skill-extractor'
 import { cn } from '@/lib/utils'
 
 type TabStatus = 'ALL' | 'TEST_PENDING' | 'INTERVIEW' | 'OFFER' | 'REJECTED'

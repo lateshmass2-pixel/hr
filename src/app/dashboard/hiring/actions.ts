@@ -2,12 +2,12 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { parsePDF } from "@/lib/pdf-parser"
+import { parsePDF } from "@/lib/services/pdf-parser"
 import { openai, AI_MODEL, groq } from "@/lib/ai"
-import { sendAssessmentInvite, sendRejectionEmail, sendOfferEmail } from "@/lib/email"
+import { sendAssessmentInvite, sendRejectionEmail, sendOfferEmail } from "@/lib/services/email"
 import { generateText } from "ai"
 import { z } from "zod"
-import { AssessmentSchema } from "@/lib/assessment-schema"
+import { AssessmentSchema } from "@/lib/ai/assessment-schema"
 
 export async function deleteApplication(applicationId: string) {
     console.log('🗑️ Attempting to delete application:', applicationId)
@@ -455,7 +455,7 @@ export async function scheduleInterview(
         const formattedTime = `${hours12}:${minutes.toString().padStart(2, '0')} ${suffix}`
 
         // Send the interview schedule email
-        const { sendInterviewScheduleEmail } = await import('@/lib/email')
+        const { sendInterviewScheduleEmail } = await import('@/lib/services/email')
         const emailResult = await sendInterviewScheduleEmail(
             app.candidate_email,
             app.candidate_name,
@@ -533,7 +533,7 @@ export async function confirmHire(
         })
 
         // Send welcome email
-        const { sendWelcomeEmail } = await import('@/lib/email')
+        const { sendWelcomeEmail } = await import('@/lib/services/email')
         const emailResult = await sendWelcomeEmail(
             app.candidate_email,
             app.candidate_name,

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useOrganization } from "@/context/OrganizationContext"
+import { useHems } from "@/context/HemsContext"
 import { hasPermission } from "@/lib/rbac/types"
-import RoleGate from "@/components/role-gate"
+import RoleGate from "@/components/guards/role-gate"
 import { AnimatePresence } from "framer-motion"
 import { Trash2, FolderKanban } from "lucide-react"
 import {
@@ -19,23 +20,11 @@ import { PageHero } from "@/components/layout/PageHero"
 
 export default function ProjectsPage() {
     const { role } = useOrganization()
-    const [projects, setProjects] = useState<Project[]>([])
+    const { employees, users, projects, deleteProject, isLoading } = useHems()
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
-
-    // Fetch projects via RBAC-protected server action
-    useEffect(() => {
-        getProjects().then((data) => {
-            setProjects(data)
-            setIsLoading(false)
-        })
-    }, [])
 
     const handleDelete = async (projectId: string) => {
-        const result = await deleteProject(projectId)
-        if (!('error' in result) || !result.error) {
-            setProjects(prev => prev.filter(p => p.id !== projectId))
-        }
+        await deleteProject(projectId)
         setDeleteConfirmId(null)
     }
 
@@ -69,7 +58,8 @@ export default function ProjectsPage() {
                         <ProjectCard
                             key={project.id}
                             project={project}
-                            employees={[]}
+                            employees={employees}
+                            users={users}
                         />
                     ))}
                 </AnimatePresence>

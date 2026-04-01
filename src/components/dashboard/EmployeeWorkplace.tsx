@@ -1,5 +1,7 @@
 'use client'
 
+import type { Project } from '@/types/hems'
+
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -13,7 +15,7 @@ import { TaskVelocityChart } from './TaskVelocityChart'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { PageHero } from '@/components/layout/PageHero'
 import { Card } from '@/components/ui/card'
-import { KpiCard } from '@/components/dashboard/new/KpiCard'
+import { KpiCard } from '@/components/dashboard/widgets/KpiCard'
 import { Wallet, CalendarDays, BriefcaseMedical } from 'lucide-react'
 
 export function EmployeeWorkplace() {
@@ -49,7 +51,7 @@ export function EmployeeWorkplace() {
         <PageContainer>
             {/* Welcome Header */}
             <PageHero
-                title={`Welcome back, ${currentUser.name.split(' ')[0]} 👋`}
+                title="Welcome"
                 subtitle={`${currentUser.jobTitle} • ${pendingTasks} tasks pending`}
                 action={
                     <div className="flex items-center gap-3">
@@ -217,7 +219,7 @@ export function EmployeeWorkplace() {
 }
 
 // Project Card Component - Updated to use global Card
-function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }) {
+function ProjectCard({ project, isLeader }: { project: Project; isLeader?: boolean }) {
     const { users, tasks } = useHems()
     const projectTasks = tasks.filter(t => t.projectId === project.id)
     const completedTasks = projectTasks.filter(t => t.status === 'Done').length
@@ -278,7 +280,7 @@ function ProjectCard({ project, isLeader }: { project: any; isLeader?: boolean }
                     </div>
                     <div className="flex items-center gap-1 text-xs text-[#3f6212]">
                         <Calendar size={12} />
-                        {format(new Date(project.deadline), "MMM d")}
+                        {project.deadline ? format(new Date(project.deadline), "MMM d") : 'No Date'}
                     </div>
                 </div>
             </Card>

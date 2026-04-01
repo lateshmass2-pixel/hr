@@ -194,3 +194,30 @@ export async function deleteEmployee(organizationId: string, employeeId: string)
         return safeError(error);
     }
 }
+
+// =============================================================================
+// Legacy Support — Direct delete by user ID (used by employee-list.tsx)
+// =============================================================================
+
+export async function deleteEmployeeById(userId: string) {
+    if (!userId) return { success: false, message: 'User ID is required' };
+
+    try {
+        const { supabaseAdmin } = await import('@/lib/supabase/admin');
+
+        await supabaseAdmin.from('profiles').delete().eq('id', userId);
+
+        const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+        if (error) {
+            return { success: false, message: error.message };
+        }
+
+        const { revalidatePath } = await import('next/cache');
+        revalidatePath('/dashboard');
+        return { success: true, message: 'Employee deleted successfully' };
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to delete employee';
+        return { success: false, message };
+    }
+}

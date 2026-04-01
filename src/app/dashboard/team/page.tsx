@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 import { PageContainer } from "@/components/layout/PageContainer"
 import { PageHero } from "@/components/layout/PageHero"
 import { Card } from "@/components/ui/card"
-import { theme } from "@/lib/theme"
+import { theme } from "@/lib/config/theme"
 
 export default function TeamPage() {
     const { employees, addEmployee } = useHems()

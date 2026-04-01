@@ -14,17 +14,30 @@ import { ApprovalActions } from './leave/approval-actions'
 import { useHems } from '@/context/HemsContext'
 // New Premium Components
 import { PageHero } from "@/components/layout/PageHero"
-import { KpiCard } from '@/components/dashboard/new/KpiCard'
-import { FunnelChart } from '@/components/dashboard/new/FunnelChart'
-import { AiInsightCard } from '@/components/dashboard/new/AiInsightCard'
+import { KpiCard } from '@/components/dashboard/widgets/KpiCard'
+import { FunnelChart } from '@/components/dashboard/widgets/FunnelChart'
 import { PageContainer } from '@/components/layout/PageContainer'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import type { Employee } from '@/types/hems'
 
 interface DashboardClientProps {
     teamMembers: number
-    employees: any[]
-    applicationsData: any[]
-    pendingLeaveRequests: any[]
+    employees: Employee[]
+    applicationsData: Array<{
+        id: string
+        status: string
+        candidate_name?: string
+        candidate_email?: string
+        offer_role?: string
+        position?: string
+    }>
+    pendingLeaveRequests: Array<{
+        id: string
+        type: string
+        start_date: string
+        profile?: { full_name?: string }
+    }>
 }
 
 const containerVariants = {
@@ -246,14 +259,6 @@ export default function DashboardClient({
                     {/* Right Column (1/3 width) */}
                     <div className="space-y-8">
 
-                        {/* AI Insight Card (Green Theme) */}
-                        <motion.div variants={itemVariants}>
-                            <AiInsightCard
-                                insight="Hiring velocity for Engineering roles increased by 15% after moving to the new Green Theme dashboard."
-                                trend="+15% velocity"
-                            />
-                        </motion.div>
-
                         {/* Pending Actions List - Green/Amber Theme */}
                         <motion.div variants={itemVariants}>
                             <div className="rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] border-none hover:shadow-[0_12px_40px_rgba(10,59,42,0.1),0_4px_16px_rgba(0,0,0,0.05)] transition-all duration-300 h-full">
@@ -359,25 +364,5 @@ export default function DashboardClient({
                 </div>
             </motion.div>
         </PageContainer>
-    )
-}
-
-// Local Button Component - Updated to Green Theme Defaults
-function Button({ className, variant = 'default', size = 'default', ...props }: any) {
-    return (
-        <button
-            className={cn(
-                "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
-                variant === 'default' && "bg-[#0a3b2a] text-white hover:bg-[#002115] shadow-sm hover:shadow-[0_8px_30px_rgba(10,59,42,0.06),0_4px_12px_rgba(0,0,0,0.03)] hover:scale-[1.02]",
-                variant === 'outline' && "border border-[#0a3b2a] bg-transparent text-[#0a3b2a] hover:bg-green-50",
-                variant === 'ghost' && "hover:bg-green-50 hover:text-[#0a3b2a] text-slate-600",
-                variant === 'link' && "text-[#0a3b2a] underline-offset-4 hover:underline",
-                size === 'default' && "h-10 px-4 py-2",
-                size === 'sm' && "h-9 rounded-lg px-3 text-xs",
-                size === 'icon' && "h-10 w-10",
-                className
-            )}
-            {...props}
-        />
     )
 }

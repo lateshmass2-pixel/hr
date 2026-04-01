@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useHems } from "@/context/HemsContext"
+import { toast } from "sonner"
 import {
     Dialog,
     DialogContent,
@@ -22,7 +23,7 @@ import {
 import { Plus, X, Calendar, GripVertical, UserCircle } from "lucide-react"
 
 export default function CreateProjectModal() {
-    const { addProject, addTask, users, currentUser } = useHems()
+    const { addProject, addTask, users, projects, currentUser } = useHems()
     const [open, setOpen] = useState(false)
 
     // Form State
@@ -36,6 +37,14 @@ export default function CreateProjectModal() {
     const [tasks, setTasks] = useState<string[]>([])
     const [newTask, setNewTask] = useState("")
 
+    // Prevent double-booking: Get a list of users already stationed in active squads
+    const occupiedUserIds = new Set(
+        projects
+            .filter(p => p.status === 'ACTIVE')
+            .flatMap(p => [p.teamLeadId, ...(p.memberIds || [])])
+    )
+    const availableUsers = users.filter(u => !occupiedUserIds.has(u.id))
+
     const handleAddTask = () => {
         if (!newTask.trim()) return
         setTasks([...tasks, newTask])
@@ -47,18 +56,28 @@ export default function CreateProjectModal() {
     }
 
     const handleCreate = async () => {
-        if (!title || !teamLeadId || !deadline) return
+        if (!title || !teamLeadId || !deadline) {
+            toast.error("Please fill in all required fields")
+            return
+        }
 
-        // Create Project
-        const newProject = await addProject({
-            title,
-            deadline,
-            teamLeadId,
-            memberIds: selectedMembers,
-            status: 'ACTIVE' as const
-        })
+        try {
+            // Create Project
+            const newProject = await addProject({
+                title,
+                deadline,
+                teamLeadId,
+                memberIds: selectedMembers,
+                status: 'ACTIVE' as const
+            })
 
-        if (newProject && newProject.id) {
+            if (!newProject || !newProject.id) {
+                toast.error("Failed to create project")
+                return
+            }
+
+            toast.success("Project created successfully!")
+
             // Create Initial Tasks
             for (const taskTitle of tasks) {
                 await addTask({
@@ -70,16 +89,19 @@ export default function CreateProjectModal() {
                     verificationStatus: 'None'
                 })
             }
-        }
 
-        // Reset form
-        setTitle("")
-        setDeadline("")
-        setManagerId("")
-        setTeamLeadId("")
-        setSelectedMembers([])
-        setTasks([])
-        setOpen(false)
+            // Reset form
+            setTitle("")
+            setDeadline("")
+            setManagerId("")
+            setTeamLeadId("")
+            setSelectedMembers([])
+            setTasks([])
+            setOpen(false)
+        } catch (error) {
+            console.error("Error creating project:", error)
+            toast.error("An error occurred while creating the project")
+        }
     }
 
     const toggleMember = (id: string) => {
@@ -154,12 +176,14 @@ export default function CreateProjectModal() {
                                     <SelectValue placeholder="Select Lead" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {users.map(user => (
+                                    {availableUsers.length > 0 ? availableUsers.map(user => (
                                         <SelectItem key={user.id} value={user.id}>
                                             <span className="font-medium">{user.name}</span>
                                             <span className="text-gray-500 ml-2 text-xs">({user.jobTitle || user.globalRole})</span>
                                         </SelectItem>
-                                    ))}
+                                    )) : (
+                                        <div className="p-2 text-xs text-center text-gray-500 font-medium">No available team leads</div>
+                                    )}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -173,11 +197,15 @@ export default function CreateProjectModal() {
                                 <SelectValue placeholder="Add member to squad" />
                             </SelectTrigger>
                             <SelectContent>
-                                {users.filter(u => !selectedMembers.includes(u.id)).map(user => (
-                                    <SelectItem key={user.id} value={user.id}>
-                                        {user.name} <span className="text-gray-400 text-xs">({user.jobTitle || 'Member'})</span>
-                                    </SelectItem>
-                                ))}
+                                {availableUsers.filter(u => !selectedMembers.includes(u.id)).length > 0 ? (
+                                    availableUsers.filter(u => !selectedMembers.includes(u.id)).map(user => (
+                                        <SelectItem key={user.id} value={user.id}>
+                                            {user.name} <span className="text-gray-400 text-xs">({user.jobTitle || 'Member'})</span>
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    <div className="p-2 text-xs text-center text-gray-500 font-medium">All available employees deployed</div>
+                                )}
                             </SelectContent>
                         </Select>
 

@@ -19,6 +19,24 @@ export interface Session {
     role: OrgRole;
 }
 
+// Type definitions for database queries
+interface OrganizationData {
+    id: string;
+    name: string;
+    slug?: string;
+}
+
+interface OrganizationMembership {
+    role: OrgRole;
+    organization_id: string;
+    organizations: OrganizationData | null;
+}
+
+interface LegacyProfile {
+    role: string;
+    full_name: string | null;
+}
+
 /**
  * Get session or return null. Does not redirect.
  */
@@ -47,16 +65,20 @@ export async function getSession(): Promise<Session | null> {
         .limit(1)
         .single();
 
-    if (membership && (membership as any).organizations) {
-        const org = (membership as any).organizations;
-        return {
-            userId: user.id,
-            email: user.email ?? '',
-            name: user.user_metadata?.full_name ?? user.email ?? 'User',
-            organizationId: membership.organization_id,
-            organizationName: org.name ?? '',
-            role: membership.role as OrgRole,
-        };
+    if (membership) {
+        const typedMembership = membership as unknown as OrganizationMembership;
+        const org = typedMembership.organizations;
+        
+        if (org) {
+            return {
+                userId: user.id,
+                email: user.email ?? '',
+                name: user.user_metadata?.full_name ?? user.email ?? 'User',
+                organizationId: typedMembership.organization_id,
+                organizationName: org.name ?? '',
+                role: typedMembership.role as OrgRole,
+            };
+        }
     }
 
     // ------------------------------------------------------------------
@@ -70,7 +92,9 @@ export async function getSession(): Promise<Session | null> {
 
     if (profile) {
         // Map legacy roles to new OrgRole
-        const legacyRole = profile.role as string;
+        const typedProfile = profile as unknown as LegacyProfile;
+        const legacyRole = typedProfile.role;
+        
         const mappedRole: OrgRole =
             legacyRole === 'HR_ADMIN' ? 'owner' :
                 legacyRole === 'CHAIRMAN' ? 'owner' :
@@ -81,7 +105,7 @@ export async function getSession(): Promise<Session | null> {
         return {
             userId: user.id,
             email: user.email ?? '',
-            name: profile.full_name ?? user.user_metadata?.full_name ?? 'User',
+            name: typedProfile.full_name ?? user.user_metadata?.full_name ?? 'User',
             organizationId: 'legacy', // No multi-tenant org yet
             organizationName: 'Default',
             role: mappedRole,

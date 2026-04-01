@@ -25,9 +25,9 @@ export default async function DashboardPage() {
             { data: leaveRequests }
         ] = await Promise.all([
             supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
-            supabase.from('applications').select('status, position, candidate_name'),
-            supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'EMPLOYEE'),
-            supabase.from('profiles').select('*').eq('role', 'EMPLOYEE').order('created_at', { ascending: false }),
+            supabase.from('applications').select('id, status, position, candidate_name'),
+            supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'STANDARD_USER'),
+            supabase.from('profiles').select('*').eq('role', 'STANDARD_USER').order('created_at', { ascending: false }),
             supabase.from('leave_requests').select('*, profile:profiles(full_name)').eq('status', 'pending').limit(5)
         ]);
 

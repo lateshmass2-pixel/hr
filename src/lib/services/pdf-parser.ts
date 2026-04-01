@@ -1,6 +1,26 @@
 // @ts-ignore
 import PDFParser from "pdf2json";
 
+// Type definitions for PDF parser
+interface PDFText {
+  R?: Array<{ T: string }>;
+}
+
+interface PDFPage {
+  Texts?: PDFText[];
+}
+
+interface PDFData {
+  formImage?: {
+    Pages?: PDFPage[];
+  };
+  Pages?: PDFPage[];
+}
+
+interface PDFErrorData {
+  parserError?: string;
+}
+
 // Safe decode that handles malformed URI sequences
 function safeDecode(text: string): string {
     try {
@@ -22,16 +42,23 @@ function safeDecode(text: string): string {
     }
 }
 
+/**
+ * Extract text from PDF buffer
+ * @param buffer - PDF file buffer
+ * @returns Extracted text content
+ * @throws Error if PDF parsing fails
+ */
 export async function parsePDF(buffer: Buffer): Promise<string> {
     return new Promise((resolve, reject) => {
         const parser = new PDFParser(null, true); // true = raw text mode
 
-        parser.on("pdfParser_dataError", (errData: any) => {
+        parser.on("pdfParser_dataError", (errData: Error | { parserError: Error }) => {
             console.error("PDF Parser Error:", errData);
-            reject(new Error(errData?.parserError || "PDF parsing failed"));
+            const errorMessage = errData instanceof Error ? errData.message : errData?.parserError?.message || "PDF parsing failed";
+            reject(new Error(errorMessage));
         });
 
-        parser.on("pdfParser_dataReady", (pdfData: any) => {
+        parser.on("pdfParser_dataReady", (pdfData: PDFData) => {
             try {
                 // Debug logging
                 console.log("PDF Data Keys:", Object.keys(pdfData || {}));
@@ -49,13 +76,13 @@ export async function parsePDF(buffer: Buffer): Promise<string> {
                 let fullText = "";
 
                 // Extraction loop
-                pages.forEach((page: any) => {
+                pages.forEach((page: PDFPage) => {
                     const texts = page?.Texts;
                     if (texts && Array.isArray(texts)) {
-                        texts.forEach((textItem: any) => {
+                        texts.forEach((textItem: PDFText) => {
                             const runs = textItem?.R;
                             if (runs && Array.isArray(runs)) {
-                                runs.forEach((run: any) => {
+                                runs.forEach((run: { T: string }) => {
                                     if (run?.T) {
                                         fullText += safeDecode(run.T) + " ";
                                     }

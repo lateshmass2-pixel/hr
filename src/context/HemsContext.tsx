@@ -2,192 +2,26 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { deleteProject as deleteProjectAction } from "@/app/dashboard/projects/actions"
+import { deleteProject as deleteProjectAction, createProject as createProjectAction, getProjects as getProjectsAction } from "@/app/dashboard/projects/actions"
+import { assertProfileRecord, assertLeaveRequestRecord, assertProjectRecord, assertTaskRecord } from "@/lib/database/types"
+import type { ProfileRecord, LeaveRequestRecord, ProjectRecord, TaskRecord } from "@/lib/database/types"
 
-// ============================================================================
-// TYPES - Global & Project Roles
-// ============================================================================
+// Types extracted to @/types/hems — re-export for backward compatibility
+export type {
+    GlobalRole, ProjectRole, EmployeeStatus,
+    User, Employee, LeaveType, LeaveStatus, Leave,
+    Activity, TaskStatus, VerificationStatus, Task, Team, Project,
+    Candidate, Job, Announcement, Course,
+    HemsContextType,
+} from "@/types/hems"
 
-export type GlobalRole = 'HR_ADMIN' | 'STANDARD_USER'
-export type ProjectRole = 'LEADER' | 'MEMBER' | 'VIEWER'
-export type EmployeeStatus = "Active" | "Inactive" | "Onboarding"
-
-export interface User {
-    id: string
-    name: string
-    globalRole: GlobalRole
-    avatar?: string
-    jobTitle?: string
-    status?: 'Active' | 'Away' | 'Busy'
-}
-
-export interface Employee {
-    id: string
-    full_name: string
-    email: string
-    position: string
-    department: string
-    status: EmployeeStatus
-    created_at: string
-    avatar_url?: string
-}
-
-export type LeaveType = "Sick" | "Annual"
-export type LeaveStatus = "approved" | "pending" | "rejected"
-
-export interface Leave {
-    id: string
-    user_id: string
-    type: LeaveType
-    start_date: string
-    end_date: string
-    status: LeaveStatus
-    reason?: string
-}
-
-// ============================================================================
-// Project Management Types
-// ============================================================================
-
-export interface Activity {
-    id: string
-    userId: string
-    action: string
-    timestamp: string
-    type: 'commit' | 'move' | 'comment' | 'create'
-}
-
-export type TaskStatus = "To Do" | "In Progress" | "Review" | "Done"
-export type VerificationStatus = "None" | "Pending" | "Verified" | "Rejected"
-
-export interface Task {
-    id: string
-    projectId: string
-    title: string
-    status: TaskStatus
-    assigneeId: string
-    priority: "High" | "Medium" | "Low"
-    stagnation?: number
-    proofUrl?: string
-    verificationStatus: VerificationStatus
-    dueDate?: string
-}
-
-export interface Team {
-    id: string
-    name: string
-    leadId: string
-    memberIds: string[]
-    projectId?: string
-}
-
-export interface Project {
-    id: string
-    title: string
-    description?: string
-    status: 'ACTIVE' | 'ON_HOLD' | 'COMPLETED'
-    progress: number
-    deadline: string
-    activityLog: Activity[]
-    teamLeadId: string
-    memberIds: string[]
-}
-
-// ============================================================================
-// Hiring & Other Types
-// ============================================================================
-
-export interface Candidate {
-    id: string
-    name: string
-    role: string
-    stage: 'Applied' | 'Screening' | 'Interview' | 'Offer'
-    interviewDate?: string
-    email: string
-}
-
-export interface Job {
-    id: string
-    title: string
-    department: string
-    location: string
-    type: "Full-time" | "Part-time" | "Contract"
-    status: "Open" | "Closed" | "Draft"
-    applicants: number
-    created_at: string
-}
-
-export interface Announcement {
-    id: string
-    title: string
-    content: string
-    date: string
-    priority: "High" | "Normal" | "Low"
-    author: string
-}
-
-export interface Course {
-    id: number
-    title: string
-    author: string
-    duration: string
-    rating: number
-    thumbnail: string
-    category: string
-    tags: string[]
-    progress: number
-    enrolled: boolean
-}
-
-// ============================================================================
-// Context Type
-// ============================================================================
-
-interface HemsContextType {
-    // Current User & Role
-    currentUser: User
-    setCurrentUser: (user: User) => void
-
-    // Legacy support (for gradual migration)
-    userRole: "HR" | "EMPLOYEE"
-    setUserRole: (role: "HR" | "EMPLOYEE") => void
-
-    // Data
-    users: User[]
-    employees: Employee[]
-    leaves: Leave[]
-    jobs: Job[]
-    announcements: Announcement[]
-    courses: Course[]
-    projects: Project[]
-    teams: Team[]
-    tasks: Task[]
-    candidates: Candidate[]
-    enrolledCourses: Course[]
-    availableCourses: Course[]
-    isLoading: boolean
-
-    // Helper Functions
-    getProjectRole: (projectId: string) => ProjectRole
-    getProjectsAsLeader: () => Project[]
-    getProjectsAsMember: () => Project[]
-    getMyTasks: () => Task[]
-
-    // Actions
-    addEmployee: (employee: Omit<Employee, "id">) => Promise<void>
-    addJob: (job: Omit<Job, "id" | "created_at" | "applicants">) => void
-    addAnnouncement: (announcement: Omit<Announcement, "id" | "date">) => void
-    enrollCourse: (courseId: number) => void
-    addLeave: (leave: Omit<Leave, "id">) => Promise<void>
-    refreshData: () => Promise<void>
-    addProject: (project: Omit<Project, "id" | "activityLog" | "progress">) => Promise<Project | null>
-    addTeam: (team: Omit<Team, "id">) => void
-    updateTask: (taskId: string, updates: Partial<Task>) => void
-    addTask: (task: Omit<Task, "id">) => Promise<void>
-    moveTask: (taskId: string, newStatus: TaskStatus, proofUrl?: string) => void
-    verifyTask: (taskId: string, isApproved: boolean) => void
-    deleteProject: (projectId: string) => Promise<void>
-}
+import type {
+    User, Employee, Leave, Job, Announcement, Course,
+    Project, Team, Task, Candidate,
+    GlobalRole, ProjectRole, TaskStatus,
+    EmployeeStatus, LeaveStatus, VerificationStatus,
+    HemsContextType,
+} from "@/types/hems"
 
 // Create context
 const HemsContext = createContext<HemsContextType | undefined>(undefined)
@@ -276,10 +110,24 @@ export function HemsProvider({ children }: { children: ReactNode }) {
     const refreshData = async () => {
         setIsLoading(true)
         try {
-            // Get current authenticated user
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+            // Fetch ALL data concurrently to prevent network waterfalls and reduce load time
+            const [
+                { data: { user } },
+                { data: profiles },
+                { data: leaveRequests },
+                { data: dbProjects },
+                { data: dbTasks }
+            ] = await Promise.all([
+                supabase.auth.getUser(),
+                supabase.from('profiles').select('*'),
+                supabase.from('leave_requests').select('*'),
+                getProjectsAction().then((res) => ({ data: res })), // Proxy to server action
+                supabase.from('tasks').select('*')
+            ])
+
+            if (user && profiles && Array.isArray(profiles)) {
+                // Find current user's profile from the already-fetched list instead of a separate DB call
+                const profile = (profiles as any[]).find(p => p.id === user.id)
                 if (profile) {
                     setCurrentUser({
                         id: profile.id,
@@ -292,82 +140,61 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 }
             }
 
-            // Fetch all data in parallel
-            const [
-                { data: profiles },
-                { data: leaveRequests },
-                { data: dbProjects },
-                { data: dbTasks }
-            ] = await Promise.all([
-                supabase.from('profiles').select('*'),
-                supabase.from('leave_requests').select('*'),
-                supabase.from('projects').select('*'),
-                supabase.from('tasks').select('*')
-            ])
-
-            if (profiles) {
-                const mappedEmployees: Employee[] = profiles
-                    .filter((p: any) => p.role !== 'HR_ADMIN')
-                    .map((p: any) => ({
+            if (profiles && Array.isArray(profiles)) {
+                const mappedEmployees: Employee[] = (profiles as unknown as ProfileRecord[])
+                    .filter((p: ProfileRecord) => p.role !== 'HR_ADMIN')
+                    .map((p: ProfileRecord) => ({
                         id: p.id,
                         full_name: p.full_name || 'Unknown',
                         email: p.email || '',
                         position: p.position || 'Employee',
                         department: p.department || 'General',
-                        status: 'Active',
+                        status: 'Active' as EmployeeStatus,
                         created_at: p.created_at,
-                        avatar_url: p.avatar_url
+                        avatar_url: p.avatar_url ?? undefined
                     }))
                 setEmployees(mappedEmployees)
 
                 // Also set users from profiles
-                const mappedUsers: User[] = profiles.map((p: any) => ({
+                const mappedUsers: User[] = (profiles as unknown as ProfileRecord[]).map((p: ProfileRecord) => ({
                     id: p.id,
                     name: p.full_name || 'Unknown',
                     globalRole: p.role === 'HR_ADMIN' ? 'HR_ADMIN' : 'STANDARD_USER',
-                    avatar: p.avatar_url,
-                    jobTitle: p.position,
-                    status: 'Active'
+                    avatar: p.avatar_url ?? undefined,
+                    jobTitle: p.position ?? undefined,
+                    status: 'Active' as const
                 }))
                 setUsers(mappedUsers)
             }
-            if (leaveRequests) {
-                const mappedLeaves: Leave[] = leaveRequests.map((l: any) => ({
+            if (leaveRequests && Array.isArray(leaveRequests)) {
+                const mappedLeaves: Leave[] = (leaveRequests as unknown as LeaveRequestRecord[]).map((l: LeaveRequestRecord) => ({
                     id: l.id,
                     user_id: l.user_id,
                     type: l.reason?.toLowerCase().includes('sick') ? 'Sick' : 'Annual',
                     start_date: l.start_date,
                     end_date: l.end_date,
-                    status: l.status,
-                    reason: l.reason
+                    status: l.status as LeaveStatus,
+                    reason: l.reason ?? undefined
                 }))
                 setLeaves(mappedLeaves)
             }
 
-            if (dbProjects) {
-                const mappedProjects: Project[] = dbProjects.map((p: any) => ({
-                    id: p.id,
-                    title: p.title,
-                    description: p.description,
-                    status: p.status || 'ACTIVE',
-                    deadline: p.due_date,
-                    teamLeadId: p.team_lead_id || '',
-                    memberIds: p.member_ids || [],
-                    progress: p.progress || 0,
-                    activityLog: []
-                }))
-                setProjects(mappedProjects)
+            if (dbProjects && Array.isArray(dbProjects)) {
+                // The server action already maps these correctly, so we can just use them!
+                setProjects(dbProjects as any[])
             }
 
-            if (dbTasks) {
-                const mappedTasks: Task[] = dbTasks.map((t: any) => ({
+            if (dbTasks && Array.isArray(dbTasks)) {
+                const mappedTasks: Task[] = (dbTasks as unknown as TaskRecord[]).map((t: TaskRecord) => ({
                     id: t.id,
                     projectId: t.project_id,
                     title: t.title,
-                    status: t.status === 'TODO' ? 'To Do' : t.status === 'IN_PROGRESS' ? 'In Progress' : 'Done',
+                    status: t.status as TaskStatus,
                     assigneeId: t.assignee_id,
-                    priority: t.priority || 'Medium',
-                    verificationStatus: 'None'
+                    priority: t.priority as 'High' | 'Medium' | 'Low',
+                    proofUrl: t.proof_url ?? undefined,
+                    verificationStatus: t.verification_status as VerificationStatus,
+                    dueDate: t.due_date ?? undefined
                 }))
                 setTasks(mappedTasks)
             }
@@ -429,44 +256,47 @@ export function HemsProvider({ children }: { children: ReactNode }) {
     }
 
     const addProject = async (project: Omit<Project, "id" | "activityLog" | "progress">) => {
-        // Insert into Supabase
-        const { data, error } = await supabase.from('projects').insert({
-            title: project.title,
-            description: project.description,
-            status: project.status,
-            due_date: project.deadline,
-            team_lead_id: project.teamLeadId,
-            member_ids: project.memberIds
-        }).select().single()
-
-        if (error) {
-            console.error("Failed to create project (using local fallback):", error)
-            // Fallback to local state
-            const newProject: Project = {
-                ...project,
-                id: crypto.randomUUID(),
-                progress: 0,
-                activityLog: []
+        try {
+            console.log("📝 Creating project via Server Action:", project.title)
+            
+            const formData = new FormData()
+            formData.append('title', project.title)
+            if (project.description) formData.append('description', project.description)
+            formData.append('status', project.status)
+            if (project.deadline) formData.append('due_date', project.deadline)
+            if (project.teamLeadId) formData.append('team_lead_id', project.teamLeadId)
+            if (project.memberIds && project.memberIds.length > 0) {
+                formData.append('member_ids', JSON.stringify(project.memberIds))
             }
-            setProjects(prev => [...prev, newProject])
-            return newProject
-        } else if (data) {
+
+            const result = await createProjectAction({}, formData)
+
+            if (result.error || !result.project) {
+                console.error("❌ Failed to create project via Server Action:", result.error)
+                return null
+            }
+
+            const data = result.project as any
+
             // Add to local state with DB data
             const newProject: Project = {
                 id: data.id,
                 title: data.title,
-                description: data.description,
+                description: data.description || "",
                 status: data.status,
-                deadline: data.due_date,
+                deadline: data.due_date || "",
                 teamLeadId: data.team_lead_id,
                 memberIds: data.member_ids || [],
-                progress: data.progress || 0,
+                progress: 0,
                 activityLog: []
             }
-            setProjects(prev => [...prev, newProject])
+            setProjects(prev => [newProject, ...prev])
+            console.log("✅ Project created successfully:", newProject.title)
             return newProject
+        } catch (err) {
+            console.error("❌ Exception in addProject:", err)
+            return null
         }
-        return null
     }
 
     const addTeam = (team: Omit<Team, "id">) => {

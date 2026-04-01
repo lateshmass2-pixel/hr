@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
-import { deleteEmployee } from "@/app/actions/employee"
+import { deleteEmployeeById } from "@/app/actions/employees"
 import { useState } from "react"
 import { format } from "date-fns"
 import { toast } from 'sonner'
@@ -23,7 +23,7 @@ export function EmployeeList({ employees }: { employees: Employee[] }) {
         if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) return
 
         setLoadingId(id)
-        const result = await deleteEmployee(id)
+        const result = await deleteEmployeeById(id)
         setLoadingId(null)
 
         if (result.success) {

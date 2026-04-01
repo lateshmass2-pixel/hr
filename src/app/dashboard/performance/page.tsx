@@ -5,11 +5,29 @@ import { PageContainer } from '@/components/layout/PageContainer'
 import { PageHero } from '@/components/layout/PageHero'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { requireSession } from '@/lib/auth/session'
+import { hasPermission } from '@/lib/rbac/types'
 
 export const dynamic = 'force-dynamic'
 
 export default async function PerformancePage() {
-    const employees = await getAllEmployees()
+    const session = await requireSession()
+    const canManagePerformance = hasPermission(session.role, 'performance:create')
+
+    let employees = []
+    if (canManagePerformance) {
+        employees = await getAllEmployees()
+    } else {
+        // Employee logic: Only load their own profile to view their personal performance review
+        employees = [{
+            id: session.userId,
+            full_name: session.name || 'My Detailed Report',
+            email: session.email || '',
+            position: 'Employee Insights',
+            role: session.role
+        }]
+    }
+
     const reviews = employees.length > 0 ? await getAllReviews(employees.map(e => e.id)) : []
 
     // Create a map for faster lookup
@@ -55,7 +73,7 @@ export default async function PerformancePage() {
                                                 <div className="font-semibold text-[#14532d] group-hover:text-green-700 transition-colors truncate">
                                                     {employee.full_name}
                                                 </div>
-                                                <div className="text-xs text-slate-500 truncate font-medium">{employee.position || 'Employee'}</div>
+                                                <div className="text-xs text-slate-500 truncate font-medium">{canManagePerformance ? (employee.position || 'Employee') : 'My Performance Overview'}</div>
                                             </div>
                                         </div>
                                     </a>

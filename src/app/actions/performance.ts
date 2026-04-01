@@ -239,7 +239,7 @@ export async function getAllEmployees() {
     const { data, error } = await supabase
         .from('profiles')
         .select('id, full_name, email, position, role')
-        .eq('role', 'EMPLOYEE')
+        .eq('role', 'STANDARD_USER')
         .order('full_name', { ascending: true })
 
     if (error) {

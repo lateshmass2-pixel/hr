@@ -82,7 +82,7 @@ export async function startAssessmentSession(
     if (candidate?.candidate_email) {
         console.log(`📧 Sending assessment invite to ${candidate.candidate_email} for session ${session.id}`);
         // We pass session.id as the "candidateId" param because strict assessment pages might use session ID
-        await import('@/lib/email').then(mod =>
+        await import('@/lib/services/email').then(mod =>
             mod.sendAssessmentInvite(candidate.candidate_email, session.id, candidate.candidate_name)
         );
     }

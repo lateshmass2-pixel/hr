@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { PageHero } from '@/components/layout/PageHero'
 import { Card } from '@/components/ui/card'
-import { theme } from '@/lib/theme'
+import { theme } from '@/lib/config/theme'
 import { cn } from '@/lib/utils'
 
 type TabType = 'profile' | 'notifications' | 'security' | 'billing'

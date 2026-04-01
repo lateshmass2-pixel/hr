@@ -10,7 +10,7 @@ import {
 import { SoftCard } from '@/components/ui/gradient-stat-card'
 import { updateApplicationStatus, deleteApplication } from './actions'
 import { cn } from '@/lib/utils'
-import { extractSkills } from '@/utils/skill-extractor'
+import { extractSkills } from '@/lib/ai/skill-extractor'
 import { LaunchAssessmentDialog } from './launch-assessment-dialog'
 import { ScheduleInterviewDialog } from './schedule-interview-dialog'
 import { DecisionFooter } from './decision-footer'
@@ -88,9 +88,9 @@ export function KanbanBoard({ applications }: { applications: Application[] }) {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex h-full gap-6 overflow-x-auto pb-4 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full pb-4 items-start">
                 {COLUMNS.map(column => (
-                    <div key={column.id} className="flex-shrink-0 w-80 flex flex-col gap-3">
+                    <div key={column.id} className="flex flex-col gap-3">
                         {/* Column Header */}
                         <div className={cn("flex items-center justify-between p-3 rounded-xl border border-dashed", column.color)}>
                             <span className="font-semibold text-sm">{column.label}</span>

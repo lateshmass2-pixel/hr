@@ -191,7 +191,7 @@ export async function getEmployees(): Promise<Employee[]> {
         const { data, error } = await supabase
             .from('profiles')
             .select('id, full_name, email, position, role')
-            .eq('role', 'EMPLOYEE')
+            .eq('role', 'STANDARD_USER')
             .order('full_name')
 
         if (error) {
@@ -223,12 +223,18 @@ export async function createProject(
         const description = formData.get('description') as string
         const status = formData.get('status') as string
         const dateStr = formData.get('due_date') as string
+        const teamLeadId = formData.get('team_lead_id') as string // newly added
+        const memberIdsStr = formData.get('member_ids') as string // newly added
 
         if (!title || title.trim() === '') {
             return { error: 'Title is required' }
         }
 
         const due_date = dateStr ? new Date(dateStr).toISOString() : null
+        let member_ids: string[] = []
+        try {
+            if (memberIdsStr) member_ids = JSON.parse(memberIdsStr)
+        } catch(e) {}
 
         // 3. Insert with org scope
         const insertData: Record<string, any> = {
@@ -237,6 +243,8 @@ export async function createProject(
             status: status || 'ACTIVE',
             due_date,
             created_by: session.userId,
+            team_lead_id: teamLeadId || null,
+            member_ids: member_ids,
         }
 
         if (table === 'org_projects') {

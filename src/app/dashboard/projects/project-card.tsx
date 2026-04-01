@@ -21,14 +21,15 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { theme } from "@/lib/theme"
+import { theme } from "@/lib/config/theme"
 
 interface ProjectCardProps {
     project: any
     employees: any[]
+    users?: any[]
 }
 
-export function ProjectCard({ project, employees }: ProjectCardProps) {
+export function ProjectCard({ project, employees, users = [] }: ProjectCardProps) {
     const { tasks, deleteProject } = useHems()
     const [isExpanded, setIsExpanded] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -39,10 +40,11 @@ export function ProjectCard({ project, employees }: ProjectCardProps) {
     const totalTasks = projectTasks.length
     const calculateProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
-    // Get project members
-    const members = employees.filter(e => project.memberIds?.includes(e.id))
+    // Get project members - combine employees and users to include HR_ADMIN
+    const allStaff = [...users, ...employees.filter(e => !users.some(u => u.id === e.id))]
+    const members = allStaff.filter(e => project.memberIds?.includes(e.id))
     // Get lead
-    const lead = employees.find(e => e.id === project.teamLeadId)
+    const lead = allStaff.find(e => e.id === project.teamLeadId)
 
     const handleDelete = async (e: React.MouseEvent) => {
         e.stopPropagation()

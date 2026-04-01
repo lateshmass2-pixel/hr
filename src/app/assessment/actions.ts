@@ -3,9 +3,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { openai, AI_MODEL } from "@/lib/ai"
-import { sendRejectionEmail, sendInterviewReadyEmail } from "@/lib/email"
-import { calculateScore } from "@/lib/grading"
-import { Question } from "@/lib/assessment-schema"
+import { sendRejectionEmail, sendInterviewReadyEmail } from "@/lib/services/email"
+import { calculateScore } from "@/lib/ai/grading"
+import { Question } from "@/lib/ai/assessment-schema"
 
 type MCQ = {
     question: string

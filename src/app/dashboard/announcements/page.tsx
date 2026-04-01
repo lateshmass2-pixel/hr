@@ -5,9 +5,14 @@ import { format } from "date-fns"
 import { NewAnnouncementDialog } from "./new-announcement-dialog"
 import { DeleteAnnouncementButton } from "./DeleteButton"
 
+import { requireSession } from '@/lib/auth/session'
+import { hasPermission } from '@/lib/rbac/types'
+
 export const dynamic = 'force-dynamic'
 
 export default async function AnnouncementsPage() {
+    const session = await requireSession()
+    const canManage = hasPermission(session.role, 'announcements:create')
     const announcements = await getAnnouncements()
 
     return (
@@ -23,8 +28,7 @@ export default async function AnnouncementsPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-
-                    <NewAnnouncementDialog />
+                    {canManage && <NewAnnouncementDialog />}
                 </div>
             </div>
 
@@ -61,10 +65,12 @@ export default async function AnnouncementsPage() {
                                     Posted by HR Team
                                 </p>
                             </div>
-                            <DeleteAnnouncementButton
-                                announcementId={announcement.id}
-                                announcementTitle={announcement.title}
-                            />
+                            {canManage && (
+                                <DeleteAnnouncementButton
+                                    announcementId={announcement.id}
+                                    announcementTitle={announcement.title}
+                                />
+                            )}
                         </div>
                     </div>
                 ))}
@@ -73,8 +79,14 @@ export default async function AnnouncementsPage() {
                     <div className="col-span-full py-20 text-center rounded-3xl border-2 border-dashed border-[#E2E8F0] bg-white shadow-sm">
                         <Megaphone className="h-10 w-10 text-[#94A3B8] mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-[#0F172A]">No announcements yet</h3>
-                        <p className="text-[#475569] mb-4">Create your first announcement to broadcast to employees</p>
-                        <NewAnnouncementDialog />
+                        {canManage ? (
+                            <>
+                                <p className="text-[#475569] mb-4">Create your first announcement to broadcast to employees</p>
+                                <NewAnnouncementDialog />
+                            </>
+                        ) : (
+                            <p className="text-[#475569] mb-4">Check back later for updates</p>
+                        )}
                     </div>
                 )}
             </div>

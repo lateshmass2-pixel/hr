@@ -79,7 +79,7 @@ export default function LearningPage() {
                         <div className="flex-1">
                             <p className="text-white/80 text-sm mb-2">Continue Learning</p>
                             <h1 className="text-2xl md:text-3xl font-bold mb-2">
-                                Welcome back, {userName}!
+                                Welcome
                             </h1>
                             <p className="text-white/90 mb-4">
                                 You're {currentCourse.progress}% through "{currentCourse.title}"

@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Briefcase, X, Linkedin, Github, ExternalLink, Star, GraduationCap, Building, Lock, Sparkles, Shield, AlertTriangle, CheckCircle, Mail, Calendar, CheckCircle2 } from 'lucide-react'
-import ScheduleModal from '@/components/ScheduleModal'
-import OfferModal from '@/components/OfferModal'
+import ScheduleModal from '@/components/modals/ScheduleModal'
+import OfferModal from '@/components/modals/OfferModal'
 
 type Platform = 'linkedin' | 'github' | 'behance'
 

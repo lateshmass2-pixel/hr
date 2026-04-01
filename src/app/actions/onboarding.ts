@@ -1,6 +1,6 @@
 'use server'
 
-import { supabaseAdmin } from "@/lib/supabase-admin"
+import { supabaseAdmin } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import OpenAI from 'openai'
@@ -132,7 +132,7 @@ If you can't find them, use empty strings.`
             email_confirm: true, // Skip email verification
             user_metadata: {
                 full_name: extractedName,
-                role: 'EMPLOYEE',
+                role: 'STANDARD_USER',
                 position: position || null
             }
         })
@@ -155,7 +155,7 @@ If you can't find them, use empty strings.`
                 id: newUserId,
                 email: extractedEmail,
                 full_name: extractedName,
-                role: 'EMPLOYEE',
+                role: 'STANDARD_USER',
                 position: position || null,
                 resume_url: resumeUrl || null
             })

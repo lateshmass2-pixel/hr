@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { parsePDF } from '@/lib/pdf-parser'; // Assuming this exists from previous modules
+import { parsePDF } from '@/lib/services/pdf-parser'; // Assuming this exists from previous modules
 
 interface Chunk {
     id: string;
