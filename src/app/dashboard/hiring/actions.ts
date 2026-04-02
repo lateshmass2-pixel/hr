@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { parsePDF } from "@/lib/services/pdf-parser"
 import { openai, AI_MODEL, groq } from "@/lib/ai"
@@ -11,7 +11,7 @@ import { AssessmentSchema } from "@/lib/ai/assessment-schema"
 
 export async function deleteApplication(applicationId: string) {
     console.log('🗑️ Attempting to delete application:', applicationId)
-    const supabase = await createClient()
+    const supabase = await createAdminClient()
 
     // First fetch the application to get resume URL
     const { data: app, error: fetchError } = await supabase

@@ -26,7 +26,8 @@ export type Resource =
     | 'audit_logs'
     | 'settings'
     | 'billing'
-    | 'invitations';
+    | 'invitations'
+    | 'workspaces';
 
 /**
  * CRUD + special actions
@@ -72,6 +73,8 @@ export const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
         'billing:read', 'billing:update', 'billing:manage',
         // Invitations
         'invitations:create', 'invitations:read', 'invitations:delete',
+        // Workspaces
+        'workspaces:create', 'workspaces:read', 'workspaces:update', 'workspaces:delete', 'workspaces:manage',
     ],
 
     hr: [
@@ -90,6 +93,8 @@ export const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
         'settings:read', 'settings:update',
         'billing:read',
         'invitations:create', 'invitations:read', 'invitations:delete',
+        // Workspaces
+        'workspaces:create', 'workspaces:read', 'workspaces:update', 'workspaces:manage',
     ],
 
     recruiter: [
@@ -116,6 +121,8 @@ export const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
         'performance:create', 'performance:read', 'performance:update',
         'announcements:read',
         'learning:read',
+        // Workspaces
+        'workspaces:create', 'workspaces:read', 'workspaces:update',
     ],
 
     employee: [
@@ -128,6 +135,8 @@ export const ROLE_PERMISSIONS: Record<OrgRole, Permission[]> = {
         'performance:read',
         'announcements:read',
         'learning:read',
+        // Workspaces
+        'workspaces:create', 'workspaces:read', 'workspaces:update',
     ],
 } as const;
 
@@ -199,4 +208,5 @@ export const ROUTE_ACCESS: Record<string, { minRole?: OrgRole; permissions?: Per
     '/dashboard/billing': { permissions: ['billing:read'] },
     '/dashboard/audit': { permissions: ['audit_logs:read'] },
     '/dashboard/team': { permissions: ['members:read'] },
+    '/dashboard/projects/*/workspace': { permissions: ['workspaces:read'] },
 };

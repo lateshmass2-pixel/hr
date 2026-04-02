@@ -61,7 +61,7 @@ export function Hero({ userName, stats }: HeroProps) {
                             transition={{ delay: 0.3, duration: 0.6 }}
                             className="text-4xl font-extrabold tracking-tight text-white lg:text-5xl"
                         >
-                            {greeting}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-emerald-200">{userName}</span>
+                            {greeting}
                         </motion.h1>
 
                         <motion.p

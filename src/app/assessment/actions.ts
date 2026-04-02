@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { openai, AI_MODEL } from "@/lib/ai"
 import { sendRejectionEmail, sendInterviewReadyEmail } from "@/lib/services/email"
@@ -55,7 +55,7 @@ export async function getApplication(id: string) {
 }
 
 export async function submitAssessment(id: string, answers: number[]) {
-    const supabase = await createClient()
+    const supabase = await createAdminClient()
 
     console.log('📝 Processing assessment submission for:', id)
 
@@ -248,7 +248,7 @@ export async function submitAssessment(id: string, answers: number[]) {
 }
 
 export async function rejectApplication(applicationId: string, reason: string) {
-    const supabase = await createClient()
+    const supabase = await createAdminClient()
 
     console.log('🚫 Rejecting application due to proctoring violation:', applicationId)
 

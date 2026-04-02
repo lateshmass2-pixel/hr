@@ -1,0 +1,242 @@
+{
+  "count": 3,
+  "data": [
+    {
+      "id": "9880f879-0d71-46f0-aeaf-f093d89d7e57",
+      "job_id": null,
+      "candidate_email": "unknown@example.com",
+      "candidate_name": "Unknown Candidate",
+      "status": "REJECTED",
+      "applied_at": "2026-04-02T08:46:27.358124+00:00",
+      "resume_url": "https://zutplguzsmdtnlcgpcig.supabase.co/storage/v1/object/public/resumes/resumes/u5gafh.pdf",
+      "resume_text": "",
+      "score": 0,
+      "ai_reasoning": null,
+      "generated_questions": null,
+      "test_score": null,
+      "candidate_answers": null,
+      "rejection_reason": null,
+      "interview_type": null,
+      "interview_date": null,
+      "interview_time": null,
+      "interviewer": null,
+      "interview_link": null,
+      "offer_letter_content": null,
+      "offer_role": null,
+      "offer_salary": null,
+      "offer_start_date": null
+    },
+    {
+      "id": "835b99ef-dfd3-4765-a8ef-c463ee6bad7f",
+      "job_id": null,
+      "candidate_email": "latesh312006@gmail.com",
+      "candidate_name": "LATESHK",
+      "status": "TEST_PENDING",
+      "applied_at": "2026-04-02T08:47:04.165796+00:00",
+      "resume_url": "https://zutplguzsmdtnlcgpcig.supabase.co/storage/v1/object/public/resumes/resumes/t94rd3qqf.pdf",
+      "resume_text": "LATESHK Coimbatore,TN641104 latesh312006@gmail.com—7094562057 GitHub—LinkedIn—LeetCode ProfessionalSummary AspiringMachineLearningEngineerandFull-StackDeveloperwithstrongfoundationsinAI,predictivemodeling, andmodernwebtechnologies.Passionateaboutbuildingintelligentanduser-focusedsolutions. Education B.Tech–ArtificialIntelligenceandMachineLearning SriShakthiInstituteOfEngineeringAndTechnology,Coimbatore2023-2027 CGPA-7.64 HigherSecondary(HSC) S.R.S.I.MatricHigherSecondarySchool2023 Percentage-80.5 Skills Languages: Python,JavaScript,HTML5,CSS3 MachineLearning: pandas,NumPy,Regression,Classification,LSTM Frameworks: Flask,Scikit-Learn,Keras Databases: MongoDB,MySQL Internships MachineLearning&AI–CognizoWipro • Completed15MLmodulesandadvancedPythontraining. • BuiltstockpricepredictionusingARIMAandLSTM. • Developedcardiovasculardiseasepredictionmodelwith80%accuracy. • Tech:Python,TensorFlow,Keras,scikit-learn,pandas. WebDevelopment–CodSoft • Developedresponsiveportfoliowebsitewithanimations. • Builtmobile-firstlandingpageandCRUDcalculator. • Tech:HTML,CSS,JavaScript,React. ResponsiveWebDesign–freeCodeCamp • Completed100+HTML/CSSexercisescoveringFlexbox,Grid,andaccessibility. Projects HRHumanet–Recruitment&TalentMatchingPlatform • Reducedmanualresumescreeningtimeby85%. • BuiltAutoMatchengineusingcosinesimilarityandweightedscoring. • Rankedcandidatesbasedonskills,experience,andavailability. InventoryManagementSystemwithGST&E-BillIntegration • Developedacompleteinventorymanagementsystemtotrackproducts,stocklevels,andsales. • IntegratedGSTcalculationforinvoicesbasedontaxslabs. • ImplementedautomatedE-Billgenerationforseamlessbillingandrecordmaintenance. • Designedauser-friendlyinterfaceforefficientstockandtransactionmanagement. Certifications • ArtificialIntelligence–CognizoWipro • MachineLearning–CognizoWipro 1",
+      "score": 90,
+      "ai_reasoning": null,
+      "generated_questions": null,
+      "test_score": null,
+      "candidate_answers": null,
+      "rejection_reason": null,
+      "interview_type": null,
+      "interview_date": null,
+      "interview_time": null,
+      "interviewer": null,
+      "interview_link": null,
+      "offer_letter_content": null,
+      "offer_role": null,
+      "offer_salary": null,
+      "offer_start_date": null
+    },
+    {
+      "id": "fe2a6e31-b590-4590-88dd-14d7b92070ae",
+      "job_id": null,
+      "candidate_email": "latesh312006@gmail.com",
+      "candidate_name": "LATESHK",
+      "status": "REJECTED",
+      "applied_at": "2026-04-02T08:51:24.643391+00:00",
+      "resume_url": "https://zutplguzsmdtnlcgpcig.supabase.co/storage/v1/object/public/resumes/resumes/ff6ozo.pdf",
+      "resume_text": "LATESHK Coimbatore,TN641104 latesh312006@gmail.com—7094562057 GitHub—LinkedIn—LeetCode ProfessionalSummary AspiringMachineLearningEngineerandFull-StackDeveloperwithstrongfoundationsinAI,predictivemodeling, andmodernwebtechnologies.Passionateaboutbuildingintelligentanduser-focusedsolutions. Education B.Tech–ArtificialIntelligenceandMachineLearning SriShakthiInstituteOfEngineeringAndTechnology,Coimbatore2023-2027 CGPA-7.64 HigherSecondary(HSC) S.R.S.I.MatricHigherSecondarySchool2023 Percentage-80.5 Skills Languages: Python,JavaScript,HTML5,CSS3 MachineLearning: pandas,NumPy,Regression,Classification,LSTM Frameworks: Flask,Scikit-Learn,Keras Databases: MongoDB,MySQL Internships MachineLearning&AI–CognizoWipro • Completed15MLmodulesandadvancedPythontraining. • BuiltstockpricepredictionusingARIMAandLSTM. • Developedcardiovasculardiseasepredictionmodelwith80%accuracy. • Tech:Python,TensorFlow,Keras,scikit-learn,pandas. WebDevelopment–CodSoft • Developedresponsiveportfoliowebsitewithanimations. • Builtmobile-firstlandingpageandCRUDcalculator. • Tech:HTML,CSS,JavaScript,React. ResponsiveWebDesign–freeCodeCamp • Completed100+HTML/CSSexercisescoveringFlexbox,Grid,andaccessibility. Projects HRHumanet–Recruitment&TalentMatchingPlatform • Reducedmanualresumescreeningtimeby85%. • BuiltAutoMatchengineusingcosinesimilarityandweightedscoring. • Rankedcandidatesbasedonskills,experience,andavailability. InventoryManagementSystemwithGST&E-BillIntegration • Developedacompleteinventorymanagementsystemtotrackproducts,stocklevels,andsales. • IntegratedGSTcalculationforinvoicesbasedontaxslabs. • ImplementedautomatedE-Billgenerationforseamlessbillingandrecordmaintenance. • Designedauser-friendlyinterfaceforefficientstockandtransactionmanagement. Certifications • ArtificialIntelligence–CognizoWipro • MachineLearning–CognizoWipro 1",
+      "score": 80,
+      "ai_reasoning": "**Previous Analysis:** The candidate has strong foundations in AI, machine learning, and web development, with experience in Python, JavaScript, and relevant frameworks.\n\n**Skills Found:** Python, JavaScript, HTML5, CSS3, pandas, NumPy, Flask, Scikit-Learn, Keras, MongoDB, MySQL, React, TensorFlow\n\n**Test Score: 30%**\n**Feedback:** The candidate needs to improve their overall understanding of the subject matter to achieve a higher score.",
+      "generated_questions": [
+        {
+          "id": "AP1",
+          "text": "What is the next number in the sequence: 2, 4, 8, 16, ?",
+          "type": "mcq",
+          "options": [
+            "32",
+            "64",
+            "128",
+            "256"
+          ],
+          "category": "aptitude",
+          "timeLimit": 30,
+          "difficulty": "easy",
+          "correctAnswer": "32"
+        },
+        {
+          "id": "AP2",
+          "text": "A bat and a ball together cost $1.10. The bat costs $1.00 more than the ball. How much does the ball cost?",
+          "type": "mcq",
+          "options": [
+            "$0.05",
+            "$0.10",
+            "$0.15",
+            "$0.20"
+          ],
+          "category": "aptitude",
+          "timeLimit": 45,
+          "difficulty": "medium",
+          "correctAnswer": "$0.05"
+        },
+        {
+          "id": "AP3",
+          "text": "What is the value of x in the equation: 2x + 5 = 11?",
+          "type": "mcq",
+          "options": [
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "category": "aptitude",
+          "timeLimit": 30,
+          "difficulty": "easy",
+          "correctAnswer": "3"
+        },
+        {
+          "id": "AP4",
+          "text": "A snail is at the bottom of a 20-foot well. Each day, it climbs up 3 feet, but at night, it slips back 2 feet. How many days will it take for the snail to reach the top of the well?",
+          "type": "mcq",
+          "options": [
+            "18 days",
+            "20 days",
+            "22 days",
+            "25 days"
+          ],
+          "category": "aptitude",
+          "timeLimit": 60,
+          "difficulty": "medium",
+          "correctAnswer": "18 days"
+        },
+        {
+          "id": "AP5",
+          "text": "What is the average of the numbers: 2, 4, 6, 8, 10?",
+          "type": "mcq",
+          "options": [
+            "4",
+            "5",
+            "6",
+            "8"
+          ],
+          "category": "aptitude",
+          "timeLimit": 30,
+          "difficulty": "easy",
+          "correctAnswer": "6"
+        },
+        {
+          "id": "T1",
+          "text": "What is the purpose of the pandas library in Python?",
+          "type": "mcq",
+          "options": [
+            "Data visualization",
+            "Machine learning",
+            "Data manipulation and analysis",
+            "Web development"
+          ],
+          "category": "technical",
+          "timeLimit": 30,
+          "difficulty": "easy",
+          "correctAnswer": "Data manipulation and analysis"
+        },
+        {
+          "id": "T2",
+          "text": "What is the difference between a supervised and unsupervised machine learning model?",
+          "type": "mcq",
+          "options": [
+            "Supervised models are used for regression, while unsupervised models are used for classification",
+            "Supervised models are used for classification, while unsupervised models are used for regression",
+            "Supervised models are trained on labeled data, while unsupervised models are trained on unlabeled data",
+            "Supervised models are used for clustering, while unsupervised models are used for dimensionality reduction"
+          ],
+          "category": "technical",
+          "timeLimit": 45,
+          "difficulty": "medium",
+          "correctAnswer": "Supervised models are trained on labeled data, while unsupervised models are trained on unlabeled data"
+        },
+        {
+          "id": "T3",
+          "text": "What is the purpose of the Flask framework in Python?",
+          "type": "mcq",
+          "options": [
+            "Building desktop applications",
+            "Building web applications",
+            "Building mobile applications",
+            "Building machine learning models"
+          ],
+          "category": "technical",
+          "timeLimit": 30,
+          "difficulty": "easy",
+          "correctAnswer": "Building web applications"
+        },
+        {
+          "id": "T4",
+          "text": "What is the difference between a CNN and an RNN in deep learning?",
+          "type": "mcq",
+          "options": [
+            "CNNs are used for image classification, while RNNs are used for natural language processing",
+            "CNNs are used for natural language processing, while RNNs are used for image classification",
+            "CNNs are used for sequence data, while RNNs are used for spatial data",
+            "CNNs are used for spatial data, while RNNs are used for sequence data"
+          ],
+          "category": "technical",
+          "timeLimit": 60,
+          "difficulty": "hard",
+          "correctAnswer": "CNNs are used for spatial data, while RNNs are used for sequence data"
+        },
+        {
+          "id": "T5",
+          "text": "What is the purpose of the scikit-learn library in Python?",
+          "type": "mcq",
+          "options": [
+            "Data visualization",
+            "Machine learning",
+            "Data manipulation and analysis",
+            "Web development"
+          ],
+          "category": "technical",
+          "timeLimit": 45,
+          "difficulty": "medium",
+          "correctAnswer": "Machine learning"
+        }
+      ],
+      "test_score": 30,
+      "candidate_answers": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        0,
+        1,
+        1,
+        2,
+        1
+      ],
+      "rejection_reason": null,
+      "interview_type": null,
+      "interview_date": null,
+      "interview_time": null,
+      "interviewer": null,
+      "interview_link": null,
+      "offer_letter_content": null,
+      "offer_role": null,
+      "offer_salary": null,
+      "offer_start_date": null
+    }
+  ]
+}

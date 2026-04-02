@@ -131,7 +131,7 @@ export default function DashboardClient({
                 1. HERO SECTION - Dark Forest Green Theme
             ═══════════════════════════════════════════════════════════ */}
                 <PageHero
-                    title={`Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, ${userName}`}
+                    title={`Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}`}
                     subtitle="Here's your command center overview for today."
                 />
 

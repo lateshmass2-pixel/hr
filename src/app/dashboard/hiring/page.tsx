@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { UploadDialog } from "./upload-dialog"
 import { KanbanBoard } from "./kanban-board"
 import { KBUploadDialog } from "./kb-upload-dialog"
@@ -13,12 +13,13 @@ async function getApplications() {
         .from('applications')
         .select('*')
         .order('created_at', { ascending: false })
+    
     return data || []
 }
 
 export default async function HiringDashboard() {
     const applications = await getApplications()
-    const activeCandidates = applications.filter(a => a.status !== 'HIRED')
+    const activeCandidates = applications.filter((a: any) => a.status !== 'HIRED')
 
     return (
         <PageContainer className="max-w-full">

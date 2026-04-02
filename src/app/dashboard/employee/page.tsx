@@ -62,7 +62,7 @@ export default async function EmployeeDashboard() {
                 </div>
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                        Good Morning, {userName.split(' ')[0]}
+                        {`Good ${new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}`}
                     </h1>
                     <p className="text-gray-500">Here's your personal command center for today.</p>
                 </div>

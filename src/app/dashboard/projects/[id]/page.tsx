@@ -20,7 +20,8 @@ import {
     Plus,
     ArrowLeft,
     Users,
-    ClipboardList
+    ClipboardList,
+    Code2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow, format } from "date-fns"
@@ -46,6 +47,7 @@ import {
 import Link from "next/link"
 import { AvatarStack } from "@/components/ui/avatar-stack"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ProjectWorkspaceWidget } from "@/components/workspace/WorkspaceMetrics"
 
 const COLUMN_ORDER: TaskStatus[] = ["To Do", "In Progress", "Review", "Done"]
 
@@ -311,20 +313,36 @@ export default function ProjectDetailsPage() {
                         />
                     </div>
 
-                    {/* Create Task Button - LEADER and HR ONLY */}
-                    {canManageTasks && (
-                        <Button
-                            onClick={() => setCreateTaskOpen(true)}
-                            className="bg-[#0F172A] text-white hover:bg-black gap-2 rounded-xl shadow-lg shadow-black/10"
-                        >
-                            <Plus size={16} /> Create Task
-                        </Button>
-                    )}
+                    <div className="flex items-center gap-3">
+                        <Link href={`/dashboard/projects/${project.id}/workspace`}>
+                            <Button
+                                variant="outline"
+                                className="bg-white hover:bg-emerald-50 border-emerald-200 text-emerald-700 gap-2 rounded-xl"
+                            >
+                                <Code2 size={16} /> Code Workspace
+                            </Button>
+                        </Link>
+
+                        {/* Create Task Button - LEADER and HR ONLY */}
+                        {canManageTasks && (
+                            <Button
+                                onClick={() => setCreateTaskOpen(true)}
+                                className="bg-[#0F172A] text-white hover:bg-black gap-2 rounded-xl shadow-lg shadow-black/10"
+                            >
+                                <Plus size={16} /> Create Task
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
 
+            {/* Workspace Metrics */}
+            <div className="mb-6 h-auto">
+                <ProjectWorkspaceWidget projectId={project.id} />
+            </div>
+
             {/* Kanban Board */}
-            <div className="flex-1 pb-8">
+            <div className="flex-1 pb-8 overflow-y-auto">
                 <DragDropContext onDragEnd={onDragEnd}>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-full">
                         {COLUMN_ORDER.map(colId => {

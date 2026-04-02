@@ -19,7 +19,8 @@ export type AuditEntityType =
     | 'learning'
     | 'member'
     | 'organization'
-    | 'invitation';
+    | 'invitation'
+    | 'workspace';
 
 /**
  * Audit action patterns (resource.verb)
@@ -63,7 +64,13 @@ export type AuditAction =
     | 'organization.plan_change'
     | 'invitation.create'
     | 'invitation.accept'
-    | 'invitation.revoke';
+    | 'invitation.revoke'
+    | 'workspace.create'
+    | 'workspace.commit'
+    | 'workspace.file_create'
+    | 'workspace.file_update'
+    | 'workspace.file_delete'
+    | 'workspace.run_code';
 
 /**
  * Audit log entry input

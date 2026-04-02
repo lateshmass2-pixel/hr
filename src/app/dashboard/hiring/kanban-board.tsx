@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import { motion } from 'framer-motion'
 import {
@@ -45,11 +45,20 @@ const COLUMNS = [
 export function KanbanBoard({ applications }: { applications: Application[] }) {
     // Local state for optimistic updates
     const [apps, setApps] = useState(applications)
+    
+    // Sync local state when props change (esp. after a successful server action)
+    useEffect(() => {
+        setApps(applications)
+    }, [applications])
 
     // Group applications by status
     const getColumnApps = (status: string) => {
         return apps.filter(app => {
-            if (status === 'TEST_PENDING') return app.status === 'TEST_PENDING' || app.status === 'NEW'
+            // Broaden "Screening" to catch any initial state
+            if (status === 'TEST_PENDING') {
+                const s = app.status?.toUpperCase() || ''
+                return s === 'TEST_PENDING' || s === 'NEW' || s === 'SCREENING' || s === 'APPLIED'
+            }
             return app.status === status
         })
     }
@@ -122,7 +131,7 @@ export function KanbanBoard({ applications }: { applications: Application[] }) {
                                                 >
                                                     <KanbanCard
                                                         application={app}
-                                                        onDelete={(id) => setApps(apps.filter(a => a.id !== id))}
+                                                        onDelete={(id) => setApps(prev => prev.filter(a => a.id !== id))}
                                                     />
                                                 </div>
                                             )}
