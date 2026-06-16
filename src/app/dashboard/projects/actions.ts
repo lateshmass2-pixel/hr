@@ -7,7 +7,7 @@
 
 'use server'
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { requireSession, requirePermissionFromSession, type Session } from "@/lib/auth/session"
 import { hasPermission } from "@/lib/rbac/types"
@@ -27,6 +27,8 @@ export type Project = {
     created_at: string
     created_by?: string
     organization_id?: string
+    team_lead_id?: string | null
+    member_ids?: string[] | null
 }
 
 export type Task = {
@@ -205,6 +207,30 @@ export async function getEmployees(): Promise<Employee[]> {
 }
 
 // =============================================================================
+// GET: All Profiles (for project assignment — includes ALL roles)
+// =============================================================================
+
+export async function getAllProfiles(): Promise<{ id: string; full_name: string; email: string; position: string; role: string }[]> {
+    try {
+        const session = await requireSession()
+        const supabase = await createClient()
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, full_name, email, position, role')
+            .order('full_name')
+
+        if (error) {
+            console.error('Error fetching all profiles:', error)
+            return []
+        }
+        return data || []
+    } catch {
+        return []
+    }
+}
+
+// =============================================================================
 // CREATE: Project  — Requires projects:create permission
 // =============================================================================
 
@@ -236,6 +262,7 @@ export async function createProject(
             if (memberIdsStr) member_ids = JSON.parse(memberIdsStr)
         } catch(e) {}
 
+        // 3. Insert with org scope
         // 3. Insert with org scope
         const insertData: Record<string, any> = {
             title: title.trim(),
@@ -432,79 +459,74 @@ export async function deleteTask(taskId: string, projectId: string) {
 export async function deleteProject(projectId: string) {
     try {
         const session = await requirePermissionFromSession('projects:delete')
-        const supabase = await createClient()
+        // Using Admin Client to bypass RLS for administrative deletion
+        // Permission check above ensures only authorized users can perform this.
+        const supabase = await createAdminClient()
 
-        // 1. Check if it's an Org Project (if applicable)
+        // 1. Unified Cleanup: Delete all associated data
+        await supabase.from('project_workspaces').delete().eq('project_id', projectId)
+        await supabase.from('org_tasks').delete().eq('project_id', projectId)
+        await supabase.from('tasks').delete().eq('project_id', projectId)
+
+        // 2. Identify if it's an Org Project or Legacy Project
+        let projectTitle = 'Unknown Project'
+        let table: 'org_projects' | 'projects' = 'projects'
+
         if (session.organizationId && session.organizationId !== 'legacy') {
             const { data: orgProject } = await supabase
                 .from('org_projects')
-                .select('*')
+                .select('title')
                 .eq('id', projectId)
                 .eq('organization_id', session.organizationId)
                 .single()
-
+            
             if (orgProject) {
-                // Delete tasks first
-                await supabase.from('tasks').delete().eq('project_id', projectId)
-
-                const { error } = await supabase
-                    .from('org_projects')
-                    .delete()
-                    .eq('id', projectId)
-                    .eq('organization_id', session.organizationId)
-
-                if (error) throw new Error(error.message)
-
-                await createAuditLog({
-                    organizationId: session.organizationId,
-                    actorId: session.userId,
-                    action: 'project.delete',
-                    entityType: 'project',
-                    entityId: projectId,
-                    changes: { before: { title: orgProject.title } },
-                })
-
-                revalidatePath('/dashboard/projects')
-                return { success: true }
+                table = 'org_projects'
+                projectTitle = orgProject.title
             }
         }
 
-        // 2. Check if it's a Legacy Project
-        const { data: legacyProject } = await supabase
-            .from('projects')
-            .select('*')
-            .eq('id', projectId)
-            .single()
-
-        if (legacyProject) {
-            // Check legacy permissions (implicitly handled by RLS, but explicit check matches pattern)
-
-            // Delete tasks first
-            await supabase.from('tasks').delete().eq('project_id', projectId)
-
-            const { error } = await supabase
+        if (projectTitle === 'Unknown Project') {
+            const { data: legacyProject } = await supabase
                 .from('projects')
-                .delete()
+                .select('title')
                 .eq('id', projectId)
-
-            if (error) throw new Error(error.message)
-
-            // Legacy audit
-            await createAuditLog({
-                organizationId: session.organizationId,
-                actorId: session.userId,
-                action: 'project.delete',
-                entityType: 'project',
-                entityId: projectId,
-                changes: { before: { title: legacyProject.title } },
-            })
-
-            revalidatePath('/dashboard/projects')
-            return { success: true }
+                .single()
+            
+            if (legacyProject) {
+                table = 'projects'
+                projectTitle = legacyProject.title
+            }
         }
 
-        throw new Error('Project not found or access denied')
-    } catch (error) {
-        return safeError(error)
+        // 3. Final Project Deletion (RLS Bypassed)
+        // Perform deletion - Attempt BOTH tables to clear potential 'ghost' or duplicate records
+        await supabase
+            .from('org_projects')
+            .delete()
+            .eq('id', projectId)
+            .eq('organization_id', session.organizationId)
+
+        await supabase
+            .from('projects')
+            .delete()
+            .eq('id', projectId)
+
+        // 4. Audit log
+        await createAuditLog({
+            organizationId: session.organizationId,
+            actorId: session.userId,
+            action: 'project.delete',
+            entityType: 'project',
+            entityId: projectId,
+            changes: { before: { title: projectTitle } },
+        })
+
+        revalidatePath('/dashboard/projects')
+        return { success: true }
+
+    } catch (error: any) {
+        console.error("Delete Project Exception:", error)
+        return { success: false, error: error.message || "Failed to delete project" }
     }
 }

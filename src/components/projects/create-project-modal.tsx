@@ -1,18 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useHems } from "@/context/HemsContext"
 import { toast } from "sonner"
+import { getAllProfiles } from "@/app/dashboard/projects/actions"
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
@@ -20,39 +19,64 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Plus, X, Calendar, GripVertical, UserCircle } from "lucide-react"
+import { Plus, X, FolderKanban, Users, CheckCircle2 } from "lucide-react"
 
 export default function CreateProjectModal() {
-    const { addProject, addTask, users, projects, currentUser } = useHems()
+    const { addProject, addTask, users, currentUser } = useHems()
     const [open, setOpen] = useState(false)
 
     // Form State
     const [title, setTitle] = useState("")
     const [deadline, setDeadline] = useState("")
-    const [managerId, setManagerId] = useState(currentUser?.id || "")
     const [teamLeadId, setTeamLeadId] = useState("")
     const [selectedMembers, setSelectedMembers] = useState<string[]>([])
-
-    // Tasks State
     const [tasks, setTasks] = useState<string[]>([])
     const [newTask, setNewTask] = useState("")
 
-    // Prevent double-booking: Get a list of users already stationed in active squads
-    const occupiedUserIds = new Set(
-        projects
-            .filter(p => p.status === 'ACTIVE')
-            .flatMap(p => [p.teamLeadId, ...(p.memberIds || [])])
-    )
-    const availableUsers = users.filter(u => !occupiedUserIds.has(u.id))
+    // Fallback: fetch profiles directly if HemsContext users is empty
+    const [fallbackUsers, setFallbackUsers] = useState<{ id: string; name: string; globalRole?: string; jobTitle?: string }[]>([])
+
+    useEffect(() => {
+        if (users.length === 0) {
+            getAllProfiles().then(profiles => {
+                setFallbackUsers(profiles.map(p => ({
+                    id: p.id,
+                    name: p.full_name || 'Unknown',
+                    globalRole: (p.role === 'HR_ADMIN' || p.role === 'hr' || p.role === 'owner') ? 'HR_ADMIN' : 'STANDARD_USER',
+                    jobTitle: p.position || undefined,
+                })))
+            })
+        }
+    }, [users.length])
+
+    const allUsers = users.length > 0 ? users : fallbackUsers
+
+    // Filter out HR admins from selection lists
+    const selectableUsers = useMemo(() =>
+        allUsers.filter(u => u.globalRole !== 'HR_ADMIN'),
+    [allUsers])
+
+    // Team lead candidates = all non-HR users
+    const leadCandidates = selectableUsers
+
+    // Member candidates = exclude HR users, the selected team lead, and already-selected members
+    const memberCandidates = useMemo(() =>
+        selectableUsers.filter(u => u.id !== teamLeadId && !selectedMembers.includes(u.id)),
+    [selectableUsers, teamLeadId, selectedMembers])
+
+    const getInitials = (name: string) =>
+        name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+
+    const toggleMember = (id: string) => {
+        setSelectedMembers(prev =>
+            prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
+        )
+    }
 
     const handleAddTask = () => {
         if (!newTask.trim()) return
-        setTasks([...tasks, newTask])
+        setTasks(prev => [...prev, newTask.trim()])
         setNewTask("")
-    }
-
-    const removeTask = (index: number) => {
-        setTasks(tasks.filter((_, i) => i !== index))
     }
 
     const handleCreate = async () => {
@@ -60,206 +84,195 @@ export default function CreateProjectModal() {
             toast.error("Please fill in all required fields")
             return
         }
-
         try {
-            // Create Project
             const newProject = await addProject({
                 title,
+                description: "",
                 deadline,
                 teamLeadId,
                 memberIds: selectedMembers,
                 status: 'ACTIVE' as const
             })
+            if (!newProject?.id) { toast.error("Failed to create project"); return }
+            toast.success("Project created!")
 
-            if (!newProject || !newProject.id) {
-                toast.error("Failed to create project")
-                return
-            }
-
-            toast.success("Project created successfully!")
-
-            // Create Initial Tasks
             for (const taskTitle of tasks) {
                 await addTask({
                     projectId: newProject.id,
                     title: taskTitle,
                     status: 'To Do',
-                    assigneeId: teamLeadId, // Default to Team Lead
+                    assigneeId: teamLeadId,
                     priority: 'Medium',
                     verificationStatus: 'None'
                 })
             }
 
-            // Reset form
-            setTitle("")
-            setDeadline("")
-            setManagerId("")
-            setTeamLeadId("")
-            setSelectedMembers([])
-            setTasks([])
-            setOpen(false)
-        } catch (error) {
-            console.error("Error creating project:", error)
-            toast.error("An error occurred while creating the project")
+            setTitle(""); setDeadline(""); setTeamLeadId("")
+            setSelectedMembers([]); setTasks([]); setOpen(false)
+        } catch {
+            toast.error("Failed to create project")
         }
     }
-
-    const toggleMember = (id: string) => {
-        if (selectedMembers.includes(id)) {
-            setSelectedMembers(selectedMembers.filter(m => m !== id))
-        } else {
-            setSelectedMembers([...selectedMembers, id])
-        }
-    }
-
-    const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-black hover:bg-gray-900 text-white rounded-xl px-6">
-                    <Plus size={18} className="mr-2" /> New Project
+                <Button className="bg-[#14532d] hover:bg-[#166534] text-white rounded-2xl px-5 h-10 text-sm font-bold shadow-lg shadow-green-900/10">
+                    <Plus size={16} className="mr-1.5" /> New Project
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl p-8 rounded-3xl bg-white">
-                <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-black">Create New Project</DialogTitle>
-                </DialogHeader>
 
-                <div className="space-y-6 mt-4">
-                    {/* Row 1: Title & Deadline */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label className="text-sm font-bold text-black">Project Title</Label>
+            <DialogContent className="max-w-md p-0 overflow-hidden border-none rounded-3xl bg-white shadow-2xl gap-0">
+                <DialogTitle className="sr-only">Create Project</DialogTitle>
+                {/* Compact Header */}
+                <div className="bg-gradient-to-r from-[#14532d] to-[#166534] px-5 py-4 flex items-center gap-3">
+                    <div className="w-9 h-9 bg-white/15 backdrop-blur rounded-xl flex items-center justify-center">
+                        <FolderKanban className="text-white" size={18} />
+                    </div>
+                    <div>
+                        <h2 className="text-base font-bold text-white tracking-tight">Create Project</h2>
+                        <p className="text-emerald-200/60 text-xs font-medium">Set up team and objectives</p>
+                    </div>
+                </div>
+
+                {/* Compact Form Body */}
+                <div className="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                    {/* Row 1: Title + Deadline */}
+                    <div className="grid grid-cols-5 gap-3">
+                        <div className="col-span-3 space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Title *</label>
                             <Input
+                                placeholder="Project name"
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="rounded-xl border-gray-300 h-11"
+                                onChange={e => setTitle(e.target.value)}
+                                className="h-9 rounded-xl border-slate-200 bg-slate-50 text-sm font-medium focus:ring-green-600/20 focus:border-green-700"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label className="text-sm font-bold text-black">Deadline</Label>
-                            <div className="relative">
-                                <Input
-                                    type="date"
-                                    value={deadline}
-                                    onChange={(e) => setDeadline(e.target.value)} // Keep yyyy-mm-dd for state, display handled by browser
-                                    className="rounded-xl border-gray-300 h-11 pr-10"
-                                />
-                                <Calendar className="absolute right-3 top-3 text-gray-500 w-5 h-5 pointer-events-none" />
-                            </div>
+                        <div className="col-span-2 space-y-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Deadline *</label>
+                            <Input
+                                type="date"
+                                value={deadline}
+                                onChange={e => setDeadline(e.target.value)}
+                                className="h-9 rounded-xl border-slate-200 bg-slate-50 text-sm font-medium focus:ring-green-600/20 focus:border-green-700"
+                            />
                         </div>
                     </div>
 
-                    {/* Row 2: Manager & Lead */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label className="text-sm font-bold text-black">Project Manager</Label>
-                            <Select value={managerId} onValueChange={setManagerId}>
-                                <SelectTrigger className="rounded-xl border-gray-300 h-11">
-                                    <SelectValue placeholder="Select Manager" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {users.map(user => (
-                                        <SelectItem key={user.id} value={user.id}>
-                                            <span className="font-medium">{user.name}</span>
-                                            <span className="text-gray-500 ml-2 text-xs">({user.jobTitle || user.globalRole})</span>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-sm font-bold text-black">Project Team Lead</Label>
-                            <Select value={teamLeadId} onValueChange={setTeamLeadId}>
-                                <SelectTrigger className="rounded-xl border-gray-300 h-11">
-                                    <SelectValue placeholder="Select Lead" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableUsers.length > 0 ? availableUsers.map(user => (
-                                        <SelectItem key={user.id} value={user.id}>
-                                            <span className="font-medium">{user.name}</span>
-                                            <span className="text-gray-500 ml-2 text-xs">({user.jobTitle || user.globalRole})</span>
-                                        </SelectItem>
-                                    )) : (
-                                        <div className="p-2 text-xs text-center text-gray-500 font-medium">No available team leads</div>
-                                    )}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    {/* Row 3: Team Members */}
-                    <div className="space-y-2">
-                        <Label className="text-sm font-bold text-black">Team Members</Label>
-                        <Select onValueChange={toggleMember}>
-                            <SelectTrigger className="rounded-xl border-gray-300 h-11">
-                                <SelectValue placeholder="Add member to squad" />
+                    {/* Team Lead */}
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <Users size={10} /> Team Lead *
+                        </label>
+                        <Select value={teamLeadId} onValueChange={(val) => { setTeamLeadId(val); setSelectedMembers(prev => prev.filter(m => m !== val)) }}>
+                            <SelectTrigger className="h-9 rounded-xl border-slate-200 bg-slate-50 text-sm font-medium">
+                                <SelectValue placeholder="Select lead" />
                             </SelectTrigger>
-                            <SelectContent>
-                                {availableUsers.filter(u => !selectedMembers.includes(u.id)).length > 0 ? (
-                                    availableUsers.filter(u => !selectedMembers.includes(u.id)).map(user => (
-                                        <SelectItem key={user.id} value={user.id}>
-                                            {user.name} <span className="text-gray-400 text-xs">({user.jobTitle || 'Member'})</span>
-                                        </SelectItem>
-                                    ))
-                                ) : (
-                                    <div className="p-2 text-xs text-center text-gray-500 font-medium">All available employees deployed</div>
+                            <SelectContent className="rounded-xl border-slate-200 shadow-lg">
+                                {leadCandidates.length > 0 ? leadCandidates.map(user => (
+                                    <SelectItem key={user.id} value={user.id} className="rounded-lg text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-green-100 text-green-800 flex items-center justify-center text-[9px] font-bold">
+                                                {getInitials(user.name)}
+                                            </div>
+                                            <span className="font-semibold text-slate-800">{user.name}</span>
+                                            {user.jobTitle && <span className="text-[10px] text-slate-400">· {user.jobTitle}</span>}
+                                        </div>
+                                    </SelectItem>
+                                )) : (
+                                    <div className="p-3 text-xs text-center text-slate-400">No team members found</div>
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Squad Members */}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <Users size={10} /> Members
+                        </label>
+                        <Select onValueChange={toggleMember}>
+                            <SelectTrigger className="h-9 rounded-xl border-slate-200 bg-slate-50 text-sm font-medium">
+                                <SelectValue placeholder="Add members" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl border-slate-200 shadow-lg">
+                                {memberCandidates.length > 0 ? memberCandidates.map(user => (
+                                    <SelectItem key={user.id} value={user.id} className="rounded-lg text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center text-[9px] font-bold">
+                                                {getInitials(user.name)}
+                                            </div>
+                                            <span className="font-semibold text-slate-800">{user.name}</span>
+                                        </div>
+                                    </SelectItem>
+                                )) : (
+                                    <div className="p-3 text-xs text-center text-slate-400">
+                                        {selectableUsers.length === 0 ? "No team members found" : "All members assigned"}
+                                    </div>
                                 )}
                             </SelectContent>
                         </Select>
 
-                        {/* Member Pills */}
-                        <div className="flex flex-wrap gap-3 mt-3">
-                            {selectedMembers.map(memberId => {
-                                const member = users.find(u => u.id === memberId)
-                                if (!member) return null
-                                return (
-                                    <div key={memberId} className="flex items-center gap-2 bg-white border border-gray-300 rounded-full px-3 py-1.5 shadow-sm">
-                                        <div className="w-5 h-5 rounded-full bg-gray-100 border flex items-center justify-center text-[10px] font-bold">
-                                            {member.avatar ? <img src={member.avatar} className="w-full h-full rounded-full" /> : getInitials(member.name)}
-                                        </div>
-                                        <span className="text-xs font-medium text-gray-700">{member.name}</span>
-                                        <button onClick={() => toggleMember(memberId)} className="text-gray-400 hover:text-teal-800">
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                )
-                            })}
-                        </div>
+                        {/* Selected Member Chips */}
+                        {selectedMembers.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {selectedMembers.map(id => {
+                                    const m = allUsers.find(u => u.id === id)
+                                    if (!m) return null
+                                    return (
+                                        <span key={id} className="inline-flex items-center gap-1 bg-green-50 border border-green-200 rounded-lg px-2 py-0.5 text-[11px] font-semibold text-green-800 animate-in fade-in zoom-in-95 duration-150">
+                                            {m.name}
+                                            <button onClick={() => toggleMember(id)} className="text-green-400 hover:text-red-500 transition-colors ml-0.5">
+                                                <X size={11} />
+                                            </button>
+                                        </span>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
 
-                    {/* Row 4: Initial Tasks */}
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <Label className="text-sm font-bold text-black">Initial Tasks</Label>
-                            <button onClick={handleAddTask} className="text-xs font-bold text-gray-400 hover:text-black flex items-center gap-1">
-                                <Plus size={14} /> Add Task
-                            </button>
-                        </div>
-
-                        {/* Task List */}
-                        <div className="space-y-2">
-                            {tasks.map((task, idx) => (
-                                <div key={idx} className="flex items-center gap-3 group">
-                                    <GripVertical size={16} className="text-gray-300 cursor-move" />
-                                    <span className="text-sm text-gray-700 flex-1">{task}</span>
-                                    <button onClick={() => removeTask(idx)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-teal-800">
-                                        <X size={14} />
+                    {/* Quick Tasks */}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <CheckCircle2 size={10} /> Initial Tasks
+                        </label>
+                        <div className="space-y-1.5">
+                            {tasks.map((task, i) => (
+                                <div key={i} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-lg px-3 py-1.5 group">
+                                    <span className="w-4 h-4 rounded-full border-2 border-green-300 shrink-0" />
+                                    <span className="text-xs font-medium text-slate-700 flex-1">{task}</span>
+                                    <button onClick={() => setTasks(t => t.filter((_, idx) => idx !== i))} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
+                                        <X size={12} />
                                     </button>
                                 </div>
                             ))}
-                            <Input
-                                placeholder="Press Enter to add task..."
-                                value={newTask}
-                                onChange={(e) => setNewTask(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === 'Enter') handleAddTask() }}
-                                className="border-none shadow-none px-0 text-sm focus-visible:ring-0 placeholder:text-gray-400"
-                            />
+                            <div className="relative">
+                                <Input
+                                    placeholder="Add a task and press Enter..."
+                                    value={newTask}
+                                    onChange={e => setNewTask(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddTask() } }}
+                                    className="h-8 rounded-lg border-slate-200 bg-white text-xs pr-8 font-medium placeholder:text-slate-300"
+                                />
+                                <button onClick={handleAddTask} className="absolute right-1.5 top-1 p-1 text-green-600 hover:bg-green-50 rounded transition-colors">
+                                    <Plus size={14} />
+                                </button>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <Button onClick={handleCreate} className="w-full h-12 bg-black hover:bg-gray-900 text-white text-lg font-bold rounded-xl mt-4">
+                {/* Compact Footer */}
+                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setOpen(false)} className="flex-1 h-9 rounded-xl border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-100">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleCreate}
+                        disabled={!title || !teamLeadId || !deadline}
+                        className="flex-1 h-9 bg-[#14532d] hover:bg-[#166534] text-white rounded-xl font-semibold text-sm shadow-md shadow-green-900/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
                         Create Project
                     </Button>
                 </div>

@@ -4,6 +4,7 @@ import DashboardClient from "./dashboard-client";
 import { EmployeeWorkplace } from "@/components/dashboard/EmployeeWorkplace";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import type { EmployeeStatus } from "@/types/hems";
 
 export default async function DashboardPage() {
     const session = await getSession();
@@ -24,19 +25,22 @@ export default async function DashboardPage() {
             { data: employees },
             { data: leaveRequests }
         ] = await Promise.all([
-            supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
+            supabase.from('projects').select('id', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
             supabase.from('applications').select('id, status, position, candidate_name'),
-            supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'STANDARD_USER'),
-            supabase.from('profiles').select('*').eq('role', 'STANDARD_USER').order('created_at', { ascending: false }),
-            supabase.from('leave_requests').select('*, profile:profiles(full_name)').eq('status', 'pending').limit(5)
+            supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'STANDARD_USER'),
+            supabase.from('profiles').select('id, full_name, email, position, department, avatar_url, created_at').eq('role', 'STANDARD_USER').order('created_at', { ascending: false }),
+            supabase.from('leave_requests').select('id, type, start_date, status, profile:profiles(full_name)').eq('status', 'pending').limit(5)
         ]);
 
         return (
             <DashboardClient
                 teamMembers={teamMembers || 0}
-                employees={employees || []}
+                employees={(employees || []).map(e => ({ ...e, status: 'Active' as EmployeeStatus }))}
                 applicationsData={applications || []}
-                pendingLeaveRequests={leaveRequests || []}
+                pendingLeaveRequests={(leaveRequests || []).map((l: any) => ({
+                    ...l,
+                    profile: Array.isArray(l.profile) ? l.profile[0] : l.profile
+                }))}
             />
         );
     }

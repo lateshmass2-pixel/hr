@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -71,27 +72,27 @@ export default function DashboardClient({
     const router = useRouter()
     const { announcements, projects, currentUser } = useHems()
 
-    // Derived Data
-    const funnelCounts = {
+    // Memoized Derived Data
+    const funnelCounts = useMemo(() => ({
         applied: applicationsData.length,
         screening: applicationsData.filter(a => a.status === 'screening' || a.status === 'TEST_PENDING').length,
         interview: applicationsData.filter(a => a.status === 'interview' || a.status === 'INTERVIEW').length,
         offer: applicationsData.filter(a => a.status === 'offer').length,
         hired: applicationsData.filter(a => a.status === 'hired').length,
-    }
+    }), [applicationsData])
 
-    const hiringFunnelData = [
+    const hiringFunnelData = useMemo(() => [
         { name: 'Applied', value: funnelCounts.applied || 0 },
         { name: 'Screening', value: funnelCounts.screening || 0 },
         { name: 'Interview', value: funnelCounts.interview || 0 },
         { name: 'Offer', value: funnelCounts.offer || 0 },
-    ]
+    ], [funnelCounts])
 
-    const newEmployeesThisMonth = employees.filter(e =>
+    const newEmployeesThisMonth = useMemo(() => employees.filter(e =>
         e.created_at && isAfter(new Date(e.created_at), startOfMonth(new Date()))
-    ).length
+    ).length, [employees])
 
-    const interviewCandidates = applicationsData
+    const interviewCandidates = useMemo(() => applicationsData
         .filter(a => a.status === 'INTERVIEW' || a.status === 'interview')
         .slice(0, 4)
         .map((app, i) => ({
@@ -102,18 +103,18 @@ export default function DashboardClient({
                 : '??',
             role: app.offer_role || app.position || 'Role',
             color: avatarColors[i % avatarColors.length]
-        }))
+        })), [applicationsData])
 
-    const pendingOffer = applicationsData.find(a => a.status === 'offer')
-    const activeProjects = projects.filter(p => p.status === 'ACTIVE').length
+    const pendingOffer = useMemo(() => applicationsData.find(a => a.status === 'offer'), [applicationsData])
+    const activeProjectsCount = useMemo(() => projects.filter(p => p.status === 'ACTIVE').length, [projects])
     const openPositions = 12; // Placeholder
 
-    const stats = {
+    const stats = useMemo(() => ({
         totalEmployees: teamMembers,
-        activeProjects: activeProjects,
+        activeProjects: activeProjectsCount,
         openRoles: openPositions,
         pendingActions: pendingLeaveRequests.length + (pendingOffer ? 1 : 0)
-    }
+    }), [teamMembers, activeProjectsCount, pendingLeaveRequests.length, pendingOffer])
 
     const userName = currentUser?.name?.split(' ')[0] || 'Admin';
 

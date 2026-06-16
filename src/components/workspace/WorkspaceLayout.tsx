@@ -2,10 +2,26 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Play, Save, History, Box, ArrowLeft, Loader2, Info } from 'lucide-react'
+import { 
+    Play, 
+    Save, 
+    History, 
+    Box, 
+    ArrowLeft, 
+    Loader2, 
+    Info, 
+    LayoutDashboard, 
+    CheckCircle, 
+    Clock, 
+    Sparkles, 
+    ChevronRight, 
+    ChevronLeft 
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useHems } from '@/context/HemsContext'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { FileExplorer } from './FileExplorer'
 import { CodeEditor } from './CodeEditor'
@@ -47,6 +63,9 @@ export function WorkspaceLayout({
 }: WorkspaceLayoutProps) {
     const router = useRouter()
     
+    const { tasks, currentUser, moveTask, userRole, getProjectRole } = useHems()
+    const projectRole = getProjectRole(workspace.project_id)
+
     // State
     const [files, setFiles] = useState<WorkspaceFile[]>(initialFiles)
     const [commits, setCommits] = useState<WorkspaceCommit[]>(initialCommits)
@@ -61,6 +80,16 @@ export function WorkspaceLayout({
     const [showCommitDialog, setShowCommitDialog] = useState(false)
     const [commitMessage, setCommitMessage] = useState('')
     const [isCommitting, setIsCommitting] = useState(false)
+
+    // Task Panel State
+    const [showTaskPanel, setShowTaskPanel] = useState(true)
+    const [proofLink, setProofLink] = useState("")
+    const [submittingTaskId, setSubmittingTaskId] = useState<string | null>(null)
+
+    // Derived state
+    const projectTasks = tasks.filter(t => t.projectId === workspace.project_id)
+    const myTasks = projectTasks.filter(t => t.assigneeId === currentUser.id)
+    const displayTasks = projectRole === 'LEADER' || userRole === 'HR' ? projectTasks : myTasks
 
     // Derived state
     const activeFile = files.find(f => f.id === activeFileId) || null
@@ -241,6 +270,18 @@ export function WorkspaceLayout({
         }
     }
 
+    const handleTaskCompletion = async (taskId: string) => {
+        if (!proofLink.trim()) {
+            toast.error("Please provide a proof link")
+            return
+        }
+        
+        moveTask(taskId, "Done", proofLink.trim())
+        toast.success("Task submitted for review")
+        setProofLink("")
+        setSubmittingTaskId(null)
+    }
+
     // =========================================================================
     // Version Control (Commits)
     // =========================================================================
@@ -289,6 +330,18 @@ export function WorkspaceLayout({
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className={cn(
+                            "h-8 gap-2 text-emerald-100 hover:text-white hover:bg-emerald-800/50",
+                            showTaskPanel && "bg-emerald-800/40"
+                        )}
+                        onClick={() => setShowTaskPanel(!showTaskPanel)}
+                    >
+                        <LayoutDashboard size={14} /> Tasks
+                    </Button>
+
                     <Button 
                         variant="ghost" 
                         size="sm" 
@@ -379,6 +432,122 @@ export function WorkspaceLayout({
                         />
                     </div>
                 </div>
+
+                {/* Task Panel (Right Sidebar) */}
+                {showTaskPanel && (
+                    <motion.div 
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: 320, opacity: 1 }}
+                        className="border-l border-white/10 bg-[#0D1117]/80 backdrop-blur-xl flex flex-col overflow-hidden relative z-20 shadow-2xl"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+                        <div className="p-4 border-b border-white/5 flex items-center justify-between bg-emerald-950/20">
+                            <h2 className="font-semibold text-emerald-100 flex items-center gap-2">
+                                <LayoutDashboard size={16} /> Task HUD
+                            </h2>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 text-gray-400 hover:text-white"
+                                onClick={() => setShowTaskPanel(false)}
+                            >
+                                <ChevronRight size={16} />
+                            </Button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {displayTasks.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <p className="text-gray-500 text-sm">No tasks assigned to you in this project.</p>
+                                </div>
+                            ) : (
+                                displayTasks.map(task => (
+                                    <div 
+                                        key={task.id}
+                                        className={cn(
+                                            "p-4 rounded-xl border bg-white/5 group transition-all duration-300",
+                                            task.status === 'Done' ? "border-emerald-500/30 bg-emerald-500/5 opacity-80" : "border-emerald-800/20 hover:border-emerald-500/40"
+                                        )}
+                                    >
+                                        <div className="flex items-start justify-between mb-2">
+                                            <span className={cn(
+                                                "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
+                                                task.priority === 'High' ? "bg-red-500/20 text-red-400" :
+                                                task.priority === 'Medium' ? "bg-blue-500/20 text-blue-400" :
+                                                "bg-gray-500/20 text-gray-400"
+                                            )}>
+                                                {task.priority}
+                                            </span>
+                                            {task.status === 'Done' ? (
+                                                <CheckCircle size={14} className="text-emerald-500" />
+                                            ) : (
+                                                <Clock size={14} className="text-amber-500" />
+                                            )}
+                                        </div>
+                                        <p className="text-sm font-medium text-gray-100 mb-3">{task.title}</p>
+                                        
+                                        {task.status !== 'Done' && !readOnly && (
+                                            <div className="space-y-3 pt-2 border-t border-white/5">
+                                                {submittingTaskId === task.id ? (
+                                                    <div className="space-y-2 animate-in fade-in slide-in-from-top-1">
+                                                        <Input 
+                                                            placeholder="Proof URL (GitHub/Link)"
+                                                            value={proofLink}
+                                                            onChange={(e) => setProofLink(e.target.value)}
+                                                            className="h-8 text-xs bg-[#0D1117] border-emerald-500/30 focus-visible:ring-emerald-500/50"
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <Button 
+                                                                size="sm" 
+                                                                className="flex-1 h-7 text-[10px] bg-emerald-600 hover:bg-emerald-500 text-white"
+                                                                onClick={() => handleTaskCompletion(task.id)}
+                                                            >
+                                                                Submit Proof
+                                                            </Button>
+                                                            <Button 
+                                                                size="sm" 
+                                                                variant="ghost"
+                                                                className="h-7 text-[10px] text-gray-400"
+                                                                onClick={() => setSubmittingTaskId(null)}
+                                                            >
+                                                                Cancel
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <Button 
+                                                        variant="outline" 
+                                                        size="sm" 
+                                                        className="w-full h-8 text-xs border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300"
+                                                        onClick={() => setSubmittingTaskId(task.id)}
+                                                    >
+                                                        Mark as Done
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {task.status === 'Done' && (
+                                            <p className="text-[10px] text-emerald-400/60 mt-1 italic">
+                                                {task.verificationStatus === 'Verified' ? '✓ Verified by Lead' : 'Pending verification...'}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* AI Assistant Hook */}
+                        <div className="p-4 bg-emerald-950/30 border-t border-white/5">
+                            <Button 
+                                className="w-full gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-900/20"
+                                onClick={() => toast.info("AI Analysis: Task requirements are standard for this project phase.")}
+                            >
+                                <Sparkles size={14} /> Ask AI Assistant
+                            </Button>
+                        </div>
+                    </motion.div>
+                )}
             </div>
 
             {/* Slide-out Commit History Panel */}

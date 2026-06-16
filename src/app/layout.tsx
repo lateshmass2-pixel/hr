@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { HemsProvider } from "@/context/HemsContext";
 import { Toaster } from "sonner";
+import { Footer } from "@/components/layout/Footer";
 
 const font = Inter({ subsets: ["latin"] });
 
@@ -20,12 +21,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(
-        "min-h-screen bg-[#f8faf6] font-sans antialiased tracking-tight text-sm selection:bg-purple-100 selection:text-purple-900",
+        "min-h-screen bg-[#f8faf6] font-sans antialiased tracking-tight text-sm selection:bg-purple-100 selection:text-purple-900 flex flex-col",
         font.className
       )}>
         <HemsProvider>
           <Toaster richColors position="top-right" />
-          {children}
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
         </HemsProvider>
       </body>
     </html>

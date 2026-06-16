@@ -1,11 +1,12 @@
 "use client"
 
 import { Trash2 } from "lucide-react"
-import { deleteProject } from "./actions"
+import { useHems } from "@/context/HemsContext"
 import { useState } from "react"
 import { toast } from 'sonner'
 
 export function DeleteProjectButton({ projectId, projectTitle }: { projectId: string, projectTitle: string }) {
+    const { deleteProject } = useHems()
     const [isDeleting, setIsDeleting] = useState(false)
 
     async function handleDelete(e: React.MouseEvent) {
@@ -18,10 +19,15 @@ export function DeleteProjectButton({ projectId, projectTitle }: { projectId: st
 
         setIsDeleting(true)
         try {
-            await deleteProject(projectId)
-            toast.success('Project deleted successfully')
+            const result = await deleteProject(projectId)
+            if (result && !result.success) {
+                toast.error(`Failed to delete project: ${result.error}`)
+                setIsDeleting(false)
+            } else {
+                toast.success('Project deleted successfully')
+            }
         } catch (error) {
-            toast.error('Failed to delete project')
+            toast.error('An unexpected error occurred during deletion')
             setIsDeleting(false)
         }
     }

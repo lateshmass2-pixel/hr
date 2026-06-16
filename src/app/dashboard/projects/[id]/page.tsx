@@ -21,7 +21,11 @@ import {
     ArrowLeft,
     Users,
     ClipboardList,
-    Code2
+    Code2,
+    BookOpen,
+    BarChart3,
+    Search,
+    Filter
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow, format } from "date-fns"
@@ -48,6 +52,8 @@ import Link from "next/link"
 import { AvatarStack } from "@/components/ui/avatar-stack"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ProjectWorkspaceWidget } from "@/components/workspace/WorkspaceMetrics"
+import { ProjectInsights } from "@/components/projects/ProjectInsights"
+import { toast } from "sonner"
 
 const COLUMN_ORDER: TaskStatus[] = ["To Do", "In Progress", "Review", "Done"]
 
@@ -62,6 +68,7 @@ export default function ProjectDetailsPage() {
         moveTask,
         verifyTask,
         addTask,
+        updateTask,
         currentUser,
         userRole,
         users,
@@ -75,7 +82,10 @@ export default function ProjectDetailsPage() {
 
     // Get role for this project
     const projectRole = project ? getProjectRole(project.id) : 'VIEWER'
-    const canManageTasks = projectRole === 'LEADER' || userRole === 'HR'
+    const isActuallyTeamLead = project?.teamLeadId === currentUser.id
+    const isHR = userRole === 'HR'
+    const canManageTasks = projectRole === 'LEADER' || isHR
+    const canAssign = isActuallyTeamLead // Only actual team lead can assign
 
     // Modal States
     const [proofModalOpen, setProofModalOpen] = useState(false)
@@ -91,6 +101,9 @@ export default function ProjectDetailsPage() {
         priority: "Medium" as "High" | "Medium" | "Low"
     })
 
+    const [activeTab, setActiveTab] = useState<"board" | "reviews" | "insights">("board")
+    const [tasksAdded, setTasksAdded] = useState(false)
+
     if (!project) return (
         <div className="flex items-center justify-center h-[calc(100vh-200px)]">
             <div className="text-center">
@@ -105,9 +118,8 @@ export default function ProjectDetailsPage() {
 
     // Get team members for task assignment
     const teamMembers = [
-        ...(project.memberIds?.map(mid => users.find(u => u.id === mid) || employees.find(e => e.id === mid)) || []),
-        users.find(u => u.id === project.teamLeadId) || employees.find(e => e.id === project.teamLeadId)
-    ].filter(Boolean)
+        ...(project.memberIds?.map(mid => users.find(u => u.id === mid) || employees.find(e => e.id === mid)) || [])
+    ].filter(Boolean).filter(m => (m as any).id !== project.teamLeadId)
 
     // --- Drag Handlers ---
     const onDragEnd = (result: DropResult) => {
@@ -141,17 +153,28 @@ export default function ProjectDetailsPage() {
     }
 
     const handleCreateTask = () => {
-        if (!newTask.title || !newTask.assigneeId) return
+        if (!newTask.title) return
+        
+        // Only require assignee if user CAN assign
+        if (canAssign && !newTask.assigneeId) return
+
         addTask({
             projectId: project.id,
             title: newTask.title,
-            assigneeId: newTask.assigneeId,
+            assigneeId: newTask.assigneeId || "", // Empty string if not assigned
             priority: newTask.priority,
             status: "To Do",
             verificationStatus: "None"
         })
-        setNewTask({ title: "", assigneeId: "", priority: "Medium" })
-        setCreateTaskOpen(false)
+
+        toast.success(`Task "${newTask.title}" created`)
+        
+        // Reset title for next task but keep priority/assignee for faster entry
+        setNewTask(prev => ({ ...prev, title: "" }))
+        setTasksAdded(true)
+        
+        // Keep modal open for multiple creations
+        // setCreateTaskOpen(false)
     }
 
     // --- Components ---
@@ -211,12 +234,47 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-center justify-between">
                             {/* Stacked Assignee */}
                             {assignee ? (
-                                <div className="flex items-center -space-x-2">
+                                <div className="flex items-center gap-2">
                                     <div className="w-6 h-6 rounded-full bg-indigo-50 border border-white flex items-center justify-center text-[9px] font-bold text-indigo-600 shadow-sm" title={(assignee as any).name || (assignee as any).full_name}>
                                         {((assignee as any).name || (assignee as any).full_name).substring(0, 1)}
                                     </div>
+                                    <span className="text-[10px] text-gray-500 font-medium truncate max-w-[100px]">
+                                        {(assignee as any).name || (assignee as any).full_name}
+                                    </span>
                                 </div>
-                            ) : <div className="h-6" />}
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-[9px] font-bold text-gray-400">
+                                        ?
+                                    </div>
+                                    <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">Unassigned</span>
+                                </div>
+                            )}
+
+                            {/* Quick Assign for Leads */}
+                            {canAssign && !assignee && (
+                                <div className="flex items-center gap-1 z-10">
+                                    <Select 
+                                        onValueChange={(v) => {
+                                            updateTask(task.id, { assigneeId: v })
+                                            toast.success("Task assigned")
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-7 w-auto min-w-[32px] border-emerald-200 text-emerald-700 bg-emerald-50 px-2 rounded-lg text-[10px] font-bold">
+                                            <div className="flex items-center gap-1">
+                                                <Plus size={10} /> Assign
+                                            </div>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {teamMembers.map(member => (
+                                                <SelectItem key={(member as any).id} value={(member as any).id}>
+                                                    {(member as any).name || (member as any).full_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <MoreHorizontal size={14} className="text-gray-400 cursor-pointer hover:text-gray-600" />
@@ -326,7 +384,10 @@ export default function ProjectDetailsPage() {
                         {/* Create Task Button - LEADER and HR ONLY */}
                         {canManageTasks && (
                             <Button
-                                onClick={() => setCreateTaskOpen(true)}
+                                onClick={() => {
+                                    setTasksAdded(false)
+                                    setCreateTaskOpen(true)
+                                }}
                                 className="bg-[#0F172A] text-white hover:bg-black gap-2 rounded-xl shadow-lg shadow-black/10"
                             >
                                 <Plus size={16} /> Create Task
@@ -341,63 +402,178 @@ export default function ProjectDetailsPage() {
                 <ProjectWorkspaceWidget projectId={project.id} />
             </div>
 
-            {/* Kanban Board */}
-            <div className="flex-1 pb-8 overflow-y-auto">
-                <DragDropContext onDragEnd={onDragEnd}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-full">
-                        {COLUMN_ORDER.map(colId => {
-                            const colTasks = projectTasks.filter(t => t.status === colId)
-                            const pendingCount = colId === "Done" ? colTasks.filter(t => t.verificationStatus === "Pending").length : 0
-                            return (
-                                <div key={colId} className="flex flex-col h-full">
-                                    <Droppable droppableId={colId}>
-                                        {(provided, snapshot) => (
-                                            <div
-                                                {...provided.droppableProps}
-                                                ref={provided.innerRef}
-                                                className={cn(
-                                                    "flex-1 bg-white rounded-3xl border border-dashed border-green-200 p-3 min-h-[500px] transition-all duration-300 shadow-[0_8px_30px_rgba(10,59,42,0.03)]",
-                                                    snapshot.isDraggingOver && "bg-green-50/50 border-green-400 ring-4 ring-green-50"
-                                                )}
-                                            >
-                                                {/* Sticky Header with Pill Counter */}
-                                                <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md pb-3 mb-3 border-b border-green-100/50 flex items-center justify-between">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-bold text-[#0A3B2A] uppercase tracking-wider pl-1">{colId}</span>
-                                                        {pendingCount > 0 && (
-                                                            <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm">
-                                                                {pendingCount} pending
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <span className="bg-green-50 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-green-200/50 shadow-sm">
-                                                        {colTasks.length}
-                                                    </span>
-                                                </div>
-
-                                                {colTasks.length === 0 ? (
-                                                    <div className="h-40 flex items-center justify-center">
-                                                        <EmptyState
-                                                            icon={ClipboardList}
-                                                            title=""
-                                                            description="No tasks"
-                                                            className="py-2 opacity-50 scale-75"
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    colTasks.map((task, index) => (
-                                                        <KanbanCard key={task.id} task={task} index={index} />
-                                                    ))
-                                                )}
-                                                {provided.placeholder}
-                                            </div>
-                                        )}
-                                    </Droppable>
-                                </div>
-                            )
-                        })}
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-6 px-4 mb-6 border-b border-gray-100">
+                <button 
+                    onClick={() => setActiveTab("board")}
+                    className={cn(
+                        "pb-4 px-2 text-sm font-semibold transition-all relative",
+                        activeTab === "board" ? "text-emerald-700" : "text-gray-400 hover:text-gray-600"
+                    )}
+                >
+                    <div className="flex items-center gap-2">
+                        <Layout size={16} /> Kanban Board
                     </div>
-                </DragDropContext>
+                    {activeTab === "board" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />}
+                </button>
+
+                {(projectRole === 'LEADER' || userRole === 'HR') && (
+                    <button 
+                        onClick={() => setActiveTab("reviews")}
+                        className={cn(
+                            "pb-4 px-2 text-sm font-semibold transition-all relative",
+                            activeTab === "reviews" ? "text-emerald-700" : "text-gray-400 hover:text-gray-600"
+                        )}
+                    >
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck size={16} /> Review Hub
+                            {projectTasks.filter(t => t.verificationStatus === 'Pending').length > 0 && (
+                                <span className="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full text-[10px]">
+                                    {projectTasks.filter(t => t.verificationStatus === 'Pending').length}
+                                </span>
+                            )}
+                        </div>
+                        {activeTab === "reviews" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />}
+                    </button>
+                )}
+
+                <button 
+                    onClick={() => setActiveTab("insights")}
+                    className={cn(
+                        "pb-4 px-2 text-sm font-semibold transition-all relative",
+                        activeTab === "insights" ? "text-emerald-700" : "text-gray-400 hover:text-gray-600"
+                    )}
+                >
+                    <div className="flex items-center gap-2">
+                        <BarChart3 size={16} /> Insights
+                    </div>
+                    {activeTab === "insights" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-600" />}
+                </button>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+                {activeTab === "board" && (
+                    <div className="flex flex-col h-full">
+                        {/* Kanban Board Content */}
+                        <div className="flex-1 pb-8 overflow-y-auto">
+                            <DragDropContext onDragEnd={onDragEnd}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-full">
+                                    {COLUMN_ORDER.map(colId => {
+                                        const colTasks = projectTasks.filter(t => t.status === colId)
+                                        const pendingCount = colId === "Done" ? colTasks.filter(t => t.verificationStatus === "Pending").length : 0
+                                        return (
+                                            <div key={colId} className="flex flex-col h-full">
+                                                <Droppable droppableId={colId}>
+                                                    {(provided, snapshot) => (
+                                                        <div
+                                                            {...provided.droppableProps}
+                                                            ref={provided.innerRef}
+                                                            className={cn(
+                                                                "flex-1 bg-white rounded-3xl border border-dashed border-green-200 p-3 min-h-[500px] transition-all duration-300 shadow-[0_8px_30px_rgba(10,59,42,0.03)]",
+                                                                snapshot.isDraggingOver && "bg-green-50/50 border-green-400 ring-4 ring-green-50"
+                                                            )}
+                                                        >
+                                                            {/* Sticky Header with Pill Counter */}
+                                                            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md pb-3 mb-3 border-b border-green-100/50 flex items-center justify-between">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-sm font-bold text-[#0A3B2A] uppercase tracking-wider pl-1">{colId}</span>
+                                                                    {pendingCount > 0 && (
+                                                                        <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm">
+                                                                            {pendingCount} pending
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <span className="bg-green-50 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold border border-green-200/50 shadow-sm">
+                                                                    {colTasks.length}
+                                                                </span>
+                                                            </div>
+
+                                                            {colTasks.length === 0 ? (
+                                                                <div className="h-40 flex items-center justify-center">
+                                                                    <EmptyState
+                                                                        icon={ClipboardList}
+                                                                        title=""
+                                                                        description="No tasks"
+                                                                        className="py-2 opacity-50 scale-75"
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                colTasks.map((task, index) => (
+                                                                    <KanbanCard key={task.id} task={task} index={index} />
+                                                                ))
+                                                            )}
+                                                            {provided.placeholder}
+                                                        </div>
+                                                    )}
+                                                </Droppable>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </DragDropContext>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "reviews" && (
+                    <div className="flex flex-col h-full overflow-y-auto px-4">
+                        <div className="grid grid-cols-1 gap-4 py-4">
+                            {projectTasks.filter(t => t.verificationStatus === 'Pending').length === 0 ? (
+                                <EmptyState 
+                                    icon={ShieldCheck}
+                                    title="All Clear!"
+                                    description="There are no tasks pending verification at this moment."
+                                    className="h-[400px]"
+                                />
+                            ) : (
+                                projectTasks.filter(t => t.verificationStatus === 'Pending').map(task => {
+                                    const assignee = users.find(u => u.id === task.assigneeId) || employees.find(e => e.id === task.assigneeId)
+                                    return (
+                                        <div key={task.id} className="bg-white border rounded-2xl p-6 shadow-sm flex items-center justify-between group hover:border-emerald-500 transition-all duration-300">
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                                                    <Clock size={24} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 text-lg">{task.title}</h3>
+                                                    <div className="flex items-center gap-3 mt-1">
+                                                        <span className="text-xs text-gray-500">Submitted by: <span className="font-semibold text-gray-700">{(assignee as any)?.name || (assignee as any)?.full_name}</span></span>
+                                                        <span className="w-1 h-1 rounded-full bg-gray-300" />
+                                                        <a href={task.proofUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 hover:underline flex items-center gap-1 font-medium">
+                                                            <ExternalLink size={12} /> View Proof Artifact
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    className="text-red-600 hover:bg-red-50 rounded-xl"
+                                                    onClick={() => verifyTask(task.id, false)}
+                                                >
+                                                    <XCircle size={18} className="mr-2" /> Reject
+                                                </Button>
+                                                <Button 
+                                                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
+                                                    onClick={() => verifyTask(task.id, true)}
+                                                >
+                                                    <CheckCircle2 size={18} className="mr-2" /> Approve
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "insights" && (
+                    <div className="flex-1 overflow-y-auto px-4">
+                        <ProjectInsights projectId={project.id} />
+                    </div>
+                )}
             </div>
 
             {/* Member Proof Submission Modal */}
@@ -493,21 +669,31 @@ export default function ProjectDetailsPage() {
                                 onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label>Assign To</Label>
-                            <Select value={newTask.assigneeId} onValueChange={(v) => setNewTask({ ...newTask, assigneeId: v })}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select team member" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {teamMembers.map(member => (
-                                        <SelectItem key={(member as any).id} value={(member as any).id}>
-                                            {(member as any).name || (member as any).full_name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        {canAssign && (
+                            <div className="space-y-2">
+                                <Label>Assign To</Label>
+                                <Select value={newTask.assigneeId} onValueChange={(v) => setNewTask({ ...newTask, assigneeId: v })}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select team member" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {teamMembers.map(member => (
+                                            <SelectItem key={(member as any).id} value={(member as any).id}>
+                                                {(member as any).name || (member as any).full_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                        {!canAssign && isHR && (
+                            <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-2">
+                                <AlertCircle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-amber-800 leading-tight">
+                                    HR can create tasks, but assignment is restricted to the Project Team Lead.
+                                </p>
+                            </div>
+                        )}
                         <div className="space-y-2">
                             <Label>Priority</Label>
                             <Select value={newTask.priority} onValueChange={(v: any) => setNewTask({ ...newTask, priority: v })}>
@@ -523,13 +709,15 @@ export default function ProjectDetailsPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setCreateTaskOpen(false)}>Cancel</Button>
+                        <Button variant="ghost" onClick={() => setCreateTaskOpen(false)}>
+                            {tasksAdded ? "Done" : "Cancel"}
+                        </Button>
                         <Button
                             className="bg-[#0A3B2A] hover:bg-[#064e3b] text-white"
                             onClick={handleCreateTask}
-                            disabled={!newTask.title || !newTask.assigneeId}
+                            disabled={!newTask.title}
                         >
-                            <Plus size={16} className="mr-2" /> Create Task
+                            <Plus size={16} className="mr-2" /> Add Task
                         </Button>
                     </DialogFooter>
                 </DialogContent>

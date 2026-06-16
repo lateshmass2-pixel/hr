@@ -9,8 +9,8 @@ export default async function TeamLayout({
 }) {
     const session = await getSession();
     
-    // Prevent rendering the /team route tree if the user is not at least an HR admin
-    if (!session || !isRoleAtLeast(session.role, 'hr')) {
+    // Allow all employees to access the Team route, as the page itself handles role-based content filtering
+    if (!session || !isRoleAtLeast(session.role, 'employee')) {
         redirect("/dashboard");
     }
 

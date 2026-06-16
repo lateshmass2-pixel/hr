@@ -32,6 +32,7 @@ export interface Employee {
     status: EmployeeStatus
     created_at: string
     avatar_url?: string
+    user_id?: string
 }
 
 export type LeaveType = "Sick" | "Annual"
@@ -141,6 +142,19 @@ export interface Course {
     enrolled: boolean
 }
 
+export interface HemsDataState {
+    employees: Employee[]
+    leaves: Leave[]
+    jobs: Job[]
+    announcements: Announcement[]
+    courses: Course[]
+    projects: Project[]
+    teams: Team[]
+    tasks: Task[]
+    users: User[]
+    candidates: Candidate[]
+}
+
 // ============================================================================
 // Context Shape
 // ============================================================================
@@ -153,6 +167,9 @@ export interface HemsContextType {
     // Legacy support (for gradual migration)
     userRole: "HR" | "EMPLOYEE"
     setUserRole: (role: "HR" | "EMPLOYEE") => void
+
+    // Consolidated Data State
+    data: HemsDataState
 
     // Data
     users: User[]
@@ -174,6 +191,8 @@ export interface HemsContextType {
     getProjectsAsLeader: () => Project[]
     getProjectsAsMember: () => Project[]
     getMyTasks: () => Task[]
+    getOccupiedUserIds: () => Set<string>
+    isUserAvailable: (userId: string) => boolean
 
     // Actions
     addEmployee: (employee: Omit<Employee, "id">) => Promise<void>
@@ -188,5 +207,5 @@ export interface HemsContextType {
     addTask: (task: Omit<Task, "id">) => Promise<void>
     moveTask: (taskId: string, newStatus: TaskStatus, proofUrl?: string) => void
     verifyTask: (taskId: string, isApproved: boolean) => void
-    deleteProject: (projectId: string) => Promise<void>
+    deleteProject: (id: string) => Promise<{ success: boolean; error?: string } | void>
 }

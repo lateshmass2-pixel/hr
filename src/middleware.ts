@@ -50,15 +50,25 @@ export async function middleware(request: NextRequest) {
     const publicRoutes = ['/login', '/signup', '/api/invite/accept', '/assessment'];
     const isPublic = publicRoutes.some((route) => path.startsWith(route));
     if (isPublic || path === '/') {
-        // Refresh session even on public routes (for navbar state etc.)
-        await supabase.auth.getUser();
+        // Try to refresh session, but don't crash if Supabase is unavailable
+        try {
+            await supabase.auth.getUser();
+        } catch (error) {
+            console.warn('⚠️ Could not refresh auth session:', (error as Error).message);
+        }
         return supabaseResponse;
     }
 
     // ==========================================================================
     // 3. Protected routes — require authentication
     // ==========================================================================
-    const { data: { user } } = await supabase.auth.getUser();
+    let user = null;
+    try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        user = authUser;
+    } catch (error) {
+        console.warn('⚠️ Could not get auth user:', (error as Error).message);
+    }
 
     const isProtected = path.startsWith('/dashboard') || path.startsWith('/admin');
 
@@ -75,17 +85,22 @@ export async function middleware(request: NextRequest) {
     if (user && path.startsWith('/dashboard') && !path.startsWith('/dashboard/onboarding')) {
         // We check org membership via a lightweight query
         // Note: This runs on every dashboard request — consider caching with cookies
-        const { data: membership } = await supabase
-            .from('organization_members')
-            .select('organization_id')
-            .eq('user_id', user.id)
-            .eq('is_active', true)
-            .limit(1)
-            .single();
+        try {
+            const { data: membership } = await supabase
+                .from('organization_members')
+                .select('organization_id')
+                .eq('user_id', user.id)
+                .eq('is_active', true)
+                .limit(1)
+                .single();
 
-        if (!membership) {
-            // User has no org — send to onboarding
-            return NextResponse.redirect(new URL('/dashboard/onboarding', request.url));
+            if (!membership) {
+                // User has no org — send to onboarding
+                return NextResponse.redirect(new URL('/dashboard/onboarding', request.url));
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not check org membership:', (error as Error).message);
+            // Continue anyway; UI will handle missing org gracefully
         }
     }
 

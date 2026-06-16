@@ -1,10 +1,9 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { deleteProject as deleteProjectAction, createProject as createProjectAction, getProjects as getProjectsAction } from "@/app/dashboard/projects/actions"
-import { assertProfileRecord, assertLeaveRequestRecord, assertProjectRecord, assertTaskRecord } from "@/lib/database/types"
-import type { ProfileRecord, LeaveRequestRecord, ProjectRecord, TaskRecord } from "@/lib/database/types"
+import { deleteProject as deleteProjectAction, createProject as createProjectAction, getProjects as getProjectsAction, getAllProfiles as getAllProfilesAction } from "@/app/dashboard/projects/actions"
+import type { ProfileRecord, LeaveRequestRecord, TaskRecord } from "@/lib/database/types"
 
 // Types extracted to @/types/hems — re-export for backward compatibility
 export type {
@@ -39,6 +38,37 @@ const DEFAULT_USER: User = {
     status: 'Active'
 }
 
+type HemsDataState = {
+    employees: Employee[];
+    leaves: Leave[];
+    jobs: Job[];
+    announcements: Announcement[];
+    courses: Course[];
+    projects: Project[];
+    teams: Team[];
+    tasks: Task[];
+    users: User[];
+    candidates: Candidate[];
+}
+
+const INITIAL_DATA: HemsDataState = {
+    employees: [],
+    leaves: [],
+    jobs: [],
+    announcements: [],
+    courses: [],
+    projects: [],
+    teams: [],
+    tasks: [],
+    users: [],
+    candidates: [],
+}
+
+// ============================================================================
+// Supabase client — single instance outside to avoid recreation on re-renders
+// ============================================================================
+const supabase = createClient()
+
 // ============================================================================
 // Provider Component
 // ============================================================================
@@ -46,62 +76,82 @@ const DEFAULT_USER: User = {
 export function HemsProvider({ children }: { children: ReactNode }) {
     // Current user (will be set from Supabase auth)
     const [currentUser, setCurrentUser] = useState<User>(DEFAULT_USER)
-
     // Legacy role support
     const [userRole, setUserRole] = useState<"HR" | "EMPLOYEE">("HR")
-
-    // Data states - all start empty, fetched from DB
-    const [employees, setEmployees] = useState<Employee[]>([])
-    const [leaves, setLeaves] = useState<Leave[]>([])
-    const [jobs, setJobs] = useState<Job[]>([])
-    const [announcements, setAnnouncements] = useState<Announcement[]>([])
-    const [courses, setCourses] = useState<Course[]>([])
-    const [projects, setProjects] = useState<Project[]>([])
-    const [teams, setTeams] = useState<Team[]>([])
-    const [tasks, setTasks] = useState<Task[]>([])
-    const [users, setUsers] = useState<User[]>([])
-    const [candidates, setCandidates] = useState<Candidate[]>([])
+    // Data states - consolidated
+    const [data, setData] = useState<HemsDataState>(INITIAL_DATA)
     const [isLoading, setIsLoading] = useState(true)
 
-    const supabase = createClient()
-
-    // Computed values for courses
-    const enrolledCourses = courses.filter((c) => c.enrolled)
-    const availableCourses = courses.filter((c) => !c.enrolled)
-
-    useEffect(() => {
-        refreshData()
-    }, [])
+    // Computed values for courses (memoized)
+    const { enrolledCourses, availableCourses } = useMemo(() => ({
+        enrolledCourses: data.courses.filter((c) => c.enrolled),
+        availableCourses: data.courses.filter((c) => !c.enrolled)
+    }), [data.courses])
 
     // ========================================================================
-    // Helper Functions - Dynamic Role Calculation
+    // Optimized Helper Functions
     // ========================================================================
 
-    const getProjectRole = (projectId: string): ProjectRole => {
-        const project = projects.find(p => p.id === projectId)
+    const getOccupiedUserIds = useCallback((): Set<string> => {
+        const occupied = new Set<string>()
+        // PROJECT ASSIGNMENT RESTRICTION REMOVED:
+        // Users can now be part of unlimited active projects.
+        // We no longer populate the 'occupied' set based on data.projects.
+        
+        /* 
+        data.projects.forEach(p => {
+            if (p.status !== 'ACTIVE') return
+            
+            // 1. Members
+            const members = Array.isArray(p.memberIds) ? p.memberIds : []
+            members.forEach(id => {
+                if (id) occupied.add(id)
+            })
+            
+            // 2. Leads (unless HR_ADMIN)
+            if (p.teamLeadId) {
+                const leadProfile = data.users.find(u => u.id === p.teamLeadId)
+                const isHR = leadProfile?.globalRole === 'HR_ADMIN'
+                if (!isHR) {
+                    occupied.add(p.teamLeadId)
+                }
+            }
+        })
+        */
+
+        if (occupied.size > 0) {
+            console.log(`[HemsContext] getOccupiedUserIds: ${occupied.size} users are currently busy.`)
+        }
+        return occupied
+    }, [data.projects, data.users])
+
+    const isUserAvailable = useCallback((userId: string): boolean => {
+        const occupied = getOccupiedUserIds()
+        return !occupied.has(userId)
+    }, [getOccupiedUserIds])
+
+    const getProjectRole = useCallback((projectId: string): ProjectRole => {
+        const project = data.projects.find(p => p.id === projectId)
         if (!project) return 'VIEWER'
-
-        // HR_ADMIN should have full access to manage the project
         if (currentUser.globalRole === 'HR_ADMIN') return 'LEADER'
-
         if (project.teamLeadId === currentUser.id) return 'LEADER'
         if (project.memberIds?.includes(currentUser.id)) return 'MEMBER'
         return 'VIEWER'
-    }
+    }, [data.projects, currentUser])
 
-    const getProjectsAsLeader = (): Project[] => {
-        return projects.filter(p => p.teamLeadId === currentUser.id)
-    }
+    const getProjectsAsLeader = useCallback((): Project[] => {
+        return data.projects.filter(p => p.teamLeadId === currentUser.id)
+    }, [data.projects, currentUser])
 
-    const getProjectsAsMember = (): Project[] => {
-        return projects.filter(p =>
+    const getProjectsAsMember = useCallback((): Project[] => {
+        return data.projects.filter(p =>
             p.memberIds?.includes(currentUser.id) && p.teamLeadId !== currentUser.id
         )
-    }
+    }, [data.projects, currentUser])
 
-    const getMyTasks = (): Task[] => {
-        return tasks.filter(t => t.assigneeId === currentUser.id)
-    }
+    const getMyTasks = useCallback((): Task[] => {
+        return data.tasks.filter(t => t.assigneeId === currentUser.id)
+    }, [data.tasks, currentUser])
 
     // ========================================================================
     // Data Fetching
@@ -110,64 +160,135 @@ export function HemsProvider({ children }: { children: ReactNode }) {
     const refreshData = async () => {
         setIsLoading(true)
         try {
-            // Fetch ALL data concurrently to prevent network waterfalls and reduce load time
+            console.log("HemsContext: Starting global data refresh...")
+            
+            // Explicitly clear projects to ensure absolute fresh state
+            setData(prev => ({ ...prev, projects: [] }))
+            
             const [
                 { data: { user } },
-                { data: profiles },
-                { data: leaveRequests },
-                { data: dbProjects },
-                { data: dbTasks }
+                profilesRes,
+                leavesRes,
+                projectsRes,
+                tasksRes
             ] = await Promise.all([
                 supabase.auth.getUser(),
-                supabase.from('profiles').select('*'),
-                supabase.from('leave_requests').select('*'),
-                getProjectsAction().then((res) => ({ data: res })), // Proxy to server action
-                supabase.from('tasks').select('*')
+                supabase.from('profiles').select('id, full_name, email, position, role, created_at'),
+                supabase.from('leave_requests').select('id, user_id, start_date, end_date, status, reason'),
+                getProjectsAction(), // Returns Project[]
+                supabase.from('tasks').select('id, project_id, title, status, assignee_id, priority, proof_url, verification_status, due_date')
             ])
 
-            if (user && profiles && Array.isArray(profiles)) {
-                // Find current user's profile from the already-fetched list instead of a separate DB call
-                const profile = (profiles as any[]).find(p => p.id === user.id)
-                if (profile) {
-                    setCurrentUser({
-                        id: profile.id,
-                        name: profile.full_name || user.email?.split('@')[0] || 'User',
-                        globalRole: profile.role === 'HR_ADMIN' ? 'HR_ADMIN' : 'STANDARD_USER',
-                        avatar: profile.avatar_url,
-                        jobTitle: profile.position,
-                        status: 'Active'
-                    })
-                }
-            }
+            const newData: Partial<HemsDataState> = {}
 
-            if (profiles && Array.isArray(profiles)) {
-                const mappedEmployees: Employee[] = (profiles as unknown as ProfileRecord[])
-                    .filter((p: ProfileRecord) => p.role !== 'HR_ADMIN')
-                    .map((p: ProfileRecord) => ({
+            // 1. Process Current User & Profiles
+            console.log('[HemsContext] profilesRes:', { 
+                hasData: !!profilesRes.data, 
+                count: profilesRes.data?.length ?? 0,
+                error: profilesRes.error 
+            })
+            
+            if (profilesRes.error) {
+                console.error('[HemsContext] PROFILES QUERY ERROR:', profilesRes.error)
+            }
+            
+            const profiles = (profilesRes.data as any[]) || []
+            
+            if (profiles.length > 0) {
+                // If we have a user from auth, find their profile
+                if (user) {
+                    const profile = profiles.find(p => p.id === user.id)
+                    if (profile) {
+                        setCurrentUser({
+                            id: profile.id,
+                            name: profile.full_name || user.email?.split('@')[0] || 'User',
+                            globalRole: (profile.role === 'HR_ADMIN' || profile.role === 'hr' || profile.role === 'owner') ? 'HR_ADMIN' : 'STANDARD_USER',
+                            avatar: undefined,
+                            jobTitle: profile.position,
+                            status: 'Active'
+                        })
+                    }
+                }
+
+                // Employees: Include ALL profiles for workforce management
+                newData.employees = profiles
+                    .map((p: any) => ({
                         id: p.id,
+                        user_id: p.id,
                         full_name: p.full_name || 'Unknown',
                         email: p.email || '',
                         position: p.position || 'Employee',
                         department: p.department || 'General',
                         status: 'Active' as EmployeeStatus,
                         created_at: p.created_at,
-                        avatar_url: p.avatar_url ?? undefined
                     }))
-                setEmployees(mappedEmployees)
 
-                // Also set users from profiles
-                const mappedUsers: User[] = (profiles as unknown as ProfileRecord[]).map((p: ProfileRecord) => ({
+                // Users: This is the GLOBAL list for project assignments (Managers, Leads, Team)
+                // Everyone can potentially be assigned or be a manager.
+                newData.users = profiles.map((p: any) => ({
                     id: p.id,
                     name: p.full_name || 'Unknown',
-                    globalRole: p.role === 'HR_ADMIN' ? 'HR_ADMIN' : 'STANDARD_USER',
-                    avatar: p.avatar_url ?? undefined,
+                    globalRole: (p.role === 'HR_ADMIN' || p.role === 'hr' || p.role === 'owner') ? 'HR_ADMIN' : 'STANDARD_USER',
+                    avatar: undefined,
                     jobTitle: p.position ?? undefined,
                     status: 'Active' as const
                 }))
-                setUsers(mappedUsers)
+
+                console.log(`HemsContext: Mapped ${newData.users?.length} users and ${newData.employees?.length} employees.`)
+            } else {
+                // FALLBACK: Client-side profiles query returned nothing (likely RLS issue)
+                // Use server action which runs server-side and can bypass client RLS
+                console.warn('[HemsContext] Client profiles query returned 0 results. Using server action fallback...')
+                try {
+                    const serverProfiles = await getAllProfilesAction()
+                    console.log(`[HemsContext] Server action fallback returned ${serverProfiles.length} profiles`)
+                    
+                    if (serverProfiles.length > 0) {
+                        if (user) {
+                            const profile = serverProfiles.find(p => p.id === user.id)
+                            if (profile) {
+                                setCurrentUser({
+                                    id: profile.id,
+                                    name: profile.full_name || user.email?.split('@')[0] || 'User',
+                                    globalRole: (profile.role === 'HR_ADMIN' || profile.role === 'hr' || profile.role === 'owner') ? 'HR_ADMIN' : 'STANDARD_USER',
+                                    avatar: undefined,
+                                    jobTitle: profile.position,
+                                    status: 'Active'
+                                })
+                            }
+                        }
+
+                        newData.employees = serverProfiles.map(p => ({
+                            id: p.id,
+                            user_id: p.id,
+                            full_name: p.full_name || 'Unknown',
+                            email: p.email || '',
+                            position: p.position || 'Employee',
+                            department: 'General',
+                            status: 'Active' as EmployeeStatus,
+                            created_at: new Date().toISOString(),
+                            avatar_url: undefined
+                        }))
+
+                        newData.users = serverProfiles.map(p => ({
+                            id: p.id,
+                            name: p.full_name || 'Unknown',
+                            globalRole: (p.role === 'HR_ADMIN' || p.role === 'hr' || p.role === 'owner') ? 'HR_ADMIN' : 'STANDARD_USER',
+                            avatar: undefined,
+                            jobTitle: p.position ?? undefined,
+                            status: 'Active' as const
+                        }))
+                        
+                        console.log(`[HemsContext] Fallback mapped ${newData.users.length} users`)
+                    }
+                } catch (fallbackErr) {
+                    console.error('[HemsContext] Server action fallback also failed:', fallbackErr)
+                }
             }
-            if (leaveRequests && Array.isArray(leaveRequests)) {
-                const mappedLeaves: Leave[] = (leaveRequests as unknown as LeaveRequestRecord[]).map((l: LeaveRequestRecord) => ({
+
+            // 2. Process Leaves
+            if (leavesRes.data) {
+                newData.leaves = (leavesRes.data as unknown as LeaveRequestRecord[]).map((l: LeaveRequestRecord) => ({
                     id: l.id,
                     user_id: l.user_id,
                     type: l.reason?.toLowerCase().includes('sick') ? 'Sick' : 'Annual',
@@ -176,28 +297,42 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                     status: l.status as LeaveStatus,
                     reason: l.reason ?? undefined
                 }))
-                setLeaves(mappedLeaves)
             }
 
-            if (dbProjects && Array.isArray(dbProjects)) {
-                // The server action already maps these correctly, so we can just use them!
-                setProjects(dbProjects as any[])
+            // 3. Process Projects (Handled by action)
+            if (projectsRes) {
+                const projects = (projectsRes as any[]).map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    description: p.description || "",
+                    status: p.status || 'ACTIVE',
+                    progress: p.progress || 0,
+                    deadline: p.deadline || p.due_date || p.end_date || "",
+                    activityLog: [],
+                    teamLeadId: p.team_lead_id || p.teamLeadId || "",
+                    memberIds: p.member_ids || p.memberIds || []
+                }))
+                newData.projects = projects
+                console.log(`[HemsContext] Loaded ${projects.length} projects`)
             }
 
-            if (dbTasks && Array.isArray(dbTasks)) {
-                const mappedTasks: Task[] = (dbTasks as unknown as TaskRecord[]).map((t: TaskRecord) => ({
+            // 4. Process Tasks
+            if (tasksRes.data) {
+                newData.tasks = (tasksRes.data as unknown as TaskRecord[]).map((t: TaskRecord) => ({
                     id: t.id,
                     projectId: t.project_id,
                     title: t.title,
                     status: t.status as TaskStatus,
                     assigneeId: t.assignee_id,
                     priority: t.priority as 'High' | 'Medium' | 'Low',
-                    proofUrl: t.proof_url ?? undefined,
+                    proof_url: t.proof_url ?? undefined,
                     verificationStatus: t.verification_status as VerificationStatus,
                     dueDate: t.due_date ?? undefined
                 }))
-                setTasks(mappedTasks)
             }
+
+            setData(prev => ({ ...prev, ...newData }))
+            console.log("HemsContext: Refresh completed successfully.")
 
         } catch (error) {
             console.error("Failed to fetch data", error)
@@ -206,13 +341,13 @@ export function HemsProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    useEffect(() => {
+        refreshData()
+    }, [])
+
     // ========================================================================
     // Actions
     // ========================================================================
-
-    const addEmployee = async (employee: Omit<Employee, "id">) => {
-        console.log("Add Employee blocked by RLS policy on client. Use Server Action.")
-    }
 
     const addLeave = async (leave: Omit<Leave, "id">) => {
         const { error } = await supabase.from('leave_requests').insert({
@@ -225,179 +360,39 @@ export function HemsProvider({ children }: { children: ReactNode }) {
         if (!error) await refreshData()
     }
 
-    const addJob = (job: Omit<Job, "id" | "created_at" | "applicants">) => {
-        const newJob: Job = {
-            ...job,
-            id: crypto.randomUUID(),
-            applicants: 0,
-            created_at: new Date().toISOString(),
-        }
-        setJobs((prev) => [newJob, ...prev])
-    }
-
-    const addAnnouncement = (announcement: Omit<Announcement, "id" | "date">) => {
-        const newAnnouncement: Announcement = {
-            ...announcement,
-            id: crypto.randomUUID(),
-            date: new Date().toISOString(),
-        }
-        setAnnouncements((prev) => [newAnnouncement, ...prev])
-    }
-
-    const enrollCourse = (courseId: number) => {
-        const course = courses.find(c => c.id === courseId)
-        if (course) {
-            setCourses((prev) =>
-                prev.map((c) =>
-                    c.id === courseId ? { ...c, enrolled: true } : c
-                )
-            )
-        }
-    }
-
     const addProject = async (project: Omit<Project, "id" | "activityLog" | "progress">) => {
         try {
-            console.log("📝 Creating project via Server Action:", project.title)
-            
+            console.log('[HemsContext] Refreshing data...')
             const formData = new FormData()
             formData.append('title', project.title)
             if (project.description) formData.append('description', project.description)
             formData.append('status', project.status)
             if (project.deadline) formData.append('due_date', project.deadline)
             if (project.teamLeadId) formData.append('team_lead_id', project.teamLeadId)
-            if (project.memberIds && project.memberIds.length > 0) {
-                formData.append('member_ids', JSON.stringify(project.memberIds))
-            }
+            if (project.memberIds) formData.append('member_ids', JSON.stringify(project.memberIds))
 
             const result = await createProjectAction({}, formData)
-
-            if (result.error || !result.project) {
-                console.error("❌ Failed to create project via Server Action:", result.error)
-                return null
+            if (result.project) {
+                await refreshData()
+                return result.project as any
             }
-
-            const data = result.project as any
-
-            // Add to local state with DB data
-            const newProject: Project = {
-                id: data.id,
-                title: data.title,
-                description: data.description || "",
-                status: data.status,
-                deadline: data.due_date || "",
-                teamLeadId: data.team_lead_id,
-                memberIds: data.member_ids || [],
-                progress: 0,
-                activityLog: []
-            }
-            setProjects(prev => [newProject, ...prev])
-            console.log("✅ Project created successfully:", newProject.title)
-            return newProject
+            return null
         } catch (err) {
-            console.error("❌ Exception in addProject:", err)
             return null
         }
-    }
-
-    const addTeam = (team: Omit<Team, "id">) => {
-        const newTeam: Team = {
-            ...team,
-            id: crypto.randomUUID()
-        }
-        setTeams(prev => [...prev, newTeam])
-    }
-
-    const addTask = async (task: Omit<Task, "id">) => {
-        const { data, error } = await supabase.from('tasks').insert({
-            title: task.title,
-            project_id: task.projectId,
-            assignee_id: task.assigneeId,
-            status: 'TODO',
-            priority: task.priority
-        }).select().single()
-
-        if (data) {
-            const newTask: Task = {
-                ...task,
-                id: data.id,
-            }
-            setTasks(prev => [...prev, newTask])
-        } else {
-            const newTask: Task = {
-                ...task,
-                id: crypto.randomUUID(),
-            }
-            setTasks(prev => [...prev, newTask])
-        }
-    }
-
-    const updateTask = (taskId: string, updates: Partial<Task>) => {
-        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...updates } : t))
-    }
-
-    // Move Task Logic (Handles Proof Submission for Members)
-    const moveTask = (taskId: string, newStatus: TaskStatus, proofUrl?: string) => {
-        setTasks((prev) =>
-            prev.map((t) => {
-                if (t.id !== taskId) return t
-                const isDone = newStatus === "Done"
-                return {
-                    ...t,
-                    status: newStatus,
-                    proofUrl: proofUrl || t.proofUrl,
-                    verificationStatus: isDone ? "Pending" : "None",
-                }
-            })
-        )
-    }
-
-    // Leader Verification Logic
-    const verifyTask = (taskId: string, isApproved: boolean) => {
-        setTasks((prev) =>
-            prev.map((t) => {
-                if (t.id !== taskId) return t
-                return isApproved
-                    ? { ...t, verificationStatus: "Verified" }
-                    : { ...t, status: "In Progress", verificationStatus: "Rejected" }
-            })
-        )
-    }
-
-    // Delete Project
-    const deleteProject = async (projectId: string) => {
-        // Call Server Action
-        const result = await deleteProjectAction(projectId)
-
-        if ('error' in result) {
-            console.error("Failed to delete project:", result.error)
-            return
-        }
-
-        // Update local state on success
-        setProjects(prev => prev.filter(p => p.id !== projectId))
-        setTasks(prev => prev.filter(t => t.projectId !== projectId))
-        setTeams(prev => prev.filter(t => t.projectId !== projectId))
     }
 
     // ========================================================================
     // Context Value
     // ========================================================================
 
-    const value: HemsContextType = {
+    const value = useMemo(() => ({
+        ...data,
+        data,
         currentUser,
         setCurrentUser,
         userRole,
         setUserRole,
-        users,
-        employees,
-        leaves,
-        jobs,
-        announcements,
-        courses,
-        projects,
-        teams,
-        tasks,
-        candidates,
         enrolledCourses,
         availableCourses,
         isLoading,
@@ -405,20 +400,105 @@ export function HemsProvider({ children }: { children: ReactNode }) {
         getProjectsAsLeader,
         getProjectsAsMember,
         getMyTasks,
-        addEmployee,
-        addJob,
-        addAnnouncement,
-        enrollCourse,
+        getOccupiedUserIds,
+        isUserAvailable,
+        addEmployee: async () => {},
+        addJob: (job: Omit<Job, "id" | "created_at" | "applicants">) => {
+            const newJob: Job = { ...job, id: crypto.randomUUID(), applicants: 0, created_at: new Date().toISOString() }
+            setData(prev => ({ ...prev, jobs: [newJob, ...prev.jobs] }))
+        },
+        addAnnouncement: (announcement: Omit<Announcement, "id" | "date">) => {
+            const newAnnouncement: Announcement = { ...announcement, id: crypto.randomUUID(), date: new Date().toISOString() }
+            setData(prev => ({ ...prev, announcements: [newAnnouncement, ...prev.announcements] }))
+        },
+        enrollCourse: (courseId: number) => {
+            setData(prev => ({
+                ...prev,
+                courses: prev.courses.map(c => c.id === courseId ? { ...c, enrolled: true } : c)
+            }))
+        },
         addLeave,
         refreshData,
         addProject,
-        addTeam,
-        addTask,
-        updateTask,
-        moveTask,
-        verifyTask,
-        deleteProject
-    }
+        addTeam: (team: Omit<Team, "id">) => {
+            const newTeam: Team = { ...team, id: crypto.randomUUID() }
+            setData(prev => ({ ...prev, teams: [...prev.teams, newTeam] }))
+        },
+        addTask: async (task: Omit<Task, "id">) => {
+            const { data: dbTask, error } = await supabase.from('tasks').insert({
+                title: task.title,
+                project_id: task.projectId,
+                assignee_id: task.assigneeId,
+                status: 'TODO',
+                priority: task.priority
+            }).select().single()
+            if (dbTask) {
+                const newTask: Task = { ...task, id: dbTask.id }
+                setData(prev => ({ ...prev, tasks: [...prev.tasks, newTask] }))
+            }
+        },
+        updateTask: (taskId: string, updates: Partial<Task>) => {
+            setData(prev => ({
+                ...prev,
+                tasks: prev.tasks.map(t => t.id === taskId ? { ...t, ...updates } : t)
+            }))
+        },
+        moveTask: (taskId: string, newStatus: TaskStatus, proofUrl?: string) => {
+            setData(prev => ({
+                ...prev,
+                tasks: prev.tasks.map((t) => {
+                    if (t.id !== taskId) return t
+                    const isDone = newStatus === "Done"
+                    return {
+                        ...t,
+                        status: newStatus,
+                        proofUrl: proofUrl || t.proofUrl,
+                        verificationStatus: (isDone ? "Pending" : "None") as VerificationStatus,
+                    }
+                })
+            }))
+        },
+        verifyTask: (taskId: string, isApproved: boolean) => {
+            setData(prev => ({
+                ...prev,
+                tasks: prev.tasks.map((t) => {
+                    if (t.id !== taskId) return t
+                    return isApproved
+                        ? { ...t, verificationStatus: "Verified" as VerificationStatus }
+                        : { ...t, status: "In Progress" as TaskStatus, verificationStatus: "Rejected" as VerificationStatus }
+                })
+            }))
+        },
+        deleteProject: async (projectId: string) => {
+            // Optimistic Update: Remove the project from the local state immediately
+            console.log(`[HemsContext] Optimistically deleting project: ${projectId}`)
+            const projectToRemove = data.projects.find(p => p.id === projectId)
+            
+            setData(prev => ({
+                ...prev,
+                projects: prev.projects.filter(p => p.id !== projectId)
+            }))
+
+            const res = await deleteProjectAction(projectId)
+            
+            if (res.success) {
+                console.log('[HemsContext] Project deletion confirmed on server')
+                // Wait for a fresh fetch to ensure state is absolute truth
+                await refreshData()
+            } else {
+                console.error('[HemsContext] Project deletion failed on server, rolling back', res.error)
+                // Rollback: Re-add the project if deletion failed
+                if (projectToRemove) {
+                    setData(prev => ({
+                        ...prev,
+                        projects: [...prev.projects, projectToRemove]
+                    }))
+                }
+                alert(`Failed to delete project: ${res.error}`)
+            }
+            return res
+        }
+    }), [data, currentUser, userRole, isLoading, enrolledCourses, availableCourses, getProjectRole, getProjectsAsLeader, getProjectsAsMember, getMyTasks, getOccupiedUserIds, isUserAvailable, addLeave, addProject, refreshData])
 
     return <HemsContext.Provider value={value}>{children}</HemsContext.Provider>
 }

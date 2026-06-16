@@ -25,12 +25,9 @@ export default async function WorkspacePage(props: { params: Promise<{ id: strin
     // and might not be fully synced with Supabase 'projects' table or organization_id logic yet.
 
     // 2. Resolve Workspace permissions
-    // HR and Owner can manage (but maybe only view code), Employee can edit
-    // Note: session.resolvePermissions is a pseudo-function based on your auth architecture.
-    // If you don't have this available directly in the server component, we rely on the 
-    // server actions to block unauthorized writes. For UI hints, we do a basic check:
-    const isHrOrHigher = ['hr', 'owner'].includes(session.role)
-    const canEditWorkspace = !isHrOrHigher // Example: HR viewers are read-only, Employees/Leads edit
+    // HR and Owner can manage, Employees/Leads edit
+    // Administrative roles (HR, OWNER) should have full edit access if they have the permission.
+    const canEditWorkspace = ['hr', 'owner', 'manager', 'employee'].includes(session.role)
 
     // 3. Get or Create Workspace
     const workspace = await getOrCreateWorkspace(projectId)

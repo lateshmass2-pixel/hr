@@ -260,6 +260,14 @@
   .shadow-hover {
     box-shadow: var(--shadow-hover);
   }
+
+  .emerald-glow {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), 0 0 40px rgba(16, 185, 129, 0.1);
+  }
+
+  .glass-morphism {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
 }
 
 /* ═══════════════════════════════════════════════════

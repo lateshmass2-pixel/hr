@@ -39,23 +39,9 @@ import { Card } from "@/components/ui/card"
 import { theme } from "@/lib/config/theme"
 
 export default function LeavePage() {
-    const { leaves, employees, addLeave } = useHems()
+    const { leaves, employees, addLeave, currentUser } = useHems()
     const [activeTab, setActiveTab] = useState<"calendar" | "requested" | "balances">("calendar")
     const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)) // Default to Jan 2026 for demo
-
-    const [currentUser, setCurrentUser] = useState<any>(null)
-
-    useEffect(() => {
-        const supabase = createClient()
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-                setCurrentUser({ ...user, ...profile })
-            }
-        }
-        getUser()
-    }, [])
 
     // Calendar Calculations
     const monthStart = startOfMonth(currentDate)
@@ -64,7 +50,7 @@ export default function LeavePage() {
     const startDayOfWeek = getDay(monthStart) // 0 = Sunday
 
     // Filter leaves based on role
-    const visibleLeaves = (currentUser?.role === 'HR_ADMIN')
+    const visibleLeaves = (currentUser?.globalRole === 'HR_ADMIN')
         ? leaves
         : leaves.filter(l => l.user_id === currentUser?.id)
 
@@ -208,7 +194,7 @@ export default function LeavePage() {
                             <Filter size={16} />
                             Filter
                         </button>
-                        {currentUser?.role !== 'HR_ADMIN' && (
+                        {currentUser?.globalRole !== 'HR_ADMIN' && (
                             <button
                                 className={cn(theme.primaryButton, "flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-green-900/10")}
                                 onClick={() => {
@@ -236,7 +222,7 @@ export default function LeavePage() {
 
             {/* Tabs */}
             <div className="flex bg-[#f8faf6] p-1 rounded-xl border border-green-100 w-fit">
-                {(currentUser?.role === 'HR_ADMIN' ? [
+                {(currentUser?.globalRole === 'HR_ADMIN' ? [
                     { id: 'requested', label: 'Requested' },
                     { id: 'balances', label: 'Balances' },
                     { id: 'calendar', label: 'Calendar' },

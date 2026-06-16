@@ -35,7 +35,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
     {
         title: 'People',
         items: [
-            { href: '/dashboard/team', icon: <Users size={18} />, label: 'Team', minRole: 'hr' },
+            { href: '/dashboard/team', icon: <Users size={18} />, label: 'Team', minRole: 'employee' },
             { href: '/dashboard/announcements', icon: <Bell size={18} />, label: 'Announcements', minRole: 'employee' },
             { href: '/dashboard/leave', icon: <Calendar size={18} />, label: 'Leave', minRole: 'employee' },
             { href: '/dashboard/performance', icon: <BarChart3 size={18} />, label: 'Performance', minRole: 'employee' },

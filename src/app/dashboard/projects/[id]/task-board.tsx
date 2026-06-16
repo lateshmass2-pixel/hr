@@ -59,13 +59,13 @@ export function TaskBoard({ tasks, projectId }: { tasks: Task[], projectId: stri
 
                                             <div className="flex items-center justify-between pt-1">
                                                 {task.assignee ? (
-                                                    <div className="flex items-center gap-2" title={task.assignee.full_name}>
+                                                    <div className="flex items-center gap-2" title={(task.assignee as any).full_name || (task.assignee as any).name}>
                                                         <Avatar className="h-6 w-6">
                                                             <AvatarFallback className="text-[10px] bg-emerald-100 text-emerald-950">
-                                                                {task.assignee.full_name.charAt(0).toUpperCase()}
+                                                                {((task.assignee as any).full_name || (task.assignee as any).name || "?").charAt(0).toUpperCase()}
                                                             </AvatarFallback>
                                                         </Avatar>
-                                                        <span className="text-xs text-gray-700">{task.assignee.full_name.split(' ')[0]}</span>
+                                                        <span className="text-xs text-gray-700">{((task.assignee as any).full_name || (task.assignee as any).name || "").split(' ')[0]}</span>
                                                     </div>
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground italic">Unassigned</span>

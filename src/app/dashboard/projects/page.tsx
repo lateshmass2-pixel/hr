@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ProjectCard } from "./project-card"
 import CreateProjectModal from "@/components/projects/create-project-modal"
-import { deleteProject, getProjects, type Project } from "./actions"
+import { getProjects, type Project } from "./actions"
 import { PageContainer } from "@/components/layout/PageContainer"
 import { PageHero } from "@/components/layout/PageHero"
 
@@ -24,7 +24,10 @@ export default function ProjectsPage() {
     const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
     const handleDelete = async (projectId: string) => {
-        await deleteProject(projectId)
+        const result = await deleteProject(projectId)
+        if (result && !result.success) {
+            alert(`Failed to delete project: ${result.error}`)
+        }
         setDeleteConfirmId(null)
     }
 
@@ -60,6 +63,7 @@ export default function ProjectsPage() {
                             project={project}
                             employees={employees}
                             users={users}
+                            onDelete={(id) => setDeleteConfirmId(id)}
                         />
                     ))}
                 </AnimatePresence>
