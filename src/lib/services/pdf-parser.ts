@@ -1,8 +1,9 @@
-// @ts-ignore
 import PDFParser from "pdf2json";
 
 // Type definitions for PDF parser
 interface PDFText {
+  x?: number;
+  y?: number;
   R?: Array<{ T: string }>;
 }
 
@@ -15,10 +16,6 @@ interface PDFData {
     Pages?: PDFPage[];
   };
   Pages?: PDFPage[];
-}
-
-interface PDFErrorData {
-  parserError?: string;
 }
 
 // Safe decode that handles malformed URI sequences
@@ -74,20 +71,31 @@ export async function parsePDF(buffer: Buffer): Promise<string> {
                 }
 
                 let fullText = "";
+                const LINE_Y_TOLERANCE = 0.5; // text items within this vertical delta are on the same line
 
-                // Extraction loop
+                // Extraction loop — rebuild line breaks from each text item's Y
+                // position so document structure (e.g. the candidate name on the
+                // first line) is preserved instead of collapsing to one blob.
                 pages.forEach((page: PDFPage) => {
                     const texts = page?.Texts;
                     if (texts && Array.isArray(texts)) {
+                        let lastY: number | null = null;
                         texts.forEach((textItem: PDFText) => {
                             const runs = textItem?.R;
-                            if (runs && Array.isArray(runs)) {
-                                runs.forEach((run: { T: string }) => {
-                                    if (run?.T) {
-                                        fullText += safeDecode(run.T) + " ";
-                                    }
-                                });
+                            const fragment = runs && Array.isArray(runs)
+                                ? runs.map((run) => (run?.T ? safeDecode(run.T) : "")).join("")
+                                : "";
+                            if (!fragment) return;
+
+                            const y = typeof textItem.y === "number" ? textItem.y : 0;
+                            if (lastY === null) {
+                                fullText += fragment;
+                            } else if (Math.abs(y - lastY) > LINE_Y_TOLERANCE) {
+                                fullText += "\n" + fragment; // new visual line
+                            } else {
+                                fullText += " " + fragment;  // same line
                             }
+                            lastY = y;
                         });
                     }
                     fullText += "\n";

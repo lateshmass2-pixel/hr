@@ -145,6 +145,15 @@ export function safeError(error: unknown): { error: string; code: string } {
         if (error.message === 'Not a member of this organization') {
             return { error: 'Access denied', code: 'FORBIDDEN' };
         }
+        if (error.message === 'No organization') {
+            // Authenticated but tenant-less. Distinct from unauthorized so the
+            // client can route the user to onboarding instead of showing a
+            // permission error.
+            return { error: 'Complete onboarding to continue', code: 'NO_ORGANIZATION' };
+        }
+        if (error.message === 'Could not resolve organization membership') {
+            return { error: 'Could not verify your organization. Please retry.', code: 'INTERNAL_ERROR' };
+        }
     }
 
     // Generic fallback — never expose internal details
@@ -155,47 +164,20 @@ export function safeError(error: unknown): { error: string; code: string } {
 // =============================================================================
 // 4. ENVIRONMENT VARIABLE VALIDATION
 // =============================================================================
+// Moved to src/lib/env.ts, which validates the whole environment with a schema
+// at startup instead of spot-checking a hand-written list of names.
+//
+// Re-exported here so existing imports keep working. Prefer importing from
+// '@/lib/env' directly in new code.
+// =============================================================================
+
+export { getAppUrl, validateServerEnv as validateEnv, getServerEnv } from '@/lib/env';
 
 /**
- * Validated environment variables. Call once at startup.
- * Throws immediately if required vars are missing.
- */
-export function validateEnv(): void {
-    const required = [
-        'NEXT_PUBLIC_SUPABASE_URL',
-        'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    ];
-
-    const optional = [
-        'SUPABASE_SERVICE_ROLE_KEY',
-        'STRIPE_SECRET_KEY',
-        'STRIPE_WEBHOOK_SECRET',
-        'RESEND_API_KEY',
-        'OPENAI_API_KEY',
-        'NEXT_PUBLIC_APP_URL',
-    ];
-
-    const missing = required.filter((key) => !process.env[key]);
-
-    if (missing.length > 0) {
-        throw new Error(
-            `Missing required environment variables:\n${missing.map((k) => `  - ${k}`).join('\n')}\n\nCheck your .env.local file.`
-        );
-    }
-
-    // Warn about optional missing vars
-    const missingOptional = optional.filter((key) => !process.env[key]);
-    if (missingOptional.length > 0) {
-        console.warn(
-            `[Env] Optional environment variables not set:\n${missingOptional
-                .map((k) => `  - ${k}`)
-                .join('\n')}`
-        );
-    }
-}
-
-/**
- * Type-safe env access helper
+ * Type-safe env access helper.
+ *
+ * @deprecated Use the validated accessors in '@/lib/env' instead. This bypasses
+ * schema validation and so can return an unvalidated value.
  */
 export function getEnv(key: string, fallback?: string): string {
     const value = process.env[key];
@@ -203,11 +185,4 @@ export function getEnv(key: string, fallback?: string): string {
         throw new Error(`Environment variable ${key} is not set`);
     }
     return value ?? fallback!;
-}
-
-/**
- * Get the app's base URL
- */
-export function getAppUrl(): string {
-    return process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 }

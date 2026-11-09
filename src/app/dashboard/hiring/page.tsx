@@ -2,6 +2,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { UploadDialog } from "./upload-dialog"
 import { KanbanBoard } from "./kanban-board"
 import { KBUploadDialog } from "./kb-upload-dialog"
+import { TalentPoolDialog } from "./talent-pool-dialog"
 import { PageContainer } from "@/components/layout/PageContainer"
 import { PageHero } from "@/components/layout/PageHero"
 
@@ -28,6 +29,7 @@ export default async function HiringDashboard() {
                 subtitle={`${activeCandidates.length} active candidates in the pipeline`}
                 action={
                     <div className="flex items-center gap-2">
+                        <TalentPoolDialog />
                         <KBUploadDialog />
                         <UploadDialog />
                     </div>

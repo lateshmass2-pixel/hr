@@ -190,7 +190,7 @@ function KanbanCard({ application, onDelete }: { application: Application, onDel
                     {application.candidate_name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="flex flex-col items-end">
-                    {score !== undefined && (
+                    {typeof score === 'number' && (
                         <span className={cn(
                             "text-[10px] font-bold px-2 py-0.5 rounded-full mb-1",
                             isHighScore ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
@@ -210,7 +210,7 @@ function KanbanCard({ application, onDelete }: { application: Application, onDel
                     {application.candidate_name}
                 </h4>
                 <p className="text-xs text-gray-500 truncate">
-                    {application.offer_role || 'Software Engineer'}
+                    {application.offer_role || application.position || 'Candidate'}
                 </p>
             </div>
 

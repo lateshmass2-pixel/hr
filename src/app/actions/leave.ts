@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Resend } from 'resend'
+import { getEmailSender, resolveEmailRecipient } from '@/lib/env'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -139,13 +140,15 @@ export async function updateLeaveStatus(requestId: string, newStatus: 'approved'
     }
 
     // Send email notification if approved
-    if (newStatus === 'approved' && leaveRequest?.profile) {
+    if (newStatus === 'approved' && leaveRequest?.profile?.email) {
         try {
-            const testEmail = process.env.TEST_ADMIN_EMAIL || 'latesh312006@gmail.com'
+            // Previously hardcoded to a personal address, so employees were
+            // never notified. Redirection is now dev-only via EMAIL_REDIRECT_TO.
+            const { to } = resolveEmailRecipient(leaveRequest.profile.email)
 
             await resend.emails.send({
-                from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-                to: testEmail, // Using test email for development
+                from: getEmailSender(),
+                to,
                 subject: 'Leave Request Approved',
                 html: `
                     <h2>Leave Request Approved</h2>

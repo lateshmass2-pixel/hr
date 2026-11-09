@@ -6,10 +6,44 @@ import { parsePDF } from "@/lib/services/pdf-parser"
 import { openai, AI_MODEL, groq } from "@/lib/ai"
 import { sendAssessmentInvite, sendRejectionEmail, sendOfferEmail } from "@/lib/services/email"
 import { generateText } from "ai"
-import { z } from "zod"
-import { AssessmentSchema } from "@/lib/ai/assessment-schema"
+import { extractSkills } from "@/lib/ai/skill-extractor"
+import { extractResumeFields } from "@/lib/services/resume-extractor"
+import { parseResumeWithAI } from "@/lib/ai/resume-parser"
+import { generateEmbedding } from "@/lib/rag/embedder"
+import {
+    storeResumeEmbedding,
+    buildJobDescriptionText,
+    matchResumesByEmbedding,
+    embedJobDescription,
+    embedJobDescriptionText,
+    parseEmbedding,
+    cosineSimilarity,
+    similarityToScore,
+    MATCH_THRESHOLD,
+    type ResumeMatch,
+} from "@/lib/rag/resume-matcher"
+import { requirePermissionFromSession } from "@/lib/auth/session"
+import type { Permission } from "@/lib/rbac/types"
+
+/**
+ * Role-gate helper for hiring server actions. Returns a shape-agnostic result
+ * so each action can map it to its own return type ({ message } vs
+ * { success, message }). Wraps requirePermissionFromSession, which throws
+ * 'Not authenticated' / 'Forbidden: requires <permission>'.
+ */
+async function guard(permission: Permission): Promise<{ ok: true } | { ok: false; message: string }> {
+    try {
+        await requirePermissionFromSession(permission)
+        return { ok: true }
+    } catch (e) {
+        return { ok: false, message: e instanceof Error ? e.message : "Forbidden" }
+    }
+}
 
 export async function deleteApplication(applicationId: string) {
+    const g = await guard('candidates:delete')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('🗑️ Attempting to delete application:', applicationId)
     const supabase = await createAdminClient()
 
@@ -58,10 +92,13 @@ export async function deleteApplication(applicationId: string) {
 }
 
 export async function getJobs() {
+    const g = await guard('candidates:read')
+    if (!g.ok) return []
+
     const supabase = await createClient()
     const { data, error } = await supabase
         .from('job_postings')
-        .select('id, title, required_skills')
+        .select('id, title, description, required_skills')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
 
@@ -73,8 +110,21 @@ export async function getJobs() {
 }
 
 export async function createJob(title: string, description: string, requiredSkills: string[]) {
+    const g = await guard('candidates:create')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('📋 Creating new job posting:', title)
     const supabase = await createClient()
+
+    // Precompute and cache the JD embedding so resume matching never has to
+    // re-embed this job's description. Best-effort: if the embedding service
+    // is down, the job is still created and the embedding is backfilled later.
+    let jdEmbedding: number[] | null = null
+    try {
+        jdEmbedding = await embedJobDescription({ title, description, required_skills: requiredSkills })
+    } catch (err) {
+        console.error('⚠️ Could not precompute JD embedding (will backfill later):', err)
+    }
 
     const { data, error } = await supabase
         .from('job_postings')
@@ -82,7 +132,8 @@ export async function createJob(title: string, description: string, requiredSkil
             title,
             description,
             required_skills: requiredSkills,
-            is_active: true
+            is_active: true,
+            jd_embedding: jdEmbedding,
         })
         .select()
         .single()
@@ -97,8 +148,42 @@ export async function createJob(title: string, description: string, requiredSkil
     return { success: true, job: data }
 }
 
+/**
+ * Generates the 10-question MCQ assessment for a candidate who passed the
+ * similarity screen. The LLM is used here ONLY to author test questions —
+ * it has NO influence on the match score, which comes purely from cosine
+ * similarity. Best-effort: returns [] on failure so it never blocks intake.
+ */
+async function generateAssessmentQuestions(jobTitle: string, resumeText: string): Promise<unknown[]> {
+    try {
+        const { text: aiText } = await generateText({
+            model: groq(AI_MODEL),
+            system: `You are an expert Technical Assessor creating a screening test for the position: "${jobTitle}".
+
+Generate EXACTLY 10 MULTIPLE CHOICE QUESTIONS:
+- 5 APTITUDE questions: general logic, reasoning, and problem-solving.
+- 5 TECHNICAL questions: specific to ${jobTitle} and the candidate's background.
+- Every question is MCQ with exactly 4 options.
+- Mix difficulty: 40% easy, 40% medium, 20% hard.
+
+Respond with ONLY valid JSON (no markdown, no extra text):
+{
+  "questions": [{"id": "<string>", "type": "mcq", "category": "aptitude"|"technical", "text": "<string>", "difficulty": "easy"|"medium"|"hard", "options": ["<string>", "<string>", "<string>", "<string>"], "correctAnswer": "<exact text of correct option>", "timeLimit": <number>}]
+}`,
+            prompt: `Resume Text: ${resumeText}`
+        })
+
+        const clean = aiText.replace(/```json\n?|```/g, '').trim()
+        const parsed = JSON.parse(clean) as { questions?: unknown[] }
+        return Array.isArray(parsed?.questions) ? parsed.questions : []
+    } catch (err) {
+        console.error('⚠️ Assessment question generation failed (non-blocking):', err)
+        return []
+    }
+}
+
 export async function processApplication(formData: FormData) {
-    console.log('🔄 Processing Application with AI Model:', AI_MODEL)
+    console.log('🔄 Processing Application via embedding similarity (BGE-M3)')
     const supabase = await createClient()
 
     const file = formData.get('resume') as File
@@ -106,34 +191,49 @@ export async function processApplication(formData: FormData) {
     const candidateName = formData.get('name') as string
     const candidateEmail = formData.get('email') as string
     const expectedSkillsInput = formData.get('expectedSkills') as string | null
+    // JD text supplied by HR at upload time — the source of truth for matching.
+    const jobDescriptionInput = ((formData.get('jobDescription') as string | null) || '').trim()
 
     if (!file) {
         return { message: 'Missing file' }
     }
 
     try {
-        // 1. Fetch job required skills if jobId is provided, allow override/addition via input
-        let requiredSkills: string[] = []
+        // 0. Authorize: only roles that can create candidates may submit resumes
+        const g = await guard('candidates:create')
+        if (!g.ok) return { message: g.message }
+
+        // 1. Resolve the Job Description (JD) that HR wants to match against
         let jobTitle = 'General Position'
+        let jobDescription = ''
+        let requiredSkills: string[] = []
+        let cachedJdEmbedding: number[] | null = null
 
         if (jobId) {
             const { data: job } = await supabase
                 .from('job_postings')
-                .select('title, required_skills')
+                .select('title, description, required_skills, jd_embedding')
                 .eq('id', jobId)
                 .single()
 
             if (job) {
+                jobTitle = job.title || jobTitle
+                jobDescription = job.description || ''
                 requiredSkills = job.required_skills || []
-                jobTitle = job.title
+                cachedJdEmbedding = parseEmbedding(job.jd_embedding)
             }
         }
 
-        // Add manually entered skills
-        if (expectedSkillsInput) {
-            const manualSkills = expectedSkillsInput.split(',').map(s => s.trim()).filter(Boolean)
-            requiredSkills = [...new Set([...requiredSkills, ...manualSkills])]
-        }
+        const manualSkills = expectedSkillsInput
+            ? expectedSkillsInput.split(',').map(s => s.trim()).filter(Boolean)
+            : []
+
+        // HR-provided JD text wins over the stored job description; fall back to
+        // the stored description only when HR didn't enter one.
+        const effectiveDescription = jobDescriptionInput.length > 0 ? jobDescriptionInput : jobDescription
+        // Only bypass the cached job embedding when the JD text truly differs from
+        // the stored role description (i.e. HR edited it or pasted an ad-hoc JD).
+        const usingCustomJd = jobDescriptionInput.length > 0 && jobDescriptionInput !== (jobDescription || '').trim()
 
         // 2. Upload Resume to Supabase Storage
         const fileExt = file.name.split('.').pop()
@@ -149,110 +249,143 @@ export async function processApplication(formData: FormData) {
 
         const resumeUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/resumes/${filePath}`
 
-        // 3. Extract Text from PDF
+        // 3. Extract text from the PDF (pdf2json today; PyMuPDF can be swapped in later)
         const arrayBuffer = await file.arrayBuffer()
         const buffer = Buffer.from(arrayBuffer)
         const rawText = await parsePDF(buffer)
-        const resumeText = rawText.substring(0, 3000)
+        const resumeText = rawText.substring(0, 3000)      // stored on the application row
+        const embeddingText = rawText.substring(0, 8000)   // richer text for the vector
 
-        // 4. Build skill-aware AI prompt and Generate using Structured Outputs
-        const skillsContext = requiredSkills.length > 0
-            ? `\n\n**CRITICAL REQUIREMENT:** The candidate MUST have experience with these specific skills: [${requiredSkills.join(', ')}].
-- Check for the presence and depth of these specific skills in the resume.
-- If they are MISSING any of these skills entirely, give a score below 50 and list missing skills.
-- If they have ALL required skills, score based on experience level.`
-            : ''
+        // 4. Extract candidate display fields. Primary: fast structured LLM
+        //    extraction (name/email/title/skills). Fallback: pure-regex + keyword
+        //    dictionary if the LLM is unavailable. This is for DISPLAY only — the
+        //    match score below still comes purely from embeddings (no AI).
+        const aiParsed = await parseResumeWithAI(rawText)
+        const regexFields = extractResumeFields(rawText)
 
-        const { text: aiText } = await generateText({
-            model: groq(AI_MODEL),
-            system: `You are an expert HR Recruiter and Technical Assessor. Analyze the resume for the position: "${jobTitle}".${skillsContext}
-            
-            Generate a rigorous assessment test with EXACTLY 10 MULTIPLE CHOICE QUESTIONS:
-            - 5 APTITUDE questions: General logic, reasoning, and problem-solving.
-            - 5 TECHNICAL questions: Specific to ${jobTitle} and candidate's skills.
-            - ALL questions must be MCQ type with 4 options each.
-            - Mix difficulty: 40% Easy, 40% Medium, 20% Hard.
-            - DO NOT include short answer or essay questions.
-            
-            IMPORTANT: Respond with ONLY valid JSON (no markdown, no extra text):
-            {
-              "score": <number 0-100>,
-              "summary": "<string>",
-              "extracted_skills": ["<string>"],
-              "missing_skills": ["<string>"],
-              "questions": [{"id": "<string>", "type": "mcq", "category": "aptitude"|"technical", "text": "<string>", "difficulty": "easy"|"medium"|"hard", "options": ["<string>", "<string>", "<string>", "<string>"], "correctAnswer": "<exact text of correct option>", "timeLimit": <number>}],
-              "candidate_name": "<string or null>",
-              "candidate_email": "<string or null>"
+        const finalName = candidateName || aiParsed?.name || regexFields.name || 'Unknown Candidate'
+        const finalEmail = candidateEmail || aiParsed?.email || regexFields.email || ''
+        const candidateTitle = aiParsed?.title || null
+
+        const displaySkills = (aiParsed?.skills && aiParsed.skills.length > 0)
+            ? aiParsed.skills
+            : extractSkills(rawText, 15)
+
+        // 5. Build the JD text and SCORE via cosine similarity (no keyword matching).
+        // A JD only "exists" for matching when HR actually supplied a description
+        // or skills — the default "General Position" title must NOT yield a score.
+        const hasJD = effectiveDescription.trim().length > 0 || requiredSkills.length > 0 || manualSkills.length > 0
+        const jdText = buildJobDescriptionText(
+            { title: jobId ? jobTitle : '', description: effectiveDescription, required_skills: requiredSkills },
+            manualSkills
+        )
+
+        // Always embed the resume once (needed both for scoring and the pool).
+        const resumeEmbedding = await generateEmbedding(embeddingText)
+
+        let score: number | null = null
+        let similarity = 0
+
+        if (hasJD) {
+            // Reuse the job's cached JD embedding when it still represents the
+            // JD being matched (i.e. no ad-hoc manual skills were added). This
+            // avoids an Ollama call per resume.
+            let jdEmbedding: number[]
+            if (jobId && cachedJdEmbedding && manualSkills.length === 0 && !usingCustomJd) {
+                jdEmbedding = cachedJdEmbedding
+            } else {
+                // Cached by JD text, so a batch uploaded against one pasted JD
+                // embeds that JD only once.
+                jdEmbedding = await embedJobDescriptionText(jdText)
+
+                // Backfill the cache for jobs created before this column existed,
+                // but only when the text is the pure stored JD (no manual skills
+                // and no HR-provided override, so it truly represents the role).
+                if (jobId && !cachedJdEmbedding && manualSkills.length === 0 && !usingCustomJd) {
+                    await supabase
+                        .from('job_postings')
+                        .update({ jd_embedding: jdEmbedding })
+                        .eq('id', jobId)
+                }
             }
-            
-            EXTRACTED SKILLS INSTRUCTION:
-            - List ALL technical skills, tools, languages, and frameworks found in the resume.
-            - Be specific (e.g., "React.js" instead of just "Web Development").
-            - Limit to top 15 most relevant skills.`,
-            prompt: `Resume Text: ${resumeText}`
-        })
 
-        // Clean the AI response (remove markdown code blocks if present)
-        const cleanAiText = aiText.replace(/```json\n?|```/g, '').trim()
-
-        let aiResponse
-        try {
-            aiResponse = JSON.parse(cleanAiText)
-        } catch (parseError) {
-            console.error('Failed to parse AI response:', cleanAiText)
-            throw new Error('Failed to parse AI structured response')
+            similarity = cosineSimilarity(resumeEmbedding, jdEmbedding)
+            score = similarityToScore(similarity)
         }
 
-        const { score, summary, extracted_skills, missing_skills, questions, candidate_name, candidate_email } = aiResponse
+        // 6. PERSIST the resume embedding permanently (the "talent pool").
+        //    This is what lets a candidate rejected for one role be
+        //    re-matched against any future job description.
+        await storeResumeEmbedding({
+            candidateName: finalName,
+            candidateEmail: finalEmail || null,
+            resumeUrl,
+            resumeText,
+            skills: displaySkills,
+            embedding: resumeEmbedding,
+        })
 
-        // Use formData values if present (manual override), otherwise use AI extracted values
-        const finalName = candidateName || candidate_name || 'Unknown Candidate'
-        const finalEmail = candidateEmail || candidate_email || 'unknown@example.com'
-
-        // 5. DETERMINE STATUS BASED ON SKILLS
-        // If critical skills are missing (score < 50 implied by prompt), we do NOT send assessment.
+        // 7. Gate on the similarity threshold (only when we actually have a JD)
         let status = 'TEST_PENDING'
         let sendInvite = true
 
-        // If we had required skills, enforce the cutoff
-        if (requiredSkills.length > 0) {
-            // Using score as proxy for skill match because the prompt instructed to lower score if missing skills
-            if (score < 50) {
-                status = 'REJECTED' // Or a specific 'SKILL_MISMATCH' status, but REJECTED is safer for Kanban
-                sendInvite = false
-            }
+        if (hasJD && score !== null && similarity < MATCH_THRESHOLD) {
+            status = 'REJECTED'
+            sendInvite = false
         }
 
-        // Build AI reasoning with skill info
-        let aiReasoning = missing_skills && missing_skills.length > 0
-            ? `${summary}\n\n⚠️ **Missing Required Skills:** ${missing_skills.join(', ')}`
-            : summary
+        // 8. Build human-readable reasoning from the similarity result
+        const matchPct = score ?? 0
+        let aiReasoning = hasJD
+            ? `Match score ${matchPct}% — cosine similarity between the resume embedding and the "${jobTitle}" job description.`
+            : `No job description provided; resume stored in the talent pool for future role matching.`
 
         if (!sendInvite) {
-            aiReasoning = `**AUTO-REJECTED (Skill Mismatch):** Candidate score (${score}) below threshold for required skills.\n\n` + aiReasoning
+            aiReasoning = `**AUTO-REJECTED (Low JD match):** ${matchPct}% is below the ${(MATCH_THRESHOLD * 100).toFixed(0)}% threshold.\n\n` + aiReasoning
+        }
+        if (displaySkills.length && displaySkills[0] !== 'General') {
+            aiReasoning += `\n\n**Skills Found:** ${displaySkills.join(', ')}`
         }
 
-        // 6. Insert into Database
-        const { data: insertedApplication, error: dbError } = await supabase
+        // 9. Generate the assessment ONLY for candidates who pass the screen.
+        //    (LLM used for question authoring, not for scoring.)
+        const questions = sendInvite ? await generateAssessmentQuestions(jobTitle, resumeText) : []
+
+        // 10. Insert the application row. `skills`/`position` are newer columns
+        //     (see applications_display_fields.sql). If that migration hasn't run
+        //     yet, we retry without them so uploads never hard-fail.
+        const baseRow = {
+            job_id: jobId || null,
+            candidate_name: finalName,
+            candidate_email: finalEmail || 'unknown@example.com',
+            resume_url: resumeUrl,
+            resume_text: resumeText,
+            score: score,
+            ai_reasoning: aiReasoning,
+            generated_questions: questions,
+            status: status,
+        }
+
+        const insertResult = await supabase
             .from('applications')
-            .insert({
-                job_id: jobId || null,
-                candidate_name: finalName,
-                candidate_email: finalEmail,
-                resume_url: resumeUrl,
-                resume_text: resumeText,
-                score: score,
-                ai_reasoning: aiReasoning + (extracted_skills?.length ? `\n\n**Skills Found:** ${extracted_skills.join(', ')}` : ''),
-                generated_questions: questions,
-                status: status
-            })
+            .insert({ ...baseRow, skills: displaySkills, position: candidateTitle })
             .select()
             .single()
 
+        let insertedApplication = insertResult.data
+        let dbError = insertResult.error
+
+        if (dbError && /skills|position|column|schema cache/i.test(dbError.message)) {
+            console.warn('⚠️ applications.skills/position not found — run applications_display_fields.sql. Storing base row for now.')
+            const retry = await supabase.from('applications').insert(baseRow).select().single()
+            insertedApplication = retry.data
+            dbError = retry.error
+        }
+
         if (dbError) throw new Error('DB Insert failed: ' + dbError.message)
 
-        // 6. AUTOMATED EMAIL TRIGGER - Send assessment invite IF ELIGIBLE
-        if (insertedApplication && sendInvite) {
+        // 11. Send the assessment invite if the candidate is eligible
+        if (insertedApplication && sendInvite && finalEmail) {
             console.log(`📧 Sending assessment invite to ${finalEmail}...`)
             const emailResult = await sendAssessmentInvite(
                 finalEmail,
@@ -271,7 +404,7 @@ export async function processApplication(formData: FormData) {
         revalidatePath('/dashboard/hiring')
 
         if (!sendInvite) {
-            return { message: 'Uploaded, but skills did not match required criteria.', status, score }
+            return { message: 'Uploaded to talent pool, but did not meet the JD match threshold.', status, score }
         }
 
         return { message: 'Success', status, score }
@@ -282,11 +415,68 @@ export async function processApplication(formData: FormData) {
     }
 }
 
+/**
+ * Re-matches the permanent talent pool against a job's JD using cosine
+ * similarity. This powers "this candidate wasn't right for role A, but is a
+ * strong fit for role B". Returns stored candidates ranked by similarity.
+ */
+export async function matchCandidatesForJob(
+    jobId: string,
+    matchCount = 20
+): Promise<{ success: boolean; message?: string; matches: ResumeMatch[] }> {
+    const g = await guard('candidates:read')
+    if (!g.ok) return { success: false, message: g.message, matches: [] }
+
+    if (!jobId) return { success: false, message: 'No job selected', matches: [] }
+
+    const supabase = await createClient()
+
+    const { data: job, error } = await supabase
+        .from('job_postings')
+        .select('title, description, required_skills, jd_embedding')
+        .eq('id', jobId)
+        .single()
+
+    if (error || !job) {
+        return { success: false, message: 'Job not found', matches: [] }
+    }
+
+    try {
+        // Prefer the cached JD embedding; only build + embed the JD text when
+        // the cache is missing (and backfill it for next time).
+        let jdEmbedding = parseEmbedding(job.jd_embedding)
+
+        if (!jdEmbedding) {
+            const jdText = buildJobDescriptionText({
+                title: job.title,
+                description: job.description,
+                required_skills: job.required_skills,
+            })
+
+            if (!jdText) {
+                return { success: false, message: 'This job has no description or skills to match against.', matches: [] }
+            }
+
+            jdEmbedding = await embedJobDescriptionText(jdText)
+            await supabase.from('job_postings').update({ jd_embedding: jdEmbedding }).eq('id', jobId)
+        }
+
+        const matches = await matchResumesByEmbedding(jdEmbedding, 0, matchCount)
+        return { success: true, matches }
+    } catch (err) {
+        console.error('matchCandidatesForJob error:', err)
+        return { success: false, message: err instanceof Error ? err.message : 'Matching failed', matches: [] }
+    }
+}
+
 // =====================================================
 // OFFER LETTER ACTIONS
 // =====================================================
 
 export async function draftOffer(applicationId: string, role: string, salary: string, startDate: string) {
+    const g = await guard('candidates:update')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('📝 Drafting offer for application:', applicationId)
     const supabase = await createClient()
 
@@ -361,6 +551,9 @@ Write in a professional but friendly tone.`
 }
 
 export async function sendOffer(applicationId: string, finalContent: string) {
+    const g = await guard('candidates:update')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('📧 Sending offer for application:', applicationId)
     const supabase = await createClient()
 
@@ -425,6 +618,9 @@ export async function scheduleInterview(
     interviewer: string,
     meetingLink?: string
 ) {
+    const g = await guard('candidates:update')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('📅 Scheduling interview for application:', applicationId)
     const supabase = await createClient()
 
@@ -508,6 +704,9 @@ export async function confirmHire(
     joiningDate: string,
     finalRole: string
 ) {
+    const g = await guard('candidates:update')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('🎉 Confirming hire for application:', applicationId)
     const supabase = await createClient()
 
@@ -577,6 +776,9 @@ export async function rejectCandidate(
     reason: string,
     sendEmail: boolean
 ) {
+    const g = await guard('candidates:update')
+    if (!g.ok) return { success: false, message: g.message }
+
     console.log('❌ Rejecting application:', applicationId, 'Reason:', reason)
     const supabase = await createClient()
 
@@ -627,6 +829,9 @@ export async function rejectCandidate(
 }
 
 export async function updateApplicationStatus(applicationId: string, newStatus: string) {
+    const g = await guard('candidates:update')
+    if (!g.ok) return { success: false, message: g.message }
+
     const supabase = await createClient()
 
     // Normalize status casing if needed, but for now assuming strict match

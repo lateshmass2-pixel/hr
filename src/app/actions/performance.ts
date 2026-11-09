@@ -2,20 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import Groq from 'groq-sdk'
-
-function getGroqClient() {
-    const apiKey = process.env.GROQ_API_KEY
-
-    if (!apiKey) {
-        throw new Error(
-            'GROQ_API_KEY is not set in environment variables. ' +
-            'Please add GROQ_API_KEY=your_key to your .env file and restart the dev server.'
-        )
-    }
-
-    return new Groq({ apiKey })
-}
+import { generateText, stepCountIs } from 'ai'
+import { groq, AI_MODEL } from '@/lib/ai'
+import { queryTasks, queryLeaveRequests, queryPerformanceReviews } from '@/lib/agent/tools/database'
+import { getTeamWorkload, getCurrentDate } from '@/lib/agent/tools/analytics'
 
 interface PerformanceReview {
     id: string
@@ -123,24 +113,60 @@ ${workLogSummary}
 Provide constructive feedback and recognize their contributions.`
 
     try {
-        const groq = getGroqClient()
-        const completion = await groq.chat.completions.create({
+        const systemPrompt = `You are a professional HR Performance Review Agent.
+Your goal is to write a comprehensive, data-driven, and fair performance review for an employee.
+
+You have access to tools to gather additional context:
+1. getCurrentDate to get the current date.
+2. queryPerformanceReviews (with employeeId: "${employeeId}") to see their past performance review history.
+3. getTeamWorkload to compare this employee's workload with the team's workload.
+4. queryLeaveRequests (with userId: "${employeeId}") to get the candidate's leave requests.
+
+You must run these tools to build a comprehensive picture before finalizing your review.
+
+CRITICAL RULE: When you decide to call a tool, you MUST NOT output any conversational text, explanations, or thoughts in the same response. Output the tool call directly and immediately. Preceding text will crash the API parser.
+XML Tool Formatting: If you generate tool calls using XML-like tags (e.g., \`<function=toolName>...\`), you MUST make sure the tags are perfectly well-formed. Always include the closing \`>\` of the opening tag. Never output \`<function=toolName{...\` — it must be \`<function=toolName>{...}</function>\`.
+
+Once you have gathered the data:
+- Write a professional, encouraging, and detailed performance review (approx 200 words) using the initial activity data and team workload data.
+- Compare their completed tasks count with the overall team workload averages.
+- Identify any trends or improvements from their past review history.
+- Suggest 3 SMART goals for the next period.
+- End your review with a rating out of 5 (using the format "Rating: X/5" on the last line).`
+
+        const result = await generateText({
+            model: groq(AI_MODEL),
+            system: systemPrompt,
             messages: [
                 {
-                    role: 'system',
-                    content: 'You are a professional HR manager who writes fair, encouraging, and data-driven performance reviews.'
-                },
-                {
                     role: 'user',
-                    content: prompt
+                    content: `Act as an HR Manager. Here is the initial work history context for ${employee.full_name} for ${currentMonth}:
+                    
+**Performance Metrics:**
+- Completed ${totalTasks} tasks
+- ${highPriorityPercentage}% were high-priority tasks
+- On-time completion rate: ${onTimeRate}${onTimeRate !== 'N/A' ? '%' : ''}
+- Total hours logged: ${totalHours} hours
+
+**Key Achievements:**
+${taskTitles}
+
+**Work Logs Summary:**
+${workLogSummary}
+
+Write their performance review.`
                 }
             ],
-            model: 'llama-3.3-70b-versatile',
-            temperature: 0.7,
-            max_tokens: 500
+            tools: {
+                getCurrentDate,
+                queryPerformanceReviews,
+                getTeamWorkload,
+                queryLeaveRequests
+            },
+            stopWhen: stepCountIs(10)
         })
 
-        const aiResponse = completion.choices[0]?.message?.content || ''
+        const aiResponse = result.text || ''
 
         // Parse rating from response
         const ratingMatch = aiResponse.match(/Rating:\s*(\d+(?:\.\d+)?)\s*\/\s*5/i)
@@ -156,13 +182,34 @@ Provide constructive feedback and recognize their contributions.`
         // Remove the rating line from summary
         const aiSummary = aiResponse.replace(/Rating:\s*\d+(?:\.\d+)?\s*\/\s*5/i, '').trim()
 
+        // Build reasoning trace markdown
+        const traceLines: string[] = []
+        result.steps.forEach((step, stepIndex) => {
+            if (step.toolCalls && step.toolCalls.length > 0) {
+                step.toolCalls.forEach(tc => {
+                    const toolName = tc.toolName
+                    const argsStr = JSON.stringify(tc.input)
+                    const prettyName = toolName
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, s => s.toUpperCase())
+                        .trim()
+                    traceLines.push(`- **Step ${stepIndex + 1}: ${prettyName}** — Called with parameters \`${argsStr}\``)
+                })
+            }
+        })
+        const traceMarkdown = traceLines.length > 0
+            ? `\n\n### 🔍 Agent Execution Trace\n` + traceLines.join('\n')
+            : ''
+
+        const finalSummary = aiSummary + traceMarkdown
+
         // Step C: Save Review
         const { error } = await supabase
             .from('performance_reviews')
             .insert({
                 employee_id: employeeId,
                 review_period: currentMonth,
-                ai_summary: aiSummary,
+                ai_summary: finalSummary,
                 rating: rating
             })
 
@@ -176,7 +223,7 @@ Provide constructive feedback and recognize their contributions.`
             success: true,
             message: 'Performance review generated successfully',
             rating,
-            summary: aiSummary
+            summary: finalSummary
         }
 
     } catch (error) {

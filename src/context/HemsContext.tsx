@@ -69,6 +69,28 @@ const INITIAL_DATA: HemsDataState = {
 // ============================================================================
 const supabase = createClient()
 
+type ProfileRow = {
+    id: string
+    full_name: string | null
+    email: string | null
+    position?: string | null
+    role: string | null
+    created_at: string | null
+}
+
+function describeSupabaseError(error: unknown) {
+    if (!error || typeof error !== 'object') return { message: String(error) }
+
+    const candidate = error as Record<string, unknown>
+    return {
+        message: candidate.message ?? 'Unknown Supabase error',
+        code: candidate.code,
+        details: candidate.details,
+        hint: candidate.hint,
+        status: candidate.status,
+    }
+}
+
 // ============================================================================
 // Provider Component
 // ============================================================================
@@ -164,16 +186,35 @@ export function HemsProvider({ children }: { children: ReactNode }) {
             
             // Explicitly clear projects to ensure absolute fresh state
             setData(prev => ({ ...prev, projects: [] }))
+
+            // Resolve the session before starting any RLS-protected queries.
+            // The previous Promise.all started the profiles request in parallel
+            // with auth hydration, which could send it with an anonymous/stale
+            // token and surface a PostgREST error in the browser console.
+            const { data: authData, error: authError } = await supabase.auth.getUser()
+
+            if (authError) {
+                console.warn('[HemsContext] Auth session unavailable:', describeSupabaseError(authError))
+            }
+
+            const user = authData.user
+            if (!user) {
+                setCurrentUser(DEFAULT_USER)
+                setData(INITIAL_DATA)
+                return
+            }
             
             const [
-                { data: { user } },
                 profilesRes,
                 leavesRes,
                 projectsRes,
                 tasksRes
             ] = await Promise.all([
-                supabase.auth.getUser(),
-                supabase.from('profiles').select('id, full_name, email, position, role, created_at'),
+                // These are the columns guaranteed by the original profiles
+                // schema. Optional profile fields are filled with defaults in
+                // the mapping below, keeping this bootstrap query resilient to
+                // older Supabase projects that have not run every add-on SQL file.
+                supabase.from('profiles').select('id, full_name, email, role, created_at'),
                 supabase.from('leave_requests').select('id, user_id, start_date, end_date, status, reason'),
                 getProjectsAction(), // Returns Project[]
                 supabase.from('tasks').select('id, project_id, title, status, assignee_id, priority, proof_url, verification_status, due_date')
@@ -185,16 +226,16 @@ export function HemsProvider({ children }: { children: ReactNode }) {
             console.log('[HemsContext] profilesRes:', { 
                 hasData: !!profilesRes.data, 
                 count: profilesRes.data?.length ?? 0,
-                error: profilesRes.error 
+                error: profilesRes.error ? describeSupabaseError(profilesRes.error) : null,
             })
             
             if (profilesRes.error) {
-                console.error('[HemsContext] PROFILES QUERY ERROR:', profilesRes.error)
+                console.error('[HemsContext] PROFILES QUERY ERROR:', describeSupabaseError(profilesRes.error))
             }
             
-            const profiles = (profilesRes.data as any[]) || []
+            const profiles = (profilesRes.data as ProfileRow[]) || []
             
-            if (profiles.length > 0) {
+            if (profiles.length > 0 && !profilesRes.error) {
                 // If we have a user from auth, find their profile
                 if (user) {
                     const profile = profiles.find(p => p.id === user.id)
@@ -204,7 +245,7 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                             name: profile.full_name || user.email?.split('@')[0] || 'User',
                             globalRole: (profile.role === 'HR_ADMIN' || profile.role === 'hr' || profile.role === 'owner') ? 'HR_ADMIN' : 'STANDARD_USER',
                             avatar: undefined,
-                            jobTitle: profile.position,
+                            jobTitle: profile.position ?? undefined,
                             status: 'Active'
                         })
                     }
@@ -236,9 +277,13 @@ export function HemsProvider({ children }: { children: ReactNode }) {
 
                 console.log(`HemsContext: Mapped ${newData.users?.length} users and ${newData.employees?.length} employees.`)
             } else {
-                // FALLBACK: Client-side profiles query returned nothing (likely RLS issue)
-                // Use server action which runs server-side and can bypass client RLS
-                console.warn('[HemsContext] Client profiles query returned 0 results. Using server action fallback...')
+                // FALLBACK: Use the server action when the browser query is
+                // denied, unavailable, or unexpectedly empty. This keeps the
+                // dashboard usable while still exposing the real query details.
+                console.warn(
+                    '[HemsContext] Client profiles query did not return profiles. Using server action fallback...',
+                    profilesRes.error ? describeSupabaseError(profilesRes.error) : { reason: 'empty result' },
+                )
                 try {
                     const serverProfiles = await getAllProfilesAction()
                     console.log(`[HemsContext] Server action fallback returned ${serverProfiles.length} profiles`)

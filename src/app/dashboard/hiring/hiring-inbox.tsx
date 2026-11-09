@@ -287,6 +287,19 @@ function CandidateRow({
                                     </div>
                                 )}
 
+                                {/* AI Recruiter Insights */}
+                                {application.ai_reasoning && (
+                                    <div className="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100/70">
+                                        <div className="flex items-center gap-1.5 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-2">
+                                            <Sparkles size={14} className="text-emerald-600" />
+                                            <span>AI Recruiter Insights</span>
+                                        </div>
+                                        <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                            {application.ai_reasoning}
+                                        </p>
+                                    </div>
+                                )}
+
                                 {/* Actions */}
                                 <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
                                     <div className="flex items-center gap-2 text-sm text-gray-500">

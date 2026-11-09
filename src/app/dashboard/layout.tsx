@@ -1,7 +1,7 @@
 import {
     LayoutDashboard, Users, FileText, CheckSquare, Settings,
     Calendar, CheckCircle2, HelpCircle, Search, Bell,
-    Wallet, BarChart3, FolderKanban
+    Wallet, BarChart3, FolderKanban, GitBranch, ShieldCheck, CalendarClock, Sparkles, AlertTriangle, Activity
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
@@ -9,6 +9,7 @@ import { isRoleAtLeast, type OrgRole, ROLE_LABELS } from "@/lib/rbac/types";
 import { OrganizationProvider } from "@/context/OrganizationContext";
 import { UserNav } from "@/components/dashboard/user-nav";
 import { NavLinkClient } from "../../components/dashboard/nav-link";
+import { AgentChatWrapper } from "@/components/agent/AgentChatWrapper";
 
 // =============================================================================
 // 5-Role Navigation Config — Single source of truth for sidebar items
@@ -39,6 +40,18 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
             { href: '/dashboard/announcements', icon: <Bell size={18} />, label: 'Announcements', minRole: 'employee' },
             { href: '/dashboard/leave', icon: <Calendar size={18} />, label: 'Leave', minRole: 'employee' },
             { href: '/dashboard/performance', icon: <BarChart3 size={18} />, label: 'Performance', minRole: 'employee' },
+        ],
+    },
+    {
+        title: 'Work Intelligence',
+        items: [
+            { href: '/dashboard/work-intelligence', icon: <Activity size={18} />, label: 'Overview', minRole: 'employee' },
+            { href: '/dashboard/work-intelligence/daily', icon: <CalendarClock size={18} />, label: 'Daily Work', minRole: 'employee' },
+            { href: '/dashboard/work-intelligence/git-activity', icon: <GitBranch size={18} />, label: 'Git Activity', minRole: 'employee' },
+            { href: '/dashboard/work-intelligence/timeline', icon: <BarChart3 size={18} />, label: 'Work Timeline', minRole: 'employee' },
+            { href: '/dashboard/work-intelligence/authenticity', icon: <ShieldCheck size={18} />, label: 'Work Authenticity', minRole: 'employee' },
+            { href: '/dashboard/work-intelligence/ai-automation', icon: <Sparkles size={18} />, label: 'AI & Automation', minRole: 'employee' },
+            { href: '/dashboard/work-intelligence/anomalies', icon: <AlertTriangle size={18} />, label: 'Anomalies', minRole: 'employee' },
         ],
     },
     {
@@ -84,7 +97,7 @@ export default async function DashboardLayout({
                 name: session.name,
                 email: session.email,
             }}
-            initialOrganization={session.organizationId !== 'legacy' ? {
+            initialOrganization={{
                 id: session.organizationId,
                 name: session.organizationName,
                 slug: '',
@@ -92,7 +105,7 @@ export default async function DashboardLayout({
                 plan: 'starter',
                 subscription_status: 'active',
                 max_employees: 25,
-            } : null}
+            }}
             initialRole={userRole}
         >
             <div className="flex min-h-screen">
@@ -186,6 +199,11 @@ export default async function DashboardLayout({
                         {children}
                     </main>
                 </div>
+
+                {/* ═══════════════════════════════════════════════════════════
+                    AI AGENT CHAT — Floating panel on every dashboard page
+                ═══════════════════════════════════════════════════════════ */}
+                <AgentChatWrapper />
             </div>
         </OrganizationProvider>
     );

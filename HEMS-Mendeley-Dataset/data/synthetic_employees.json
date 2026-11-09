@@ -1,0 +1,1893 @@
+[
+  {
+    "id": "4f04d651-3c38-46fe-993f-c1c10f9f9d5d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-001",
+    "email": "staff.sur-001@hems-anonymized.org",
+    "position": "Consultant Surgeon",
+    "department": "Surgical Services",
+    "date_of_joining": "2020-12-09",
+    "salary": 81938.1,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "Board Certified Internal Medicine",
+        "CCRN"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "7a73cef2-b8a5-4969-b5cf-0cb3834dfe14",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-002",
+    "email": "staff.int-002@hems-anonymized.org",
+    "position": "ICU Staff Nurse",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2021-09-20",
+    "salary": 57918.96,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "RHIA",
+        "ACLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "4f06cbac-f182-426e-9855-e3d75f82f8d6",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-003",
+    "email": "staff.hos-003@hems-anonymized.org",
+    "position": "HR Administrator",
+    "department": "Hospital Administration",
+    "date_of_joining": "2026-03-23",
+    "salary": 101487.58,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "d147dd12-e4ce-44cc-b012-e7687b85fe5c",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-004",
+    "email": "staff.pat-004@hems-anonymized.org",
+    "position": "Lead Pathologist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2022-06-20",
+    "salary": 84097.3,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "ACLS",
+        "ATLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "daa1518b-7908-404a-894a-2ec151e4ccf2",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-005",
+    "email": "staff.hos-005@hems-anonymized.org",
+    "position": "Payroll Manager",
+    "department": "Hospital Administration",
+    "date_of_joining": "2024-04-23",
+    "salary": 62651.07,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "CCRN"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "df400937-e014-4cfd-827a-7373c799a279",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-006",
+    "email": "staff.hos-006@hems-anonymized.org",
+    "position": "HR Administrator",
+    "department": "Hospital Administration",
+    "date_of_joining": "2023-05-15",
+    "salary": 124925.29,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "e67e6f8e-3031-4024-a93d-0312b1417cf3",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-007",
+    "email": "staff.car-007@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2025-11-03",
+    "salary": 122004.41,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS",
+        "PALS",
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b6f2c1bf-ae8a-428b-be2f-e68696c70dc1",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-008",
+    "email": "staff.sur-008@hems-anonymized.org",
+    "position": "Surgical Assistant",
+    "department": "Surgical Services",
+    "date_of_joining": "2024-04-22",
+    "salary": 90671.1,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "281c01ae-5660-42ad-922f-afa29001c9ce",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-009",
+    "email": "staff.int-009@hems-anonymized.org",
+    "position": "ICU Staff Nurse",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2024-12-11",
+    "salary": 78388.92,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "PALS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "44b22def-9ec4-4254-8f6a-e9ee3b416277",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-010",
+    "email": "staff.sur-010@hems-anonymized.org",
+    "position": "Surgical Assistant",
+    "department": "Surgical Services",
+    "date_of_joining": "2024-05-24",
+    "salary": 119304.46,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified",
+        "ATLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "39ad41a5-1bb4-43dc-aaa6-4b667f60dab1",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-011",
+    "email": "staff.int-011@hems-anonymized.org",
+    "position": "Critical Care Specialist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2026-02-05",
+    "salary": 124019.06,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "RHIA"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "3fec4baa-89c2-41f1-aa44-e8de9fe790a2",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-012",
+    "email": "staff.pat-012@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2022-09-28",
+    "salary": 158667.39,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "CCRN",
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "3a368a7a-7c58-473d-b689-0a21edd4acd5",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-013",
+    "email": "staff.pat-013@hems-anonymized.org",
+    "position": "Lead Pathologist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2023-01-24",
+    "salary": 151343.82,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "PALS",
+        "ACLS",
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b72ccc2d-5a7d-4efe-ad27-ab6c340a241e",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-014",
+    "email": "staff.hea-014@hems-anonymized.org",
+    "position": "EHR Systems Engineer",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2021-06-25",
+    "salary": 72770.39,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "351b9313-ad13-4d52-a4ac-c920d6a9f556",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-015",
+    "email": "staff.car-015@hems-anonymized.org",
+    "position": "Cardiac Perfusionist",
+    "department": "Cardiology",
+    "date_of_joining": "2021-01-08",
+    "salary": 151581.06,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "cb07d578-9f43-4578-8be9-f15a92a142d5",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-016",
+    "email": "staff.hea-016@hems-anonymized.org",
+    "position": "EHR Systems Engineer",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2021-11-16",
+    "salary": 159153.35,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b29c34b4-b567-42bc-bb18-7e83261d8452",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-017",
+    "email": "staff.hos-017@hems-anonymized.org",
+    "position": "Talent Acquisition Specialist",
+    "department": "Hospital Administration",
+    "date_of_joining": "2025-05-13",
+    "salary": 164466.43,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "f470f4f6-b3c9-4e97-9903-907a4c524d09",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-018",
+    "email": "staff.int-018@hems-anonymized.org",
+    "position": "Pulmonologist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2020-10-18",
+    "salary": 80312.62,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b3ebe94b-2b7b-45b4-b319-ae0e3823d768",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-019",
+    "email": "staff.int-019@hems-anonymized.org",
+    "position": "Pulmonologist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2020-09-08",
+    "salary": 85632.5,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "c86bb459-9bc9-4a5f-8913-f15229c7e442",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-020",
+    "email": "staff.hea-020@hems-anonymized.org",
+    "position": "HIPAA Compliance Auditor",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2021-08-26",
+    "salary": 99776.6,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "858bf733-4bcf-4aeb-bfa3-c92c2c88b8d3",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-021",
+    "email": "staff.pat-021@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2020-11-21",
+    "salary": 163258.17,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "e2e275e3-b6bd-4c7b-8ef3-0a20bdc8bc01",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-022",
+    "email": "staff.int-022@hems-anonymized.org",
+    "position": "ICU Staff Nurse",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2021-04-18",
+    "salary": 104347.49,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "1c6181ef-5de2-466c-91dc-478e8491028f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-023",
+    "email": "staff.int-023@hems-anonymized.org",
+    "position": "Clinical Nurse Lead",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2026-09-04",
+    "salary": 60564.72,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "ACLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "06f01faa-2d7d-45e3-9b45-d2b1796ab3d6",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-024",
+    "email": "staff.pat-024@hems-anonymized.org",
+    "position": "Histotechnologist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2021-07-02",
+    "salary": 73110.08,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "becbc9e9-ae4f-45e9-aa49-2c466436bec7",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-025",
+    "email": "staff.sur-025@hems-anonymized.org",
+    "position": "Surgical Assistant",
+    "department": "Surgical Services",
+    "date_of_joining": "2025-12-16",
+    "salary": 72027.65,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "1ad810f2-9f93-42a0-9e5e-3b4e14ff18ae",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-026",
+    "email": "staff.int-026@hems-anonymized.org",
+    "position": "Critical Care Specialist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2024-08-17",
+    "salary": 156132.58,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "87f6b824-1839-4d67-b3c0-33c81869d49b",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-027",
+    "email": "staff.int-027@hems-anonymized.org",
+    "position": "Critical Care Specialist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2025-04-13",
+    "salary": 68187.53,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "5b0ebd12-de45-4e86-8f9a-b8144b6823f3",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-028",
+    "email": "staff.hea-028@hems-anonymized.org",
+    "position": "Biomedical Data Architect",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2022-04-22",
+    "salary": 133781.1,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA",
+        "PALS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "18bc38e3-1461-4c4f-9ec9-2b863784cb7f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-029",
+    "email": "staff.hos-029@hems-anonymized.org",
+    "position": "HR Administrator",
+    "department": "Hospital Administration",
+    "date_of_joining": "2020-08-20",
+    "salary": 164829.99,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "014437e8-da1d-4dab-b43f-9deff1aea5eb",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-030",
+    "email": "staff.eme-030@hems-anonymized.org",
+    "position": "Triage Officer",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2020-04-12",
+    "salary": 86348.61,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "BLS",
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b8f6d428-7d21-4796-95a7-38b00378bb51",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-031",
+    "email": "staff.int-031@hems-anonymized.org",
+    "position": "ICU Staff Nurse",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2022-02-04",
+    "salary": 136665.84,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "ATLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "170e9414-b378-4659-94d9-8737a09459f3",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-032",
+    "email": "staff.sur-032@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2024-08-09",
+    "salary": 154587.01,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "e61d821c-2084-44ac-9a1d-82ee61cc3635",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-033",
+    "email": "staff.car-033@hems-anonymized.org",
+    "position": "Consultant Cardiologist",
+    "department": "Cardiology",
+    "date_of_joining": "2025-05-06",
+    "salary": 136535.4,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "RHIA",
+        "BLS",
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "36ece4aa-ca92-4c05-a8d6-cdccdcfd81b8",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-034",
+    "email": "staff.sur-034@hems-anonymized.org",
+    "position": "Consultant Surgeon",
+    "department": "Surgical Services",
+    "date_of_joining": "2024-01-27",
+    "salary": 95613.76,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "42bc4d06-19eb-4fc0-a914-4c46dd2a011b",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-035",
+    "email": "staff.car-035@hems-anonymized.org",
+    "position": "Consultant Cardiologist",
+    "department": "Cardiology",
+    "date_of_joining": "2022-04-22",
+    "salary": 82448.27,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "da4319ad-8de6-41bd-ab93-be798c8d6f96",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-036",
+    "email": "staff.eme-036@hems-anonymized.org",
+    "position": "Trauma Nurse Lead",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2026-03-14",
+    "salary": 57726.5,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "RHIA",
+        "ATLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "108a8c81-ca7d-4f99-9bd8-f7f246a79bfe",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-037",
+    "email": "staff.sur-037@hems-anonymized.org",
+    "position": "Consultant Surgeon",
+    "department": "Surgical Services",
+    "date_of_joining": "2023-01-28",
+    "salary": 106775.9,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified",
+        "CCRN"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "feca283a-5e70-47ce-9408-c976ebce9b80",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-038",
+    "email": "staff.sur-038@hems-anonymized.org",
+    "position": "Consultant Surgeon",
+    "department": "Surgical Services",
+    "date_of_joining": "2023-06-09",
+    "salary": 150078.82,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "ddfb001f-c66f-4bc0-af67-c3a939f3d16b",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-039",
+    "email": "staff.int-039@hems-anonymized.org",
+    "position": "Pulmonologist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2021-10-09",
+    "salary": 59208.29,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified",
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "82b615b7-241c-4805-8f2b-127a5e1ef847",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-040",
+    "email": "staff.hea-040@hems-anonymized.org",
+    "position": "Clinical Systems Lead",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2023-10-07",
+    "salary": 83019.48,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "BLS",
+        "ATLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "176be854-7960-446b-b09d-cae5c124092d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-041",
+    "email": "staff.sur-041@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2024-06-22",
+    "salary": 148281.68,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "CCRN"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "db4e5e27-e193-48f3-b217-5ef389801722",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-042",
+    "email": "staff.sur-042@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2024-03-07",
+    "salary": 101249.1,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "PALS",
+        "CCRN",
+        "ATLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "c2aa6b48-5836-48bb-9796-432bad3d6219",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-043",
+    "email": "staff.eme-043@hems-anonymized.org",
+    "position": "Emergency Resident",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2026-10-20",
+    "salary": 127017.62,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "ATLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b1d9a05f-132e-4f42-abf6-798c1df88675",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-044",
+    "email": "staff.hos-044@hems-anonymized.org",
+    "position": "Talent Acquisition Specialist",
+    "department": "Hospital Administration",
+    "date_of_joining": "2025-02-10",
+    "salary": 111699.72,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified",
+        "ACLS",
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "26654dc5-8bd2-4cf3-a5c7-531c6d0d3bd1",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-045",
+    "email": "staff.eme-045@hems-anonymized.org",
+    "position": "Trauma Nurse Lead",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2021-01-02",
+    "salary": 81932.68,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "HIPAA Certified Professional",
+        "ATLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "a6e0ac21-416c-4322-9d0f-4b11660aae13",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-046",
+    "email": "staff.pat-046@hems-anonymized.org",
+    "position": "Histotechnologist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2023-04-05",
+    "salary": 127166.38,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "73761929-ec89-4762-a03c-41833243bda6",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-047",
+    "email": "staff.sur-047@hems-anonymized.org",
+    "position": "Surgical Assistant",
+    "department": "Surgical Services",
+    "date_of_joining": "2023-01-18",
+    "salary": 82411.81,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "PALS",
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "7d58597d-6fe4-4f68-9cc2-df5a4969d557",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-048",
+    "email": "staff.pat-048@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2026-12-17",
+    "salary": 101941.48,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "PALS",
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "cfa56022-37e1-47d6-8a38-41b8ae1700bb",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-049",
+    "email": "staff.eme-049@hems-anonymized.org",
+    "position": "Triage Officer",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2026-09-16",
+    "salary": 123942.33,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "CCRN"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "790f62f0-800b-4687-9b5b-fb163cb12bbd",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-050",
+    "email": "staff.car-050@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2020-03-05",
+    "salary": 80438.76,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "ATLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "89fcae64-38de-4d8a-8999-ef3051a71ccc",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-051",
+    "email": "staff.car-051@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2023-07-02",
+    "salary": 77751.78,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS",
+        "RHIA"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "de486354-6bfe-4107-b8ac-4d2160678a8b",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-052",
+    "email": "staff.car-052@hems-anonymized.org",
+    "position": "Cardiac Perfusionist",
+    "department": "Cardiology",
+    "date_of_joining": "2026-07-28",
+    "salary": 153080.57,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "ATLS",
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "ce3fe261-3bed-4770-8c61-f6c7e9780ed4",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-053",
+    "email": "staff.pat-053@hems-anonymized.org",
+    "position": "Lead Pathologist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2023-06-22",
+    "salary": 129705.61,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "PALS",
+        "HIPAA Certified Professional",
+        "ACLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "e2e18107-fe67-4da1-9226-f62eefe3836d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-054",
+    "email": "staff.hea-054@hems-anonymized.org",
+    "position": "Clinical Systems Lead",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2020-11-14",
+    "salary": 69926.94,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "6cb9f30b-65b8-4ee0-b806-4cedf6fc137f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-055",
+    "email": "staff.eme-055@hems-anonymized.org",
+    "position": "Emergency Resident",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2022-06-25",
+    "salary": 151760.4,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "ACLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "94c54c4f-86b6-43eb-b22c-ce896e32389f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-056",
+    "email": "staff.hea-056@hems-anonymized.org",
+    "position": "Clinical Systems Lead",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2022-04-21",
+    "salary": 62548.02,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "1eb26725-bcd4-4fa9-9a14-b623a7a7532d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-057",
+    "email": "staff.int-057@hems-anonymized.org",
+    "position": "ICU Staff Nurse",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2021-03-16",
+    "salary": 128640.47,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "4da17dc6-b8b7-40c2-a3f5-6930553b7e92",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-058",
+    "email": "staff.eme-058@hems-anonymized.org",
+    "position": "Emergency Physician",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2026-03-10",
+    "salary": 66890.86,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA",
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "b06926b0-301d-460f-a058-85c87afd7a6d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-059",
+    "email": "staff.sur-059@hems-anonymized.org",
+    "position": "Surgical Assistant",
+    "department": "Surgical Services",
+    "date_of_joining": "2021-02-23",
+    "salary": 139972.9,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "BLS",
+        "PALS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "dacd42f7-c82b-4b28-9c37-c4a5272c930a",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-060",
+    "email": "staff.int-060@hems-anonymized.org",
+    "position": "Pulmonologist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2020-07-27",
+    "salary": 108922.19,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "PALS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "5fc1bd0a-70e0-4b51-9742-57c9516cc333",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-061",
+    "email": "staff.hea-061@hems-anonymized.org",
+    "position": "Biomedical Data Architect",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2024-09-25",
+    "salary": 108184.73,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "HL7 FHIR Certified",
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "16b38983-2571-4456-acb8-664b063f319f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-062",
+    "email": "staff.int-062@hems-anonymized.org",
+    "position": "Pulmonologist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2023-04-25",
+    "salary": 106117.93,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "RHIA",
+        "HL7 FHIR Certified",
+        "BLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "f74f85a8-ee65-4fa6-a48e-e307650da836",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-063",
+    "email": "staff.eme-063@hems-anonymized.org",
+    "position": "Emergency Resident",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2021-06-26",
+    "salary": 83418.76,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "BLS",
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "aa983aeb-85a3-4900-9c0f-95083a57d74c",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-064",
+    "email": "staff.sur-064@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2023-09-25",
+    "salary": 81435.63,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "Board Certified Internal Medicine",
+        "RHIA"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "91712eb6-2163-4c59-a8ef-e2270fda812f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-065",
+    "email": "staff.eme-065@hems-anonymized.org",
+    "position": "Emergency Resident",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2025-04-10",
+    "salary": 128035.6,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "2b42ec2c-a9d2-42c7-a757-d1cc954bb1f3",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-066",
+    "email": "staff.hea-066@hems-anonymized.org",
+    "position": "Biomedical Data Architect",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2022-12-15",
+    "salary": 84800.81,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "06b80c94-8186-433e-ab33-78c002adb03b",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-067",
+    "email": "staff.sur-067@hems-anonymized.org",
+    "position": "Surgical Assistant",
+    "department": "Surgical Services",
+    "date_of_joining": "2026-12-06",
+    "salary": 76069.51,
+    "status": "inactive",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "Board Certified Internal Medicine"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "02a86bf5-a192-4119-9cee-53eb2f199d61",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-068",
+    "email": "staff.car-068@hems-anonymized.org",
+    "position": "Consultant Cardiologist",
+    "department": "Cardiology",
+    "date_of_joining": "2022-03-10",
+    "salary": 56556.32,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "CCRN"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "7ffda8d3-7c20-4cde-9f37-c83c425c4dac",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-069",
+    "email": "staff.hea-069@hems-anonymized.org",
+    "position": "Biomedical Data Architect",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2025-03-21",
+    "salary": 150530.73,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "c5ef7839-511b-4908-bb0b-742f0ce2e2c9",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-070",
+    "email": "staff.pat-070@hems-anonymized.org",
+    "position": "Histotechnologist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2021-01-09",
+    "salary": 158517.0,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "3150338d-c678-49e0-8c13-f1e1a235311a",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-071",
+    "email": "staff.hea-071@hems-anonymized.org",
+    "position": "Clinical Systems Lead",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2021-03-26",
+    "salary": 116912.36,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "420340f0-25b0-41be-922c-8bf0d067d70e",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-072",
+    "email": "staff.pat-072@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2024-10-08",
+    "salary": 140326.29,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "CCRN"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "f7b17833-e364-4b45-9753-0db3f87c1abd",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-073",
+    "email": "staff.hea-073@hems-anonymized.org",
+    "position": "Clinical Systems Lead",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2024-12-04",
+    "salary": 159234.92,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS",
+        "CCRN",
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "dfe97ed1-d226-4ed1-8c36-e26c20a6ba58",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-074",
+    "email": "staff.eme-074@hems-anonymized.org",
+    "position": "Emergency Physician",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2021-01-14",
+    "salary": 104555.41,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "BLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "d3f83a4a-6223-4ea3-804f-a716f29c2db6",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-075",
+    "email": "staff.car-075@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2026-08-03",
+    "salary": 130612.34,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS",
+        "RHIA",
+        "BLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "8475797e-c5e2-4727-9831-bbb01c3f8e8d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-076",
+    "email": "staff.car-076@hems-anonymized.org",
+    "position": "Consultant Cardiologist",
+    "department": "Cardiology",
+    "date_of_joining": "2020-01-06",
+    "salary": 142189.14,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "CCRN",
+        "HIPAA Certified Professional",
+        "BLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "ff95e4d5-eb4a-47d2-a2de-e91b96bd8748",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-077",
+    "email": "staff.sur-077@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2022-09-18",
+    "salary": 109317.47,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS",
+        "RHIA",
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "22d36e28-6f6c-42d7-a3cf-2768e4b99259",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-078",
+    "email": "staff.int-078@hems-anonymized.org",
+    "position": "Critical Care Specialist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2021-11-27",
+    "salary": 149656.86,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "CCRN"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "0e457bdc-a540-407c-ab6d-e7ccb73d4709",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-079",
+    "email": "staff.eme-079@hems-anonymized.org",
+    "position": "Emergency Resident",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2024-11-15",
+    "salary": 155768.01,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA",
+        "HIPAA Certified Professional",
+        "BLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "aafb4540-4396-4686-aaf3-b6c596dccda9",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-080",
+    "email": "staff.car-080@hems-anonymized.org",
+    "position": "Cardiac Perfusionist",
+    "department": "Cardiology",
+    "date_of_joining": "2025-02-28",
+    "salary": 72690.73,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "CCRN",
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "ada59d68-5258-48c0-bbf3-c30345ac8489",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-081",
+    "email": "staff.hea-081@hems-anonymized.org",
+    "position": "Clinical Systems Lead",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2023-02-11",
+    "salary": 82763.87,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "BLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "71607bcf-46be-4175-9a8a-53094af361c0",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #EME-082",
+    "email": "staff.eme-082@hems-anonymized.org",
+    "position": "Triage Officer",
+    "department": "Emergency Medicine",
+    "date_of_joining": "2024-08-21",
+    "salary": 103624.51,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "CCRN"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "2cca4a0d-c15b-4167-8428-312d71d695ff",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-083",
+    "email": "staff.pat-083@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2023-02-01",
+    "salary": 162046.15,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "PALS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "18f5007a-d154-4080-ba8a-757155f1711f",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-084",
+    "email": "staff.hea-084@hems-anonymized.org",
+    "position": "HIPAA Compliance Auditor",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2020-04-27",
+    "salary": 155422.29,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "PALS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "9501da22-1b0d-4bc6-b58b-77f93c52b846",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-085",
+    "email": "staff.car-085@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2025-05-14",
+    "salary": 146819.63,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "f5687f40-5af6-4f31-8164-0c55ee7bda0c",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-086",
+    "email": "staff.hea-086@hems-anonymized.org",
+    "position": "EHR Systems Engineer",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2026-02-09",
+    "salary": 139994.26,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "CCRN"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "85050f7d-7f3d-49f0-95cc-51da69412629",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-087",
+    "email": "staff.car-087@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2024-11-16",
+    "salary": 150178.67,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HIPAA Certified Professional",
+        "HL7 FHIR Certified",
+        "PALS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b9612979-d0dc-4c96-91fa-48f6848eb4d9",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-088",
+    "email": "staff.car-088@hems-anonymized.org",
+    "position": "Consultant Cardiologist",
+    "department": "Cardiology",
+    "date_of_joining": "2025-04-19",
+    "salary": 97126.79,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "952faf9c-0d6c-40bf-b65e-8a9906855513",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-089",
+    "email": "staff.hos-089@hems-anonymized.org",
+    "position": "Operations Director",
+    "department": "Hospital Administration",
+    "date_of_joining": "2023-11-26",
+    "salary": 145282.23,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "BLS",
+        "PALS"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "84f817ed-b737-4323-b67a-7b8daf98c2ca",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-090",
+    "email": "staff.hos-090@hems-anonymized.org",
+    "position": "Operations Director",
+    "department": "Hospital Administration",
+    "date_of_joining": "2020-09-15",
+    "salary": 56688.24,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "PALS",
+        "ACLS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "57b7ee65-136a-4374-aa21-ba443c986b83",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-091",
+    "email": "staff.car-091@hems-anonymized.org",
+    "position": "Cardiac Perfusionist",
+    "department": "Cardiology",
+    "date_of_joining": "2024-12-13",
+    "salary": 126482.03,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "RHIA",
+        "PALS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "8a789fb3-00a4-4179-b5ab-e648114022c9",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #INT-092",
+    "email": "staff.int-092@hems-anonymized.org",
+    "position": "Critical Care Specialist",
+    "department": "Intensive Care Unit (ICU)",
+    "date_of_joining": "2021-11-22",
+    "salary": 156302.2,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "RHIA",
+        "BLS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "073f4516-00dd-43b6-b6e9-fd1f4275a06d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-093",
+    "email": "staff.sur-093@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2020-01-11",
+    "salary": 142575.78,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified",
+        "RHIA"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "b6c9d88e-b817-4d63-ac1b-76088c061780",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-094",
+    "email": "staff.pat-094@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2025-03-06",
+    "salary": 74257.63,
+    "status": "onboarding",
+    "metadata": {
+      "certifications": [
+        "ATLS",
+        "HIPAA Certified Professional"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "d56f5d48-c2e7-413d-89f3-8a095f76ed8d",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #SUR-095",
+    "email": "staff.sur-095@hems-anonymized.org",
+    "position": "Operating Theatre Nurse",
+    "department": "Surgical Services",
+    "date_of_joining": "2023-05-22",
+    "salary": 56033.72,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "Board Certified Internal Medicine",
+        "PALS"
+      ],
+      "shift_pattern": "Standard-Day (08:00-16:30)",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "eb09ae6c-b025-41d3-81a6-748cdc844720",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-096",
+    "email": "staff.car-096@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2022-11-14",
+    "salary": 130934.49,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS",
+        "RHIA"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "9e76582f-cd9c-47ce-8fdc-2347976e7829",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #PAT-097",
+    "email": "staff.pat-097@hems-anonymized.org",
+    "position": "Medical Lab Scientist",
+    "department": "Pathology & Laboratory",
+    "date_of_joining": "2022-10-10",
+    "salary": 164196.12,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "RHIA"
+      ],
+      "shift_pattern": "Night-Shift",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "4a92dfd3-9896-4c2a-a024-45467ab52e73",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HOS-098",
+    "email": "staff.hos-098@hems-anonymized.org",
+    "position": "HR Administrator",
+    "department": "Hospital Administration",
+    "date_of_joining": "2024-12-16",
+    "salary": 146612.28,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "HL7 FHIR Certified"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  },
+  {
+    "id": "71e20f08-fd1c-40d4-ac1e-e8e97dab95e8",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #HEA-099",
+    "email": "staff.hea-099@hems-anonymized.org",
+    "position": "Biomedical Data Architect",
+    "department": "Health Informatics & IT",
+    "date_of_joining": "2025-12-25",
+    "salary": 127509.97,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ACLS",
+        "BLS",
+        "PALS"
+      ],
+      "shift_pattern": "On-Call",
+      "fte": 0.8
+    }
+  },
+  {
+    "id": "62000b71-a167-484f-af83-f455242fdcbb",
+    "organization_id": "018f3a21-9981-7dc3-a120-cfbc92880001",
+    "full_name": "Staff Specialist #CAR-100",
+    "email": "staff.car-100@hems-anonymized.org",
+    "position": "Cardiovascular Technician",
+    "department": "Cardiology",
+    "date_of_joining": "2021-02-10",
+    "salary": 90939.1,
+    "status": "active",
+    "metadata": {
+      "certifications": [
+        "ATLS"
+      ],
+      "shift_pattern": "Rotational-12h",
+      "fte": 1.0
+    }
+  }
+]

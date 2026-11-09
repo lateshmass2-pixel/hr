@@ -12,29 +12,26 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
-import { processApplication, getJobs } from "./actions"
+import { Upload, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
+import { processApplication } from "./actions"
 import { Progress } from "@/components/ui/progress"
+import { Textarea } from "@/components/ui/textarea"
 
-type Job = {
-    id: string
-    title: string
+type UploadResult = {
+    fileName: string
+    status: 'success' | 'error'
+    message: string
+    score?: number | null
 }
 
 export function UploadDialog() {
     const [isOpen, setIsOpen] = useState(false)
     const [files, setFiles] = useState<File[]>([])
     const [uploading, setUploading] = useState(false)
-    const [results, setResults] = useState<any[]>([])
+    const [results, setResults] = useState<UploadResult[]>([])
     const [currentFileIndex, setCurrentFileIndex] = useState(0)
     const [expectedSkills, setExpectedSkills] = useState("")
+    const [jobDescription, setJobDescription] = useState("")
 
     useEffect(() => {
         if (isOpen) {
@@ -42,6 +39,7 @@ export function UploadDialog() {
             setFiles([])
             setResults([])
             setExpectedSkills("")
+            setJobDescription("")
             setCurrentFileIndex(0)
         }
     }, [isOpen])
@@ -65,16 +63,31 @@ export function UploadDialog() {
             const formData = new FormData()
             formData.append('resume', file)
 
+            // The JD text HR enters — this is what each resume is scored
+            // against by cosine similarity.
+            if (jobDescription.trim()) {
+                formData.append('jobDescription', jobDescription)
+            }
+
             if (expectedSkills.trim()) {
                 formData.append('expectedSkills', expectedSkills)
             }
-            // We don't send name/email here, relying on AI extraction
+            // Name/email are extracted from the resume text via regex (no AI).
 
             try {
                 const result = await processApplication(formData)
-                setResults(prev => [...prev, { fileName: file.name, status: result.message === 'Success' ? 'success' : 'error', message: result.message, score: result.score }])
-            } catch (error: any) {
-                setResults(prev => [...prev, { fileName: file.name, status: 'error', message: error.message }])
+                setResults(prev => [...prev, {
+                    fileName: file.name,
+                    status: result.message === 'Success' ? 'success' : 'error',
+                    message: result.message,
+                    score: result.score,
+                }])
+            } catch (error) {
+                setResults(prev => [...prev, {
+                    fileName: file.name,
+                    status: 'error',
+                    message: error instanceof Error ? error.message : 'Upload failed',
+                }])
             }
         }
         setUploading(false)
@@ -91,13 +104,29 @@ export function UploadDialog() {
                 <DialogHeader>
                     <DialogTitle>Bulk Resume Upload</DialogTitle>
                     <DialogDescription>
-                        Upload resumes and define required skills. Candidates missing these skills will be automatically rejected.
+                        Paste the job description to match against. Each resume is embedded and scored by
+                        cosine similarity to that JD, then saved to the talent pool for future roles.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="skills">Required Skills</Label>
+                        <Label htmlFor="jobDescription">Job Description</Label>
+                        <Textarea
+                            id="jobDescription"
+                            placeholder="Paste the job description here. Resumes are scored by similarity to this text."
+                            value={jobDescription}
+                            onChange={(e) => setJobDescription(e.target.value)}
+                            disabled={uploading}
+                            className="min-h-[140px]"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            This is what each resume is matched against.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="skills">Extra Skills / Keywords (optional)</Label>
                         <Input
                             id="skills"
                             placeholder="e.g. React, Node.js, Python (comma separated)"
@@ -106,7 +135,7 @@ export function UploadDialog() {
                             disabled={uploading}
                         />
                         <p className="text-xs text-muted-foreground">
-                            Candidates scored below 50% on these skills will be auto-rejected.
+                            Appended to the job description before matching.
                         </p>
                     </div>
 
@@ -145,7 +174,11 @@ export function UploadDialog() {
                                     {res.status === 'success' ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
                                     <span className="truncate max-w-[200px]">{res.fileName}</span>
                                 </div>
-                                {res.status === 'success' && <span className="text-xs font-mono font-bold">Score: {res.score}</span>}
+                                {res.status === 'success' && (
+                                    <span className="text-xs font-mono font-bold">
+                                        {typeof res.score === 'number' ? `Score: ${res.score}` : 'Saved · no JD'}
+                                    </span>
+                                )}
                             </div>
                         ))}
                     </div>

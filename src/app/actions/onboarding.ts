@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import OpenAI from 'openai'
 import { Resend } from 'resend'
+import { getAppUrl, getEmailSender, resolveEmailRecipient } from '@/lib/env'
 // @ts-ignore
 import PDFParser from 'pdf2json'
 
@@ -15,7 +16,7 @@ const openai = new OpenAI({
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const AI_MODEL = 'llama-3.3-70b-versatile'
+import { AI_MODEL } from '@/lib/ai'
 
 // Helper to parse PDF using pdf2json
 async function parsePDF(buffer: Buffer): Promise<string> {
@@ -170,14 +171,19 @@ If you can't find them, use empty strings.`
         console.log('✅ Profile created')
 
         // Step D: Send welcome email with credentials
-        const loginUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-
-        // TEST MODE: Send to admin email
-        const recipientEmail = process.env.TEST_ADMIN_EMAIL || 'latesh312006@gmail.com' || extractedEmail
-        const subjectPrefix = (process.env.TEST_ADMIN_EMAIL || 'true') ? '[TEST MODE] ' : ''
+        //
+        // This email contains a temporary password, so it MUST reach the
+        // employee and nobody else. It previously went to a hardcoded personal
+        // address in all environments (the `|| extractedEmail` fallback was
+        // unreachable), which both leaked credentials and meant employees never
+        // received their login details. Redirection is now opt-in via
+        // EMAIL_REDIRECT_TO and is rejected in production at startup.
+        const loginUrl = getAppUrl()
+        const { to: recipientEmail, redirected } = resolveEmailRecipient(extractedEmail)
+        const subjectPrefix = redirected ? '[REDIRECTED] ' : ''
 
         await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
+            from: getEmailSender(),
             to: recipientEmail,
             subject: `${subjectPrefix}Credentials for ${extractedName}`,
             html: `
@@ -201,7 +207,7 @@ If you can't find them, use empty strings.`
             
             <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
                 Your employee portal account has been created.
-                ${process.env.TEST_ADMIN_EMAIL ? `<br><br><strong>Note:</strong> This is a test email sent to admin. The real employee email is: ${extractedEmail}` : ''}
+                ${redirected ? `<br><br><strong>Note:</strong> This message was redirected here by EMAIL_REDIRECT_TO. The intended recipient was: ${extractedEmail}` : ''}
             </p>
             
             <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin: 30px 0; border: 1px solid #e2e8f0;">

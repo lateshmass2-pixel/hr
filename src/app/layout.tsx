@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className={cn(
         "min-h-screen bg-[#f8faf6] font-sans antialiased tracking-tight text-sm selection:bg-purple-100 selection:text-purple-900 flex flex-col",
         font.className
-      )}>
+      )} suppressHydrationWarning>
         <HemsProvider>
           <Toaster richColors position="top-right" />
           <div className="flex-1">

@@ -23,6 +23,11 @@ interface Review {
 export function PerformanceReviewPanel({ employee, review }: { employee: Employee, review?: Review | null }) {
     const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
+    // Split review summary and reasoning trace if present
+    const summaryParts = review?.ai_summary.split('### 🔍 Agent Execution Trace') || []
+    const reviewText = summaryParts[0]?.trim() || ''
+    const reasoningTrace = summaryParts[1]?.trim() || ''
+
     // Determine score-based border color (Semantic)
     const getBorderColor = (rating: number) => {
         if (rating >= 4) return 'border-l-emerald-500' // Green for excellent
@@ -77,7 +82,7 @@ export function PerformanceReviewPanel({ employee, review }: { employee: Employe
                         </div>
 
                         {/* AI Summary */}
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             <div className="flex items-center gap-2 text-sm font-semibold text-[#14532d]">
                                 <div className="p-1 rounded bg-green-100 text-green-700">
                                     <Sparkles className="h-3.5 w-3.5" />
@@ -87,9 +92,23 @@ export function PerformanceReviewPanel({ employee, review }: { employee: Employe
                             <div className="p-5 rounded-xl bg-[#f8faf6] border border-green-50 text-slate-600 leading-relaxed whitespace-pre-line italic relative">
                                 <span className="absolute top-4 left-4 text-green-200 text-4xl leading-none font-serif">"</span>
                                 <div className="relative z-10 pl-2">
-                                    {review.ai_summary}
+                                    {reviewText}
                                 </div>
                             </div>
+
+                            {/* Agent Reasoning Trace */}
+                            {reasoningTrace && (
+                                <div className="rounded-xl border border-green-100 overflow-hidden bg-white">
+                                    <div className="px-4 py-3 bg-gradient-to-r from-emerald-50/50 to-white border-b border-green-50 flex items-center gap-2">
+                                        <Sparkles className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+                                        <span className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">Agent Execution Trace</span>
+                                    </div>
+                                    <div className="p-4 text-xs text-slate-600 space-y-2 leading-relaxed whitespace-pre-line bg-gray-50/50">
+                                        {reasoningTrace}
+                                    </div>
+                                </div>
+                            )}
+
                             <a href="#" className="inline-flex items-center text-green-700 font-medium text-sm hover:text-green-800 hover:underline">
                                 Read Full Review →
                             </a>

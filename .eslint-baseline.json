@@ -1,0 +1,15 @@
+{
+  "_comment": "Lint ratchet baseline. Error counts may decrease but never increase. Regenerate with: npm run lint:baseline. Goal: delete this file.",
+  "total": 226,
+  "byRule": {
+    "@next/next/no-html-link-for-pages": 1,
+    "@typescript-eslint/ban-ts-comment": 6,
+    "@typescript-eslint/no-explicit-any": 172,
+    "@typescript-eslint/no-require-imports": 2,
+    "prefer-const": 1,
+    "react-hooks/purity": 1,
+    "react-hooks/set-state-in-effect": 3,
+    "react-hooks/static-components": 7,
+    "react/no-unescaped-entities": 33
+  }
+}

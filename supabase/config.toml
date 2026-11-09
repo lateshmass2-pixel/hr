@@ -1,0 +1,51 @@
+# Supabase CLI configuration
+#
+# Links this repo to a Supabase project so schema changes go through
+# `supabase/migrations/` instead of being pasted into the SQL editor.
+#
+# Getting started:
+#   supabase link --project-ref <your-project-ref>
+#   supabase db pull      # capture production as migration 000 (see migrations/README.md)
+#   supabase db push      # apply pending migrations
+#
+# `project_id` is a local label only; the actual project is chosen by
+# `supabase link` and stored outside the repo.
+
+project_id = "hr"
+
+[db]
+# Must match the Postgres major version of the linked Supabase project,
+# otherwise `supabase db reset` and `db pull` can produce misleading diffs.
+major_version = 17
+
+[db.migrations]
+# Fail rather than guess when a migration file is not numbered.
+schema_paths = []
+
+[api]
+enabled = true
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+# Overridden per environment; the CLI only uses these for `supabase start`.
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[storage]
+enabled = true
+# Resumes are the largest uploads; keep this aligned with the server action
+# body limit in next.config.ts (10mb).
+file_size_limit = "10MiB"
+
+[analytics]
+enabled = false

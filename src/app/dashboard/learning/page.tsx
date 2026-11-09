@@ -24,6 +24,7 @@ export default function LearningPage() {
     const [activeTab, setActiveTab] = useState<TabType>('my-learning')
     const [isGenerating, setIsGenerating] = useState(false)
     const [learningPath, setLearningPath] = useState<string[] | null>(null)
+    const [pathError, setPathError] = useState<string | null>(null)
 
     const currentCourse = enrolledCourses.find((c: Course) => c.progress > 0) || enrolledCourses[0]
     const userName = 'Alex'
@@ -52,17 +53,41 @@ export default function LearningPage() {
         setActiveTab('my-learning')
     }
 
-    function handleGenerateLearningPath() {
+    async function handleGenerateLearningPath() {
         setIsGenerating(true)
-        setTimeout(() => {
+        setLearningPath(null)
+        setPathError(null)
+
+        // Real AI learning path generation. On failure show an error rather than
+        // generic canned advice presented as a personalized recommendation.
+        try {
+            const res = await fetch('/api/agent/learning', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    skills: SKILLS,
+                    enrolledCourses: enrolledCourses.map((c: Course) => ({ title: c.title, progress: c.progress })),
+                    availableCourses: availableCourses.map((c: Course) => ({ title: c.title, category: c.category })),
+                }),
+            })
+
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}))
+                setPathError(
+                    res.status === 429
+                        ? 'Too many requests. Please wait a moment and try again.'
+                        : (body as { error?: string }).error ?? 'Could not generate a learning path. Please try again.'
+                )
+                return
+            }
+
+            const data = await res.json()
+            setLearningPath(data.learningPath ?? [])
+        } catch {
+            setPathError('Could not reach the learning service. Please try again.')
+        } finally {
             setIsGenerating(false)
-            setLearningPath([
-                '1. Complete "Leadership for Tech Managers" (Priority: High)',
-                '2. Take "Design Systems Masterclass" to improve collaboration',
-                '3. Finish "TypeScript Deep Dive" for advanced proficiency',
-                '4. Practice soft skills with "Effective Communication"',
-            ])
-        }, 2000)
+        }
     }
 
     return (
@@ -395,6 +420,17 @@ export default function LearningPage() {
                             )}
                         </button>
 
+                        {/* Generation Error — shown instead of canned advice */}
+                        {pathError && !isGenerating && (
+                            <div
+                                role="alert"
+                                className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200"
+                            >
+                                <p className="text-xs font-medium text-red-800">Learning path unavailable</p>
+                                <p className="text-xs text-red-700 mt-1">{pathError}</p>
+                            </div>
+                        )}
+
                         {/* Generated Path */}
                         {learningPath && (
                             <motion.div
@@ -409,7 +445,7 @@ export default function LearningPage() {
                                             <span className="w-4 h-4 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
                                                 {idx + 1}
                                             </span>
-                                            {step.slice(3)}
+                                                            {step}
                                         </li>
                                     ))}
                                 </ul>

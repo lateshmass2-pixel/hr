@@ -1,15 +1,28 @@
 import { Resend } from 'resend';
+import { getAppUrl, getEmailSender, resolveEmailRecipient } from '@/lib/env';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * Every function in this file mails EXTERNAL people (candidates), so a
+ * misconfigured environment sending real mail is a genuine incident. All sends
+ * route through this helper so the verified sender and the development
+ * redirect (EMAIL_REDIRECT_TO) are applied in exactly one place.
+ */
+function outbound(intendedRecipient: string): { from: string; to: string } {
+    return {
+        from: getEmailSender(),
+        to: resolveEmailRecipient(intendedRecipient).to,
+    };
+}
+
 export async function sendAssessmentInvite(email: string, candidateId: string, candidateName: string) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = getAppUrl();
     const assessmentLink = `${baseUrl}/assessment/${candidateId}`;
 
     try {
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
-            to: email,
+            ...outbound(email),
             subject: '🎯 Complete Your Technical Assessment',
             html: `
 <!DOCTYPE html>
@@ -83,8 +96,7 @@ export async function sendAssessmentInvite(email: string, candidateId: string, c
 export async function sendRejectionEmail(email: string, candidateName: string) {
     try {
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
-            to: email,
+            ...outbound(email),
             subject: 'Update on Your Application',
             html: `
 <!DOCTYPE html>
@@ -140,8 +152,7 @@ export async function sendRejectionEmail(email: string, candidateName: string) {
 export async function sendInterviewReadyEmail(email: string, candidateName: string) {
     try {
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
-            to: email,
+            ...outbound(email),
             subject: '🎉 Great News - Interview Invitation!',
             html: `
 <!DOCTYPE html>
@@ -204,8 +215,7 @@ export async function sendInterviewReadyEmail(email: string, candidateName: stri
 export async function sendOfferEmail(email: string, candidateName: string, offerContent: string, role: string) {
     try {
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
-            to: email,
+            ...outbound(email),
             subject: `🎉 Job Offer - ${role} Position`,
             html: `
 <!DOCTYPE html>
@@ -286,8 +296,7 @@ export async function sendInterviewScheduleEmail(
 
     try {
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
-            to: email,
+            ...outbound(email),
             subject: `📅 Interview Invitation - ${role} at HEMS`,
             html: `
 <!DOCTYPE html>
@@ -372,8 +381,7 @@ export async function sendWelcomeEmail(
 ) {
     try {
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'HR Team <hr@yourdomain.com>',
-            to: email,
+            ...outbound(email),
             subject: `🎉 Welcome to the Team! Your start date is ${joiningDate}`,
             html: `
 <!DOCTYPE html>

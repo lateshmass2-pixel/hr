@@ -1,0 +1,116 @@
+{
+  "framework": "vitest",
+  "version": "4.1.10",
+  "timestamp": "2026-10-21T13:48:34.000Z",
+  "summary": {
+    "numTotalTestSuites": 11,
+    "numPassedTestSuites": 11,
+    "numFailedTestSuites": 0,
+    "numTotalTests": 198,
+    "numPassedTests": 198,
+    "numFailedTests": 0,
+    "successRate": 1.0,
+    "totalExecutionDurationMs": 296
+  },
+  "testSuites": [
+    {
+      "name": "tenant-scoped.test.ts",
+      "status": "PASSED",
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "durationMs": 7,
+      "description": "Validates tenant isolation, SQL WHERE boundary injection prevention, and payload sanitization"
+    },
+    {
+      "name": "rbac.test.ts",
+      "status": "PASSED",
+      "tests": 16,
+      "passed": 16,
+      "failed": 0,
+      "durationMs": 4,
+      "description": "Verifies 5-tier role-based access permissions (owner, hr, recruiter, manager, employee)"
+    },
+    {
+      "name": "session.test.ts",
+      "status": "PASSED",
+      "tests": 18,
+      "passed": 18,
+      "failed": 0,
+      "durationMs": 32,
+      "description": "Tests fail-closed session resolution, multi-org membership verification, and JWT security"
+    },
+    {
+      "name": "work-intelligence-anomaly.test.ts",
+      "status": "PASSED",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "durationMs": 6,
+      "description": "Validates deterministic rule heuristics for activity burst, generated-only diffs, and off-hour telemetry"
+    },
+    {
+      "name": "work-intelligence-diff.test.ts",
+      "status": "PASSED",
+      "tests": 22,
+      "passed": 22,
+      "failed": 0,
+      "durationMs": 7,
+      "description": "Tests AST diff parsing, line additions/deletions, file type scoring, and churn analysis"
+    },
+    {
+      "name": "work-intelligence-webhook.test.ts",
+      "status": "PASSED",
+      "tests": 18,
+      "passed": 18,
+      "failed": 0,
+      "durationMs": 116,
+      "description": "Evaluates HMAC-SHA256 signature verification, idempotency delivery keys, and replay protection"
+    },
+    {
+      "name": "work-intelligence-agents.test.ts",
+      "status": "PASSED",
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "durationMs": 4,
+      "description": "Tests agent provenance detection (Copilot, Claude, Cursor, Custom Agents) and confidence classification"
+    },
+    {
+      "name": "logger.test.ts",
+      "status": "PASSED",
+      "tests": 28,
+      "passed": 28,
+      "failed": 0,
+      "durationMs": 12,
+      "description": "Ensures structured JSON audit logs adhere to compliance standards and PII scrub policies"
+    },
+    {
+      "name": "env.test.ts",
+      "status": "PASSED",
+      "tests": 25,
+      "passed": 25,
+      "failed": 0,
+      "durationMs": 96,
+      "description": "Validates cryptographic keys (AES-256-GCM), environment variable invariants, and startup sanity"
+    },
+    {
+      "name": "work-intelligence-bots.test.ts",
+      "status": "PASSED",
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "durationMs": 2,
+      "description": "Verifies automated bot filtering rules, app slugs, and service account provenance"
+    },
+    {
+      "name": "work-intelligence-reports.test.ts",
+      "status": "PASSED",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "durationMs": 2,
+      "description": "Validates aggregate daily report computation, file change summation, and status assignment"
+    }
+  ]
+}

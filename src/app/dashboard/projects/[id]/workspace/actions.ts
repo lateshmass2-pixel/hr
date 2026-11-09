@@ -45,7 +45,10 @@ export async function getOrCreateWorkspace(projectId: string, taskId?: string): 
                 project_id: projectId,
                 task_id: taskId || null,
                 created_by: session.userId,
-                organization_id: session.organizationId !== 'legacy' ? session.organizationId : null,
+                // Always set. This previously wrote NULL for the 'legacy'
+                // pseudo-tenant, producing workspaces owned by nobody that no
+                // tenant-scoped query could ever filter correctly.
+                organization_id: session.organizationId,
             })
             .select()
             .single()

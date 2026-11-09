@@ -250,25 +250,46 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
         insights: { type: 'positive' | 'warning', text: string }[]
         recommendation: string
     }>(null)
+    const [analysisError, setAnalysisError] = useState<string | null>(null)
 
-    function handleAnalyzeRisks() {
+    async function handleAnalyzeRisks() {
+        if (!candidate) return
         setIsAnalyzing(true)
         setAnalysisResult(null)
+        setAnalysisError(null)
 
-        // Simulate AI analysis with 2 second delay
-        setTimeout(() => {
-            setIsAnalyzing(false)
-            setAnalysisResult({
-                riskLevel: 'low',
-                insights: [
-                    { type: 'positive', text: 'Strong tenure at previous roles (avg 2.5 years)' },
-                    { type: 'positive', text: 'Consistent skill progression in core technologies' },
-                    { type: 'warning', text: 'Gap in employment detected (Jan-Mar 2023)' },
-                    { type: 'positive', text: 'Active contributions to open source projects' },
-                ],
-                recommendation: 'Recommended for Interview'
+        // Real AI analysis via the scout agent API.
+        // A failed analysis must surface as an error — never as a fabricated
+        // "medium risk" verdict, which would look like a real assessment and
+        // could influence a hiring decision.
+        try {
+            const res = await fetch('/api/agent/scout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ candidate }),
             })
-        }, 2000)
+
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}))
+                setAnalysisError(
+                    res.status === 429
+                        ? 'Too many analysis requests. Please wait a moment and try again.'
+                        : (body as { error?: string }).error ?? 'Risk analysis failed. Please try again.'
+                )
+                return
+            }
+
+            const data = await res.json()
+            setAnalysisResult({
+                riskLevel: data.riskLevel,
+                insights: data.insights,
+                recommendation: data.recommendation,
+            })
+        } catch {
+            setAnalysisError('Could not reach the analysis service. Please try again.')
+        } finally {
+            setIsAnalyzing(false)
+        }
     }
 
     function getInitials(name: string) {
@@ -478,6 +499,20 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                                     </div>
                                 )}
 
+                                {/* Analysis Error — shown instead of a fabricated verdict */}
+                                {analysisError && !isAnalyzing && (
+                                    <div
+                                        role="alert"
+                                        className="p-4 bg-red-50 rounded-2xl border border-red-200 flex items-start gap-3"
+                                    >
+                                        <AlertTriangle size={16} className="text-red-600 mt-0.5 shrink-0" aria-hidden="true" />
+                                        <div>
+                                            <p className="text-sm font-medium text-red-800">Analysis unavailable</p>
+                                            <p className="text-xs text-red-700 mt-1">{analysisError}</p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Analysis Result */}
                                 {analysisResult && (
                                     <motion.div
@@ -529,7 +564,7 @@ function ProfileDrawer({ candidate, onClose }: { candidate: Candidate | null, on
                                     </motion.div>
                                 )}
 
-                                {!isAnalyzing && !analysisResult && (
+                                {!isAnalyzing && !analysisResult && !analysisError && (
                                     <p className="text-xs text-[#94A3B8]">Click "Analyze Risks" to scan this candidate's profile for potential hiring risks.</p>
                                 )}
                             </div>

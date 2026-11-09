@@ -1,0 +1,179 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same branch to save minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      # Build-time placeholders. The build must not require real credentials —
+      # if it ever does, that is a bug (secrets belong in runtime config).
+      # These are syntactically valid but point nowhere.
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ----------------------------------------------------------------------
+      # Type check — currently clean under `strict: true`. This gate exists to
+      # keep it that way.
+      # ----------------------------------------------------------------------
+      - name: Type check
+        run: npm run typecheck
+
+      # ----------------------------------------------------------------------
+      # Lint ratchet — the repo has a backlog of ESLint errors. This fails only
+      # if the count goes UP, so new code must be clean without requiring a
+      # big-bang cleanup first. See scripts/lint-ratchet.mjs.
+      # ----------------------------------------------------------------------
+      - name: Lint (ratchet)
+        run: npm run lint:ratchet
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  # --------------------------------------------------------------------------
+  # Migration validation.
+  #
+  # Enforces that supabase/migrations/ is the single source of truth: applies
+  # every migration in order to a clean Postgres, then re-applies to prove
+  # idempotency.
+  #
+  # IMPORTANT: this can only run once a production baseline exists. Migrations
+  # 004-007 alter legacy tables (`applications`, `job_postings`) whose CREATE
+  # TABLE statements live only in supabase/_archive/, and nobody can currently
+  # prove what production contains. Until `000_baseline_*.sql` is captured via
+  # `supabase db pull`, this job emits a warning instead of validating.
+  #
+  # See supabase/migrations/README.md and plan task 0.1.
+  # --------------------------------------------------------------------------
+  migrations:
+    name: Migrations apply cleanly
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hr_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for a schema baseline
+        id: baseline
+        run: |
+          set -euo pipefail
+          if compgen -G "supabase/migrations/000_baseline*.sql" > /dev/null; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+            echo "Baseline found — validating the full migration chain."
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=No schema baseline::supabase/migrations/000_baseline_*.sql is missing, so migrations cannot be validated. Migrations 004-007 alter legacy tables whose DDL is only in supabase/_archive/. Run 'supabase db pull' and commit the result as 000_baseline_remote_schema.sql. See supabase/migrations/README.md. A green result here does NOT mean the migrations are correct."
+          fi
+
+      - name: Enforce numbered migration filenames
+        run: |
+          set -euo pipefail
+          # An unnumbered migration has no defined position in the ordering,
+          # which is how add_interview_columns.sql and add_skills_column.sql
+          # ended up ambiguous. This check runs with or without a baseline.
+          unnumbered=""
+          for f in supabase/migrations/*.sql; do
+            name=$(basename "$f")
+            if [[ ! "$name" =~ ^[0-9]{3}_.*\.sql$ ]]; then
+              unnumbered="$unnumbered  $name"$'\n'
+            fi
+          done
+          if [ -n "$unnumbered" ]; then
+            echo "::error title=Unnumbered migration::Migration files must be named NNN_description.sql"
+            printf '%b' "$unnumbered"
+            exit 1
+          fi
+          echo "All migration filenames are numbered."
+
+      - name: Apply migrations in order
+        if: steps.baseline.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+
+          # Supabase-managed objects that do not exist in a bare Postgres.
+          # The baseline covers application tables; this covers the platform.
+          psql -h localhost -U postgres -d hr_test -v ON_ERROR_STOP=1 <<'SQL'
+            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+            CREATE EXTENSION IF NOT EXISTS "vector";
+            CREATE SCHEMA IF NOT EXISTS auth;
+            CREATE TABLE IF NOT EXISTS auth.users (
+              id    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+              email text
+            );
+            CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid
+              LANGUAGE sql STABLE AS $$ SELECT NULL::uuid $$;
+            DO $$ BEGIN
+              CREATE ROLE authenticated;
+            EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+            DO $$ BEGIN
+              CREATE ROLE service_role;
+            EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+          SQL
+
+          for migration in $(ls supabase/migrations/*.sql | sort); do
+            echo "--- applying $migration"
+            psql -h localhost -U postgres -d hr_test -v ON_ERROR_STOP=1 -f "$migration"
+          done
+
+          echo "All migrations applied."
+
+      - name: Re-apply migrations (idempotency check)
+        if: steps.baseline.outputs.present == 'true'
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          # Migrations must be safe to re-run, otherwise a partial deploy
+          # failure cannot be retried.
+          for migration in $(ls supabase/migrations/*.sql | sort); do
+            echo "--- re-applying $migration"
+            psql -h localhost -U postgres -d hr_test -v ON_ERROR_STOP=1 -f "$migration"
+          done
+
+          echo "Migrations are idempotent."

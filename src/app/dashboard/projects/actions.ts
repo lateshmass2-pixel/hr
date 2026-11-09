@@ -9,9 +9,9 @@
 
 import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { requireSession, requirePermissionFromSession, type Session } from "@/lib/auth/session"
-import { hasPermission } from "@/lib/rbac/types"
-import { createAuditLog, computeDiff } from '@/lib/audit'
+import { requireSession, requirePermissionFromSession } from "@/lib/auth/session"
+import { getOrgDb, scopeClient } from "@/lib/db/tenant-scoped"
+import { createAuditLog } from '@/lib/audit'
 import { safeError } from '@/lib/security'
 
 // =============================================================================
@@ -62,17 +62,18 @@ export type ActionResult = {
 export type ActionState = ActionResult
 
 // =============================================================================
-// Helper: Determine which table to use
+// Projects table
 // =============================================================================
-// If organization_members exists (SaaS mode), use org_projects.
-// Otherwise fall back to legacy projects table.
-
-async function getProjectsTable(supabase: any, session: Session): Promise<'org_projects' | 'projects'> {
-    if (session.organizationId && session.organizationId !== 'legacy') {
-        return 'org_projects'
-    }
-    return 'projects'
-}
+// Always `org_projects`. A session now always carries a real organization, so
+// there is no "legacy mode" to fall back to — see src/lib/auth/session.ts.
+//
+// The legacy `projects` table is deliberately NOT read here. It has no
+// `organization_id` column, so any query against it returns rows belonging to
+// every tenant; there is no way to scope it. Legacy rows reach `org_projects`
+// via supabase/migrations/002_backfill.sql.
+//
+// Completing the cut-over (and dropping the legacy table) is plan task 1.2.
+const PROJECTS_TABLE = 'org_projects' as const
 
 // =============================================================================
 // GET: List Projects (org-scoped)
@@ -81,20 +82,13 @@ async function getProjectsTable(supabase: any, session: Session): Promise<'org_p
 export async function getProjects(): Promise<Project[]> {
     try {
         const session = await requireSession()
-        const supabase = await createClient()
-        const table = await getProjectsTable(supabase, session)
+        const db = await getOrgDb(session)
 
-        let query = supabase
-            .from(table)
-            .select('*')
+        // The tenant filter is applied by the scoped client, not by hand.
+        const { data, error } = await db
+            .from(PROJECTS_TABLE)
+            .select<Project[]>('*')
             .order('created_at', { ascending: false })
-
-        // Scope to organization if in SaaS mode
-        if (table === 'org_projects') {
-            query = query.eq('organization_id', session.organizationId)
-        }
-
-        const { data, error } = await query
 
         if (error) {
             console.error('Error fetching projects:', error)
@@ -110,39 +104,28 @@ export async function getProjects(): Promise<Project[]> {
 // =============================================================================
 // GET: Single Project (org-scoped)
 // =============================================================================
-
-// =============================================================================
-// GET: Single Project (org-scoped + legacy fallback)
-// =============================================================================
+// This function is the authorization boundary for projects: getTasks,
+// createTask, updateTaskStatus and deleteTask all call it and treat a null
+// result as "not found or access denied". It must therefore never return a row
+// from another tenant.
+//
+// It previously fell back to an unscoped `projects` query by id alone, which
+// meant a valid id from ANY tenant resolved successfully — and because callers
+// use it as their access check, that fallback authorized task reads and writes
+// across tenants. The fallback is removed.
 
 export async function getProject(id: string): Promise<Project | null> {
     try {
         const session = await requireSession()
-        const supabase = await createClient()
-        const primaryTable = await getProjectsTable(supabase, session)
+        const db = await getOrgDb(session)
 
-        // 1. Try primary table (e.g. org_projects)
-        let query = supabase.from(primaryTable).select('*').eq('id', id)
-        if (primaryTable === 'org_projects') {
-            query = query.eq('organization_id', session.organizationId)
-        }
+        const { data } = await db
+            .from(PROJECTS_TABLE)
+            .select<Project[]>('*')
+            .eq('id', id)
+            .single()
 
-        const { data, error } = await query.single()
-        if (data) return data as Project
-
-        // 2. Fallback: If primary was org_projects, try legacy 'projects' table
-        // This handles cases where user is upgraded to Org but accessing old data
-        if (primaryTable === 'org_projects') {
-            const { data: legacyData } = await supabase
-                .from('projects')
-                .select('*')
-                .eq('id', id)
-                .single()
-
-            if (legacyData) return legacyData as Project
-        }
-
-        return null
+        return data ?? null
     } catch {
         return null
     }
@@ -154,10 +137,12 @@ export async function getProject(id: string): Promise<Project | null> {
 
 export async function getTasks(projectId: string): Promise<Task[]> {
     try {
-        const session = await requireSession()
+        await requireSession()
         const supabase = await createClient()
 
-        // Verify the project belongs to the user's org first
+        // Tenant check is delegated to getProject, which is org-scoped. `tasks`
+        // has no organization_id of its own, so reaching it safely depends
+        // entirely on first proving the parent project belongs to this tenant.
         const project = await getProject(projectId)
         if (!project) return []
 
@@ -187,9 +172,13 @@ export async function getTasks(projectId: string): Promise<Task[]> {
 
 export async function getEmployees(): Promise<Employee[]> {
     try {
-        const session = await requireSession()
+        await requireSession()
         const supabase = await createClient()
 
+        // KNOWN TENANT LEAK: `profiles` has no organization_id column, so this
+        // read cannot be scoped and returns users from every tenant. Cannot be
+        // fixed here — it needs the schema cut-over to `org_employees`
+        // (plan task 1.2). Tracked in docs/INDUSTRIAL_READINESS_PLAN.md.
         const { data, error } = await supabase
             .from('profiles')
             .select('id, full_name, email, position, role')
@@ -212,9 +201,12 @@ export async function getEmployees(): Promise<Employee[]> {
 
 export async function getAllProfiles(): Promise<{ id: string; full_name: string; email: string; position: string; role: string }[]> {
     try {
-        const session = await requireSession()
+        await requireSession()
         const supabase = await createClient()
 
+        // KNOWN TENANT LEAK: same as getEmployees — `profiles` is tenant-less,
+        // so this returns every tenant's users. Needs the cut-over to
+        // `org_employees` (plan task 1.2).
         const { data, error } = await supabase
             .from('profiles')
             .select('id, full_name, email, position, role')
@@ -241,8 +233,7 @@ export async function createProject(
     try {
         // 1. Session + permission check (org comes from session, NOT form)
         const session = await requirePermissionFromSession('projects:create')
-        const supabase = await createClient()
-        const table = await getProjectsTable(supabase, session)
+        const db = await getOrgDb(session)
 
         // 2. Validate input
         const title = formData.get('title') as string
@@ -262,27 +253,20 @@ export async function createProject(
             if (memberIdsStr) member_ids = JSON.parse(memberIdsStr)
         } catch(e) {}
 
-        // 3. Insert with org scope
-        // 3. Insert with org scope
-        const insertData: Record<string, any> = {
-            title: title.trim(),
-            description: description || null,
-            status: status || 'ACTIVE',
-            due_date,
-            created_by: session.userId,
-            team_lead_id: teamLeadId || null,
-            member_ids: member_ids,
-        }
-
-        if (table === 'org_projects') {
-            insertData.organization_id = session.organizationId
-        }
-
-        const { data, error } = await supabase
-            .from(table)
-            .insert(insertData)
+        // 3. Insert — organization_id is injected by the scoped client
+        const { data, error } = await db
+            .from(PROJECTS_TABLE)
+            .insert({
+                title: title.trim(),
+                description: description || null,
+                status: status || 'ACTIVE',
+                due_date,
+                created_by: session.userId,
+                team_lead_id: teamLeadId || null,
+                member_ids: member_ids,
+            })
             .select()
-            .single()
+            .single<Project>()
 
         if (error) {
             console.error('Project create error:', error)
@@ -459,58 +443,52 @@ export async function deleteTask(taskId: string, projectId: string) {
 export async function deleteProject(projectId: string) {
     try {
         const session = await requirePermissionFromSession('projects:delete')
-        // Using Admin Client to bypass RLS for administrative deletion
-        // Permission check above ensures only authorized users can perform this.
-        const supabase = await createAdminClient()
 
-        // 1. Unified Cleanup: Delete all associated data
-        await supabase.from('project_workspaces').delete().eq('project_id', projectId)
-        await supabase.from('org_tasks').delete().eq('project_id', projectId)
-        await supabase.from('tasks').delete().eq('project_id', projectId)
+        // The admin client bypasses RLS entirely, so the scoped wrapper is the
+        // ONLY thing keeping this operation inside the caller's tenant. The
+        // permission check above proves they may delete projects in their own
+        // org; it says nothing about whether THIS id belongs to them.
+        const db = scopeClient(await createAdminClient(), session.organizationId)
 
-        // 2. Identify if it's an Org Project or Legacy Project
-        let projectTitle = 'Unknown Project'
-        let table: 'org_projects' | 'projects' = 'projects'
+        // 1. Verify ownership BEFORE deleting anything. Previously the cascade
+        //    ran first and the final delete hit the legacy `projects` table
+        //    filtered by id alone, so an id from another tenant was destroyed.
+        const { data: project } = await db
+            .from(PROJECTS_TABLE)
+            .select<{ title: string }[]>('title')
+            .eq('id', projectId)
+            .single()
 
-        if (session.organizationId && session.organizationId !== 'legacy') {
-            const { data: orgProject } = await supabase
-                .from('org_projects')
-                .select('title')
-                .eq('id', projectId)
-                .eq('organization_id', session.organizationId)
-                .single()
-            
-            if (orgProject) {
-                table = 'org_projects'
-                projectTitle = orgProject.title
-            }
+        if (!project) {
+            return { success: false, error: 'Project not found or access denied' }
         }
 
-        if (projectTitle === 'Unknown Project') {
-            const { data: legacyProject } = await supabase
-                .from('projects')
-                .select('title')
-                .eq('id', projectId)
-                .single()
-            
-            if (legacyProject) {
-                table = 'projects'
-                projectTitle = legacyProject.title
-            }
+        const projectTitle = project.title
+
+        // 2. Cascade cleanup, now that ownership is established.
+        //    project_workspaces is tenant-scoped, so it goes through the wrapper.
+        await db.from('project_workspaces').delete().eq('project_id', projectId)
+
+        //    org_tasks is tenant-scoped; tasks is not (no organization_id
+        //    column), so it must be reached through the raw client. Safe here
+        //    only because ownership of the parent project is already proven.
+        await db.from('org_tasks').delete().eq('project_id', projectId)
+        await db
+            .unsafeUnscoped('legacy `tasks` table has no organization_id; parent project ownership verified above')
+            .from('tasks')
+            .delete()
+            .eq('project_id', projectId)
+
+        // 3. Delete the project, still tenant-scoped.
+        const { error: deleteError } = await db
+            .from(PROJECTS_TABLE)
+            .delete()
+            .eq('id', projectId)
+
+        if (deleteError) {
+            console.error('Delete Project Error:', deleteError)
+            return { success: false, error: deleteError.message }
         }
-
-        // 3. Final Project Deletion (RLS Bypassed)
-        // Perform deletion - Attempt BOTH tables to clear potential 'ghost' or duplicate records
-        await supabase
-            .from('org_projects')
-            .delete()
-            .eq('id', projectId)
-            .eq('organization_id', session.organizationId)
-
-        await supabase
-            .from('projects')
-            .delete()
-            .eq('id', projectId)
 
         // 4. Audit log
         await createAuditLog({
