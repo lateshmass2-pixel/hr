@@ -28,6 +28,7 @@ export default async function AuthenticityPage() {
 
     const supabase = await createClient()
     const isManager = isRoleAtLeast(session.role, 'manager')
+    if (!isManager) redirect('/dashboard/work-intelligence/git-activity')
 
     let query = supabase
         .from('daily_work_reports')

@@ -10,7 +10,8 @@ import { isRoleAtLeast } from '@/lib/rbac/types'
 // =============================================================================
 // Git Activity — /dashboard/work-intelligence/git-activity
 // =============================================================================
-// Recent commits/pushes/PRs. Employees see their own; managers see org-wide.
+// Recent commits/pushes/PRs. Employees see only what they pushed;
+// managers see org-wide activity.
 // =============================================================================
 
 export default async function GitActivityPage() {
@@ -21,32 +22,54 @@ export default async function GitActivityPage() {
     const adminSupabase = await createAdminClient()
     const isManager = isRoleAtLeast(session.role, 'manager')
 
-    // Employees: restrict to their accounts.
-    let accountFilter: string[] | null = null
+    // Employees: restrict to only their own commits/PRs (via their linked git accounts).
+    // Managers: see org-wide activity.
+    let commitFilter: string | null = null
+    let prFilter: string | null = null
+
     if (!isManager) {
-        const { data: accounts } = await adminSupabase
-            .from('git_accounts')
+        const { data: myEmployee } = await adminSupabase
+            .from('org_employees')
             .select('id')
             .eq('organization_id', session.organizationId)
             .eq('user_id', session.userId)
-        accountFilter = (accounts ?? []).map((a: { id: string }) => a.id)
+            .maybeSingle()
+
+        const { data: myAccounts } = await adminSupabase
+            .from('git_accounts')
+            .select('id, github_username')
+            .eq('organization_id', session.organizationId)
+            .or(`user_id.eq.${session.userId}${myEmployee ? `,employee_id.eq.${myEmployee.id}` : ''}`)
+
+        const accountIds = (myAccounts ?? []).map((a: { id: string }) => a.id)
+        const githubUsernames = (myAccounts ?? [])
+            .map((a: { github_username: string }) => a.github_username)
+            .filter(Boolean)
+
+        const commitFilterParts: string[] = []
+        if (accountIds.length > 0) commitFilterParts.push(`git_account_id.in.(${accountIds.join(',')})`)
+        if (githubUsernames.length > 0) commitFilterParts.push(`github_actor.in.(${githubUsernames.join(',')})`)
+        commitFilter = commitFilterParts.length > 0 ? commitFilterParts.join(',') : 'id.eq.00000000-0000-0000-0000-000000000000'
+
+        const prFilterParts: string[] = []
+        if (accountIds.length > 0) prFilterParts.push(`git_account_id.in.(${accountIds.join(',')})`)
+        if (githubUsernames.length > 0) prFilterParts.push(`author_username.in.(${githubUsernames.join(',')})`)
+        prFilter = prFilterParts.length > 0 ? prFilterParts.join(',') : 'id.eq.00000000-0000-0000-0000-000000000000'
     }
 
     let commitQuery = supabase
         .from('git_commits')
         .select(`
             id, sha, message, committed_at, change_category, additions, deletions,
-            is_bot, identity_source, url,
+            is_bot, identity_source, github_actor, url,
             git_repositories(full_name),
             git_accounts(github_username)
         `)
         .eq('organization_id', session.organizationId)
         .order('committed_at', { ascending: false })
         .limit(50)
-    if (accountFilter) {
-        commitQuery = accountFilter.length
-            ? commitQuery.in('git_account_id', accountFilter)
-            : commitQuery.eq('git_account_id', '00000000-0000-0000-0000-000000000000')
+    if (commitFilter) {
+        commitQuery = commitQuery.or(commitFilter)
     }
     const { data: commits } = await commitQuery
 
@@ -60,28 +83,36 @@ export default async function GitActivityPage() {
         .eq('organization_id', session.organizationId)
         .order('gh_created_at', { ascending: false, nullsFirst: false })
         .limit(25)
-    if (accountFilter) {
-        prQuery = accountFilter.length
-            ? prQuery.in('git_account_id', accountFilter)
-            : prQuery.eq('git_account_id', '00000000-0000-0000-0000-000000000000')
+    if (prFilter) {
+        prQuery = prQuery.or(prFilter)
     }
     const { data: prs } = await prQuery
 
     return (
         <div className="p-6 max-w-6xl mx-auto space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-2xl font-bold text-[#0a3b2a] flex items-center gap-2">
-                    <GitBranch className="h-6 w-6" /> Git Activity
-                </h1>
-                <WorkIntelligenceNav />
+                <div>
+                    <h1 className="text-2xl font-bold text-[#0a3b2a] flex items-center gap-2">
+                        <GitBranch className="h-6 w-6" /> {isManager ? 'Git Activity' : 'My Git Activity'}
+                    </h1>
+                    {!isManager && (
+                        <p className="text-sm text-[#14532d]/70 mt-0.5">
+                            Commits and pull requests from your linked GitHub accounts only.
+                        </p>
+                    )}
+                </div>
+                <WorkIntelligenceNav manager={isManager} />
             </div>
 
             <Card className="p-6">
-                <h2 className="text-lg font-semibold text-[#14532d] mb-3">Recent Commits</h2>
+                <h2 className="text-lg font-semibold text-[#14532d] mb-3">
+                    {isManager ? 'Recent Commits' : 'My Recent Commits'}
+                </h2>
                 {!commits || commits.length === 0 ? (
                     <p className="text-sm text-slate-500 py-4">
-                        No commits recorded yet. Connect GitHub under Settings → Integrations and
-                        connect a repository, or wait for the scheduled sync.
+                        {isManager
+                            ? 'No commits recorded yet. Connect GitHub under Settings → Integrations and connect a repository, or wait for the scheduled sync.'
+                            : 'No commits found. Make sure your GitHub account is connected under Settings → Integrations.'}
                     </p>
                 ) : (
                     <div className="overflow-x-auto">
@@ -91,7 +122,7 @@ export default async function GitActivityPage() {
                                     <th className="py-2 pr-3">When</th>
                                     <th className="py-2 pr-3">Commit</th>
                                     <th className="py-2 pr-3">Repository</th>
-                                    <th className="py-2 pr-3">Author (GitHub)</th>
+                                    <th className="py-2 pr-3">Pushed by</th>
                                     <th className="py-2 pr-3">Category</th>
                                     <th className="py-2 pr-3">Changes</th>
                                     <th className="py-2">Identity</th>
@@ -108,6 +139,7 @@ export default async function GitActivityPage() {
                                     deletions: number
                                     is_bot: boolean
                                     identity_source: string
+                                    github_actor: string | null
                                     url: string | null
                                     git_repositories: { full_name: string } | { full_name: string }[] | null
                                     git_accounts: { github_username: string } | { github_username: string }[] | null
@@ -140,7 +172,7 @@ export default async function GitActivityPage() {
                                             </td>
                                             <td className="py-2 pr-3 text-xs text-slate-500">{repo ?? '—'}</td>
                                             <td className="py-2 pr-3 text-xs">
-                                                {c.is_bot ? <Badge variant="secondary">bot</Badge> : (author ?? 'unattributed')}
+                                                {c.is_bot ? <Badge variant="secondary">bot</Badge> : (c.github_actor ?? author ?? 'unattributed')}
                                             </td>
                                             <td className="py-2 pr-3">
                                                 {c.change_category && (
@@ -165,9 +197,13 @@ export default async function GitActivityPage() {
             </Card>
 
             <Card className="p-6">
-                <h2 className="text-lg font-semibold text-[#14532d] mb-3">Recent Pull Requests</h2>
+                <h2 className="text-lg font-semibold text-[#14532d] mb-3">
+                    {isManager ? 'Recent Pull Requests' : 'My Pull Requests'}
+                </h2>
                 {!prs || prs.length === 0 ? (
-                    <p className="text-sm text-slate-500 py-4">No pull requests recorded yet.</p>
+                    <p className="text-sm text-slate-500 py-4">
+                        {isManager ? 'No pull requests recorded yet.' : 'No pull requests found for your GitHub accounts.'}
+                    </p>
                 ) : (
                     <ul className="divide-y divide-slate-50">
                         {(prs as Array<{

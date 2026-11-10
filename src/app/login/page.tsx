@@ -33,9 +33,8 @@ export default function LoginPage() {
 
             if (signInError) throw signInError
 
-            // Redirect to dashboard
-            router.refresh()
-            router.push('/dashboard')
+            // Hard redirect to dashboard to ensure cookies and auth state hydrate cleanly
+            window.location.href = '/dashboard'
 
         } catch (err: any) {
             setError(err.message)

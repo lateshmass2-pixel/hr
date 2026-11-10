@@ -28,6 +28,7 @@ export default async function AnomaliesPage() {
 
     const supabase = await createClient()
     const isManager = isRoleAtLeast(session.role, 'manager')
+    if (!isManager) redirect('/dashboard/work-intelligence/git-activity')
 
     let query = supabase
         .from('activity_anomalies')

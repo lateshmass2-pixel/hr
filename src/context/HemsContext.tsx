@@ -217,7 +217,7 @@ export function HemsProvider({ children }: { children: ReactNode }) {
                 supabase.from('profiles').select('id, full_name, email, role, created_at'),
                 supabase.from('leave_requests').select('id, user_id, start_date, end_date, status, reason'),
                 getProjectsAction(), // Returns Project[]
-                supabase.from('tasks').select('id, project_id, title, status, assignee_id, priority, proof_url, verification_status, due_date')
+                supabase.from('tasks').select('*')
             ])
 
             const newData: Partial<HemsDataState> = {}
@@ -363,17 +363,33 @@ export function HemsProvider({ children }: { children: ReactNode }) {
 
             // 4. Process Tasks
             if (tasksRes.data) {
-                newData.tasks = (tasksRes.data as unknown as TaskRecord[]).map((t: TaskRecord) => ({
+                const normalizeStatus = (s: string): TaskStatus => {
+                    const str = (s || '').trim()
+                    if (str === 'Done' || str === 'DONE' || str === 'COMPLETED') return 'Done'
+                    if (str === 'In Progress' || str === 'IN_PROGRESS') return 'In Progress'
+                    if (str === 'Review' || str === 'REVIEW' || str === 'READY_FOR_REVIEW') return 'Review'
+                    return 'To Do'
+                }
+
+                const normalizePriority = (p: string): 'High' | 'Medium' | 'Low' => {
+                    const upper = (p || '').toUpperCase()
+                    if (upper === 'HIGH') return 'High'
+                    if (upper === 'LOW') return 'Low'
+                    return 'Medium'
+                }
+
+                newData.tasks = (tasksRes.data as any[]).map((t: any) => ({
                     id: t.id,
-                    projectId: t.project_id,
+                    projectId: t.project_id || t.projectId,
                     title: t.title,
-                    status: t.status as TaskStatus,
-                    assigneeId: t.assignee_id,
-                    priority: t.priority as 'High' | 'Medium' | 'Low',
+                    status: normalizeStatus(t.status),
+                    assigneeId: t.assigned_to || t.assignee_id || t.assigneeId || '',
+                    priority: normalizePriority(t.priority),
                     proof_url: t.proof_url ?? undefined,
-                    verificationStatus: t.verification_status as VerificationStatus,
-                    dueDate: t.due_date ?? undefined
+                    verificationStatus: (t.verification_status || 'None') as VerificationStatus,
+                    dueDate: t.due_date || t.deadline || undefined
                 }))
+                console.log(`[HemsContext] Loaded ${newData.tasks.length} tasks`)
             }
 
             setData(prev => ({ ...prev, ...newData }))
@@ -388,6 +404,16 @@ export function HemsProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         refreshData()
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                refreshData()
+            }
+        })
+
+        return () => {
+            subscription.unsubscribe()
+        }
     }, [])
 
     // ========================================================================

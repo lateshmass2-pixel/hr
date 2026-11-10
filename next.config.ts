@@ -25,12 +25,7 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-tabs",
     ],
   },
-  devIndicators: {
-    // @ts-ignore - Valid config key for Next.js to hide the static indicator
-    appIsrStatus: false,
-    // @ts-ignore
-    buildActivity: false,
-  },
+  devIndicators: false,
   webpack: (config) => {
     config.resolve.alias.canvas = false;
     return config;

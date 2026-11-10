@@ -6,7 +6,7 @@ import Link from 'next/link'
 // look. Kept as a server component to avoid extra JS.
 // =============================================================================
 
-const ITEMS = [
+const MANAGER_ITEMS = [
     { href: '/dashboard/work-intelligence', label: 'Overview' },
     { href: '/dashboard/work-intelligence/daily', label: 'Daily Work' },
     { href: '/dashboard/work-intelligence/git-activity', label: 'Git Activity' },
@@ -16,10 +16,18 @@ const ITEMS = [
     { href: '/dashboard/work-intelligence/anomalies', label: 'Anomalies' },
 ]
 
-export function WorkIntelligenceNav() {
+const EMPLOYEE_ITEMS = [
+    { href: '/dashboard/work-intelligence', label: 'Overview' },
+    { href: '/dashboard/work-intelligence/daily', label: 'Daily Work' },
+    { href: '/dashboard/work-intelligence/git-activity', label: 'Project Git Activity' },
+]
+
+export function WorkIntelligenceNav({ manager = true }: { manager?: boolean }) {
+    const visibleItems = manager ? MANAGER_ITEMS : EMPLOYEE_ITEMS
+
     return (
         <nav className="flex flex-wrap gap-1 text-sm" aria-label="Work Intelligence sections">
-            {ITEMS.map((item) => (
+            {visibleItems.map((item) => (
                 <Link
                     key={item.href}
                     href={item.href}

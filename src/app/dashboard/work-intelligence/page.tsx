@@ -1,5 +1,5 @@
 import { getSession } from '@/lib/auth/session'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
@@ -17,8 +17,9 @@ import { Activity, GitCommitHorizontal, GitPullRequest, ShieldCheck, AlertTriang
 // Work Intelligence Overview — /dashboard/work-intelligence
 // =============================================================================
 // Evidence-first dashboard (spec §18): overview metrics, today's activity,
-// employee roster with drill-down, open anomalies. Minimal charts; the point
-// is verifiable evidence, not vanity graphs.
+// employee roster with drill-down, open anomalies.
+// Employees see only what THEY pushed into the code — not everyone's project commits.
+// Managers see org-wide evidence.
 // =============================================================================
 
 export default async function WorkIntelligencePage() {
@@ -26,7 +27,210 @@ export default async function WorkIntelligencePage() {
     if (!session) redirect('/login')
 
     const supabase = await createClient()
+    const adminSupabase = await createAdminClient()
     const isManager = isRoleAtLeast(session.role, 'manager')
+
+    // ── Employee view: show only what the current user pushed into the code ────
+    if (!isManager) {
+        const weekAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString()
+
+        // 1. Resolve employee record for this user
+        const { data: myEmployee } = await adminSupabase
+            .from('org_employees')
+            .select('id, full_name, position')
+            .eq('organization_id', session.organizationId)
+            .eq('user_id', session.userId)
+            .maybeSingle()
+
+        // 2. Resolve linked GitHub accounts
+        const { data: myAccounts } = await adminSupabase
+            .from('git_accounts')
+            .select('id, github_username')
+            .eq('organization_id', session.organizationId)
+            .or(`user_id.eq.${session.userId}${myEmployee ? `,employee_id.eq.${myEmployee.id}` : ''}`)
+
+        const accountIds = (myAccounts ?? []).map((a: { id: string }) => a.id)
+        const githubUsernames = (myAccounts ?? [])
+            .map((a: { github_username: string }) => a.github_username)
+            .filter(Boolean)
+
+        const hasIdentity = accountIds.length > 0 || githubUsernames.length > 0
+
+        // Build identity match filters for commits and PRs
+        const commitFilterParts: string[] = []
+        if (accountIds.length > 0) {
+            commitFilterParts.push(`git_account_id.in.(${accountIds.join(',')})`)
+        }
+        if (githubUsernames.length > 0) {
+            commitFilterParts.push(`github_actor.in.(${githubUsernames.join(',')})`)
+        }
+        const commitFilter = commitFilterParts.length > 0 ? commitFilterParts.join(',') : null
+
+        const prFilterParts: string[] = []
+        if (accountIds.length > 0) {
+            prFilterParts.push(`git_account_id.in.(${accountIds.join(',')})`)
+        }
+        if (githubUsernames.length > 0) {
+            prFilterParts.push(`author_username.in.(${githubUsernames.join(',')})`)
+        }
+        const prFilter = prFilterParts.length > 0 ? prFilterParts.join(',') : null
+
+        let commitCountQuery = supabase
+            .from('git_commits')
+            .select('id', { count: 'exact', head: true })
+            .eq('organization_id', session.organizationId)
+            .gte('committed_at', weekAgo)
+        if (commitFilter) {
+            commitCountQuery = commitCountQuery.or(commitFilter)
+        } else {
+            commitCountQuery = commitCountQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+        }
+
+        let prCountQuery = supabase
+            .from('git_pull_requests')
+            .select('id', { count: 'exact', head: true })
+            .eq('organization_id', session.organizationId)
+            .gte('gh_created_at', weekAgo)
+        if (prFilter) {
+            prCountQuery = prCountQuery.or(prFilter)
+        } else {
+            prCountQuery = prCountQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+        }
+
+        let recentCommitsQuery = supabase
+            .from('git_commits')
+            .select('id, sha, message, committed_at, change_category, additions, deletions, github_actor, url, git_repositories(full_name)')
+            .eq('organization_id', session.organizationId)
+            .order('committed_at', { ascending: false })
+            .limit(10)
+        if (commitFilter) {
+            recentCommitsQuery = recentCommitsQuery.or(commitFilter)
+        } else {
+            recentCommitsQuery = recentCommitsQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+        }
+
+        const [myCommits, myPRs, myRecentCommits] = await Promise.all([
+            commitCountQuery,
+            prCountQuery,
+            hasIdentity ? recentCommitsQuery : Promise.resolve({ data: [] }),
+        ])
+
+        const recentCommits = (myRecentCommits.data ?? []) as Array<{
+            id: string
+            sha: string
+            message: string
+            committed_at: string
+            change_category: string | null
+            additions: number
+            deletions: number
+            github_actor: string | null
+            url: string | null
+            git_repositories: { full_name: string } | { full_name: string }[] | null
+        }>
+
+        return (
+            <div className="p-6 max-w-5xl mx-auto space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h1 className="text-2xl font-bold text-[#0a3b2a]">My Work Overview</h1>
+                        <p className="text-sm text-[#14532d]/70">
+                            Your personal code contributions — commits and pull requests you have pushed.
+                        </p>
+                    </div>
+                    <WorkIntelligenceNav manager={false} />
+                </div>
+
+                {/* Personal metric cards */}
+                <div className="grid grid-cols-2 gap-4">
+                    <Card className="p-4">
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <GitCommitHorizontal className="h-4 w-4" /> My Commits (7d)
+                        </div>
+                        <div className="text-3xl font-bold text-[#0a3b2a] mt-1">{myCommits.count ?? 0}</div>
+                        <div className="text-xs text-slate-400">
+                            {githubUsernames.length > 0
+                                ? `@${githubUsernames.join(', @')}`
+                                : 'No GitHub account connected'}
+                        </div>
+                    </Card>
+                    <Card className="p-4">
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <GitPullRequest className="h-4 w-4" /> My Pull Requests (7d)
+                        </div>
+                        <div className="text-3xl font-bold text-[#0a3b2a] mt-1">{myPRs.count ?? 0}</div>
+                        <div className="text-xs text-slate-400">opened by you in the last 7 days</div>
+                    </Card>
+                </div>
+
+                {/* Recent personal commits */}
+                <Card className="p-6">
+                    <h2 className="text-lg font-semibold text-[#14532d] flex items-center gap-2 mb-4">
+                        <GitCommitHorizontal className="h-5 w-5" /> My Recent Commits
+                    </h2>
+                    {!hasIdentity ? (
+                        <p className="text-sm text-slate-500 py-4">
+                            No GitHub account linked yet. Connect your GitHub account under{' '}
+                            <Link href="/settings/integrations/github" className="text-blue-700 hover:underline">
+                                Settings → Integrations
+                            </Link>{' '}
+                            to see your commits and activity here.
+                        </p>
+                    ) : recentCommits.length === 0 ? (
+                        <p className="text-sm text-slate-500 py-4">No commits pushed by your account yet.</p>
+                    ) : (
+                        <ul className="divide-y divide-slate-50 space-y-0">
+                            {recentCommits.map((c) => {
+                                const repo = Array.isArray(c.git_repositories)
+                                    ? c.git_repositories[0]?.full_name
+                                    : c.git_repositories?.full_name
+                                return (
+                                    <li key={c.id} className="py-3 flex items-start gap-3">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                {c.url ? (
+                                                    <a href={c.url} target="_blank" rel="noreferrer"
+                                                        className="font-mono text-xs text-blue-700 hover:underline">
+                                                        {c.sha.slice(0, 7)}
+                                                    </a>
+                                                ) : (
+                                                    <span className="font-mono text-xs text-slate-400">{c.sha.slice(0, 7)}</span>
+                                                )}
+                                                {c.change_category && (
+                                                    <Badge variant="outline" className="text-[10px]">{c.change_category}</Badge>
+                                                )}
+                                                <span className="text-xs text-slate-400 ml-auto whitespace-nowrap">
+                                                    {new Date(c.committed_at).toLocaleString([], {
+                                                        month: 'short', day: 'numeric',
+                                                        hour: '2-digit', minute: '2-digit',
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <div className="text-sm text-slate-700 mt-0.5">
+                                                {c.message.split('\n')[0].slice(0, 100)}
+                                            </div>
+                                            <div className="text-xs text-slate-400 mt-0.5">
+                                                {repo ?? '—'}{' '}
+                                                <span className="text-emerald-600">+{c.additions}</span>{' '}
+                                                <span className="text-red-500">−{c.deletions}</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    )}
+                    {recentCommits.length > 0 && (
+                        <div className="mt-4 pt-3 border-t">
+                            <Link href="/dashboard/work-intelligence/git-activity"
+                                className="text-sm text-blue-700 hover:underline">
+                                View all your git activity →
+                            </Link>
+                        </div>
+                    )}
+                </Card>
+            </div>
+        )
+    }
 
     const overview = await getWorkIntelligenceOverview(supabase, session.organizationId)
     const activity = isManager

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { WorkIntelligenceNav } from '../nav'
 import { CalendarClock, CheckCircle2, XCircle, Bot, Sparkles } from 'lucide-react'
+import { isRoleAtLeast } from '@/lib/rbac/types'
 
 // =============================================================================
 // Daily Work — /dashboard/work-intelligence/daily
@@ -34,14 +35,17 @@ export default async function DailyWorkPage({
 }) {
     const session = await getSession()
     if (!session) redirect('/login')
+    const isManager = isRoleAtLeast(session.role, 'manager')
 
     const params = await searchParams
     const date = params.date ?? new Date().toISOString().slice(0, 10)
     const adminSupabase = await createAdminClient()
     const supabase = await createClient()
 
-    // Resolve target employee: requested (manager+) or self.
-    let employeeId = params.employeeId
+    // Resolve target employee.
+    // Employees can only view their own report — ignore any employeeId param.
+    // Managers can view any employee via ?employeeId=...
+    let employeeId: string | undefined = undefined
     let employeeName = 'You'
     const { data: myEmployee } = await adminSupabase
         .from('org_employees')
@@ -50,14 +54,15 @@ export default async function DailyWorkPage({
         .eq('user_id', session.userId)
         .maybeSingle()
 
-    if (employeeId) {
+    if (isManager && params.employeeId) {
         const { data: emp } = await adminSupabase
             .from('org_employees')
             .select('id, full_name')
             .eq('organization_id', session.organizationId)
-            .eq('id', employeeId)
+            .eq('id', params.employeeId)
             .maybeSingle()
         if (!emp) redirect('/dashboard/work-intelligence/daily')
+        employeeId = emp.id
         employeeName = emp.full_name
     } else if (myEmployee) {
         employeeId = myEmployee.id
@@ -66,7 +71,7 @@ export default async function DailyWorkPage({
         // No employee row: show guidance instead of an empty report.
         return (
             <div className="p-6 max-w-5xl mx-auto space-y-6">
-                <WorkIntelligenceNav />
+                <WorkIntelligenceNav manager={isManager} />
                 <Card className="p-8 text-center">
                     <h1 className="text-xl font-bold text-[#0a3b2a] mb-2">Daily Work Report</h1>
                     <p className="text-sm text-slate-500">
@@ -87,13 +92,15 @@ export default async function DailyWorkPage({
         .eq('report_date', date)
         .maybeSingle()
 
-    // Roster of recent reports (managers)
-    const { data: recentReports } = await supabase
-        .from('daily_work_reports')
-        .select('id, employee_id, report_date, authenticity_status, commit_count, pr_count, org_employees(full_name)')
-        .eq('organization_id', session.organizationId)
-        .order('report_date', { ascending: false })
-        .limit(10)
+    // Roster of recent reports (managers only)
+    const { data: recentReports } = isManager
+        ? await supabase
+            .from('daily_work_reports')
+            .select('id, employee_id, report_date, authenticity_status, commit_count, pr_count, org_employees(full_name)')
+            .eq('organization_id', session.organizationId)
+            .order('report_date', { ascending: false })
+            .limit(10)
+        : { data: [] }
 
     return (
         <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -101,7 +108,7 @@ export default async function DailyWorkPage({
                 <h1 className="text-2xl font-bold text-[#0a3b2a] flex items-center gap-2">
                     <CalendarClock className="h-6 w-6" /> Daily Work
                 </h1>
-                <WorkIntelligenceNav />
+                <WorkIntelligenceNav manager={isManager} />
             </div>
 
             <Card className="p-6 space-y-5">
@@ -115,7 +122,7 @@ export default async function DailyWorkPage({
                         </p>
                     </div>
                     <form method="GET" className="flex items-center gap-2">
-                        {params.employeeId && (
+                        {isManager && params.employeeId && (
                             <input type="hidden" name="employeeId" value={params.employeeId} />
                         )}
                         <input

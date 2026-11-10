@@ -41,6 +41,7 @@ export default async function TimelinePage({
     const supabase = await createClient()
     const adminSupabase = await createAdminClient()
     const isManager = isRoleAtLeast(session.role, 'manager')
+    if (!isManager) redirect('/dashboard/work-intelligence/git-activity')
 
     // Resolve target employee: query param (manager viewing someone) or self.
     let employeeId: string | undefined

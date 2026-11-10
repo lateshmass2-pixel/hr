@@ -47,7 +47,7 @@ export function PersonalDashboard() {
             {/* Welcome Header */}
             <PageHero
                 title="Welcome Back"
-                subtitle={`${currentUser.jobTitle} • ${pendingTasks} tasks pending in your queue`}
+                subtitle={`${currentUser.jobTitle || 'Core Engineering'} • ${pendingTasks} tasks pending in your queue`}
                 action={
                     <div className="flex items-center gap-3">
                         <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium border-none">

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { WorkIntelligenceNav } from '../nav'
 import { Sparkles, Bot } from 'lucide-react'
+import { isRoleAtLeast } from '@/lib/rbac/types'
 
 // =============================================================================
 // AI & Automation — /dashboard/work-intelligence/ai-automation
@@ -19,6 +20,7 @@ export default async function AiAutomationPage() {
     if (!session) redirect('/login')
 
     const supabase = await createClient()
+    if (!isRoleAtLeast(session.role, 'manager')) redirect('/dashboard/work-intelligence/git-activity')
 
     const [{ data: agentEvents }, { data: automationEvents }] = await Promise.all([
         supabase
